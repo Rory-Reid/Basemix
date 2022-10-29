@@ -1,24 +1,15 @@
 ﻿using Basemix.Db;
-using Microsoft.Extensions.Logging;
 
-namespace Basemix.UI;
-
-public partial class App : Application
+namespace Basemix.UI
 {
-    private readonly ILoggerFactory loggerFactory;
-
-    public App(ILoggerFactory loggerFactory)
+    public partial class App : Application
     {
-        this.loggerFactory = loggerFactory;
-        InitializeComponent();
+        public App(Migrator migrator)
+        {
+            InitializeComponent();
 
-        this.SetupDb();
-        MainPage = new AppShell();
-    }
-
-    private void SetupDb()
-    {
-        var migrator = new Migrator("0000.db", this.loggerFactory.CreateLogger<Migrator>());
-        migrator.Start();
+            MainPage = new MainPage();
+            migrator.Start();
+        }
     }
 }

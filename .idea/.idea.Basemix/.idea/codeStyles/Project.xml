@@ -6,6 +6,13 @@
       <option name="TYPE_CASE" value="2" />
       <option name="CUSTOM_TYPE_CASE" value="2" />
     </SqlCodeStyleSettings>
+    <codeStyleSettings language="HTML">
+      <indentOptions>
+        <option name="INDENT_SIZE" value="2" />
+        <option name="CONTINUATION_INDENT_SIZE" value="4" />
+        <option name="TAB_SIZE" value="2" />
+      </indentOptions>
+    </codeStyleSettings>
     <codeStyleSettings language="SQL">
       <indentOptions>
         <option name="INDENT_SIZE" value="2" />

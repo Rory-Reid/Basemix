@@ -1,18 +1,39 @@
-﻿namespace Basemix.UI;
+﻿using Basemix.Db;
+using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 
-public static class MauiProgram
+namespace Basemix.UI
 {
-    public static MauiApp CreateMauiApp()
+    public static class MauiProgram
     {
-        var builder = MauiApp.CreateBuilder();
-        builder
-            .UseMauiApp<App>()
-            .ConfigureFonts(fonts =>
-            {
-                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            });
+        public static MauiApp CreateMauiApp()
+        {
+            var builder = MauiApp.CreateBuilder();
+            builder
+                .UseMauiApp<App>()
+                .ConfigureFonts(fonts =>
+                {
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                });
 
-        return builder.Build();
+            builder.Services.AddMauiBlazorWebView();
+#if DEBUG
+            builder.Services.AddBlazorWebViewDeveloperTools();
+#endif
+            builder.Services.AddBasemix();
+            
+            return builder.Build();
+        }
+
+        public static void AddBasemix(this IServiceCollection services)
+        {
+            var docsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+            var basemixPath = Path.Combine(docsDirectory, "basemix");
+            Directory.CreateDirectory(basemixPath);
+            var dbPath = Path.Combine(basemixPath, "db.sqlite");
+            services.AddSingleton(s => new Migrator(dbPath, s.GetService<ILogger<Migrator>>()));
+            services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath}"));
+            services.AddSingleton<BreedersRepository>();
+        }
     }
 }
