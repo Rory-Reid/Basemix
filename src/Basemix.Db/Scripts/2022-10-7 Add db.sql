@@ -18,15 +18,15 @@ CREATE TABLE IF NOT EXISTS rat
   id                INTEGER NOT NULL PRIMARY KEY,
   name              TEXT    NOT NULL,
     
-  sex               TEXT    NOT NULL CHECK (sex IN ('doe', 'buck')),
+  sex               TEXT    NOT NULL CHECK (sex IN ('Doe', 'Buck')),
   date_of_birth     INTEGER NOT NULL,
   genotype          TEXT    NULL,
   variety           TEXT    NULL,
   
   notes             TEXT    NULL,
   birth_notes       TEXT    NULL,
-  type_score                NULL     CHECK (type_score IN ('excellent', 'good', 'average', 'poor')),
-  temperament_score         NULL     CHECK (temperament_score IN ('excellent', 'good', 'average', 'poor')),
+  type_score                NULL     CHECK (type_score IN ('Excellent', 'Good', 'Average', 'Poor')),
+  temperament_score         NULL     CHECK (temperament_score IN ('Excellent', 'Good', 'Average', 'Poor')),
   
   date_of_death     BIGINT  NULL,
   death_reason      TEXT    NULL,

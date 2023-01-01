@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using Basemix.Persistence;
+using Dapper;
 
 namespace Basemix;
 
@@ -63,7 +64,7 @@ public class PersistedBreeder
         new()
         {
             Name = breeder.Name,
-            Founded = breeder.Founded == null ? null : new DateTimeOffset(breeder.Founded.Value).ToUnixTimeSeconds(),
+            Founded = breeder.Founded?.AsPersistedDateTime(),
             Active = breeder.Active,
             Owned = breeder.Owned
         };
@@ -72,7 +73,7 @@ public class PersistedBreeder
         new Breeder()
         {
             Name = this.Name,
-            Founded = this.Founded == null ? null : DateTimeOffset.FromUnixTimeSeconds(this.Founded.Value).DateTime,
+            Founded = this.Founded?.AsDateTime(),
             Active = this.Active,
             Owned = this.Owned
         };

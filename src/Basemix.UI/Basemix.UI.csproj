@@ -11,12 +11,13 @@
         <SingleProject>true</SingleProject>
         <ImplicitUsings>enable</ImplicitUsings>
         <EnableDefaultCssItems>false</EnableDefaultCssItems>
+        <Nullable>enable</Nullable>
 
         <!-- Display name -->
-        <ApplicationTitle>Basemix.UI</ApplicationTitle>
+        <ApplicationTitle>Basemix</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.companyname.basemix.ui</ApplicationId>
+        <ApplicationId>com.roryreid.basemix</ApplicationId>
         <ApplicationIdGuid>E8E7BCB4-7427-4092-8E27-4A11A89521F2</ApplicationIdGuid>
 
         <!-- Versions -->

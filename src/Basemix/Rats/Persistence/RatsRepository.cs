@@ -1,12 +1,12 @@
 ﻿using Dapper;
 
-namespace Basemix;
+namespace Basemix.Rats.Persistence;
 
-public class RatRepository
+public class RatsRepository
 {
     private readonly GetDatabase getDatabase;
 
-    public RatRepository(GetDatabase getDatabase)
+    public RatsRepository(GetDatabase getDatabase)
     {
         this.getDatabase = getDatabase;
     }
@@ -19,23 +19,20 @@ public class RatRepository
             @"INSERT INTO rat (name, sex, date_of_birth)
                VALUES (@Name, @Sex, @DateOfBirth)
                RETURNING id",
-            new { Name = rat.Name, Sex = rat.Sex, DateOfBirth = rat.DateOfBirth });
+            new PersistedRat(rat));
     }
 
     public async Task<Rat> GetRat(long id)
     {
         using var db = this.getDatabase();
 
-        return await db.QuerySingleOrDefaultAsync<Rat>(
-            @"SELECT id, name, sex, date_of_birth FROM rat WHERE id=@Id",
+        var rat = await db.QuerySingleOrDefaultAsync<PersistedRat>(
+            @"SELECT
+                id, name, sex, date_of_birth, genotype, variety, notes, birth_notes, type_score,
+                temperament_score, date_of_death, death_reason
+            FROM rat WHERE id=@Id",
             new { Id = id });
-    }
-}
 
-public class Rat
-{
-    public string Name { get; init; } = null!;
-    public string Sex { get; init; } = null!;
-    public long DateOfBirth { get; init; }
-    public string Notes { get; set; } = null!;
+        return rat.AsModelledRat();
+    }
 }

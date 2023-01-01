@@ -1,0 +1,57 @@
+﻿@page "/add-rats"
+@using Microsoft.AspNetCore.Components
+@using Basemix.Rats
+@using Basemix.Rats.Persistence
+@inject RatsRepository Repository;
+
+<h1>Add a rat</h1>
+
+<form>
+    <div class="form-group">
+        <label for="nameInput">Name</label>
+        <input class="form-control" id="nameInput" placeholder="Otis" @bind="rat.Name"/>
+    </div>
+    <div class="form-group">
+        <label for="dateFoundedInput">Date of Birth</label>
+        <input class="form-control" type="date" id="dateFoundedInput" @bind="rat.DateOfBirth"/>
+    </div>
+    <div class="form-group">
+        <label for="sexInput">Sex</label>
+        <select id="sexInput" @bind="rat.Sex">
+            <option value="">-</option>
+            <option value="Buck">Buck</option>
+            <option value="Doe">Doe</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="notesInput">Notes</label>
+        <br />
+        <textarea class="full-textarea" wrap="hard" id="notesInput" rows="5" @bind="rat.Notes"></textarea>
+    </div>
+    <button @onclick="CreateNewRat">Create</button>
+</form>
+
+@code
+{
+    private RatForm rat { get; } = new();
+    
+    private class RatForm
+    {
+        public string? Name { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
+        public string? Sex { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    private async Task<bool> CreateNewRat()
+    {
+        if (string.IsNullOrEmpty(this.rat.Name) || this.rat.DateOfBirth == null || this.rat.Sex == null)
+        {
+            return false;
+        }
+
+        var sex = Enum.Parse<Sex>(this.rat.Sex);
+        await this.Repository.AddRat(new Rat(this.rat.Name, sex, this.rat.DateOfBirth.Value));
+        return true;
+    }
+}

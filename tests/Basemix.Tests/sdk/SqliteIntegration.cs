@@ -30,7 +30,7 @@ public class SqliteFixture
             File.Delete(this.Database);
         }
 
-        ProvisionDatabase();
+        this.ProvisionDatabase();
         DapperSetup.Configure();
     }
 

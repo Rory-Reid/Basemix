@@ -4,32 +4,31 @@
 <h1>My Rattery</h1>
 
 <form>
-  <div class="form-group">
-    <label for="ratteryNameInput">Rattery Name</label>
-    <input class="form-control" id="ratteryNameInput" placeholder="Awesome Breeder Bros" @bind="rattery.Name"/>
-  </div>
-  <div class="form-group">
-    <label for="dateFoundedInput">Date founded</label>
-    <input class="form-control" type="date" id="dateFoundedInput" @bind="rattery.Founded"/>
-  </div>
-  <div class="form-group">
-    <label for="currentlyBreedingInput">Currently Breeding</label>
-    <input type="checkbox" id="currentlyBreedingInput" @bind="rattery.Active"/>
-  </div>
-  <button @onclick="SaveBreeder">Save</button>
+    <div class="form-group">
+        <label for="ratteryNameInput">Rattery Name</label>
+        <input class="form-control" id="ratteryNameInput" placeholder="Awesome Breeder Bros" @bind="rattery.Name"/>
+    </div>
+    <div class="form-group">
+        <label for="dateFoundedInput">Date founded</label>
+        <input class="form-control" type="date" id="dateFoundedInput" @bind="rattery.Founded"/>
+    </div>
+    <div class="form-group">
+        <label for="currentlyBreedingInput">Currently Breeding</label>
+        <input type="checkbox" id="currentlyBreedingInput" @bind="rattery.Active"/>
+    </div>
+    <button @onclick="SaveBreeder">Save</button>
 </form>
 
 @code
 {
-  private Breeder rattery;
-  protected override async Task OnInitializedAsync()
-  {
-    this.rattery = await this.breedersRepository.GetMyBreeder();
-    this.rattery ??= new Breeder() { Owned = true };
-  }
+    private Breeder rattery = new() { Owned = true };
+    protected override async Task OnInitializedAsync()
+    {
+        this.rattery = await this.breedersRepository.GetMyBreeder() ?? this.rattery;
+    }
 
-  public Task SaveBreeder()
-  {
-    return breedersRepository.SetMyBreeder(this.rattery);
-  }
+    private Task SaveBreeder()
+    {
+        return breedersRepository.SetMyBreeder(this.rattery);
+    }
 }

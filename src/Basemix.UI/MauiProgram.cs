@@ -1,4 +1,5 @@
 ﻿using Basemix.Db;
+using Basemix.Rats.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
@@ -27,13 +28,17 @@ namespace Basemix.UI
 
         public static void AddBasemix(this IServiceCollection services)
         {
+            DapperSetup.Configure();
+
             var docsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             var basemixPath = Path.Combine(docsDirectory, "basemix");
             Directory.CreateDirectory(basemixPath);
             var dbPath = Path.Combine(basemixPath, "db.sqlite");
+            
             services.AddSingleton(s => new Migrator(dbPath, s.GetService<ILogger<Migrator>>()));
             services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath}"));
             services.AddSingleton<BreedersRepository>();
+            services.AddSingleton<RatsRepository>();
         }
     }
 }
