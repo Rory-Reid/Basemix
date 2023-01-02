@@ -5,18 +5,21 @@
 
 <form>
     <div class="form-group">
-        <label for="ratteryNameInput">Rattery Name</label>
-        <input class="form-control" id="ratteryNameInput" placeholder="Awesome Breeder Bros" @bind="rattery.Name"/>
+        <label for="ratteryNameInput">Rattery Name*</label>
+        <input class="form-control" id="ratteryNameInput" required @bind="rattery.Name"/>
     </div>
+    <br />
     <div class="form-group">
         <label for="dateFoundedInput">Date founded</label>
         <input class="form-control" type="date" id="dateFoundedInput" @bind="rattery.Founded"/>
     </div>
+    <br />
     <div class="form-group">
+        <input type="checkbox" id="currentlyBreedingInput" required @bind="rattery.Active"/>
         <label for="currentlyBreedingInput">Currently Breeding</label>
-        <input type="checkbox" id="currentlyBreedingInput" @bind="rattery.Active"/>
     </div>
-    <button @onclick="SaveBreeder">Save</button>
+    <br />
+    <button class="btn btn-primary" @onclick="SaveBreeder">Save</button>
 </form>
 
 @code
