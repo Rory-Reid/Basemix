@@ -45,6 +45,9 @@ public class RatIdentity
         }
     }
 
+    public static implicit operator long(RatIdentity id) => id.Value;
+    public static implicit operator RatIdentity(long id) => new(id);
+
     public static RatIdentity Anonymous => new();
 }
 

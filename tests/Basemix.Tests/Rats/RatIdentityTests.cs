@@ -38,4 +38,22 @@ public class RatIdentityTests
         var getAnonymousValue = new Action(() => { var _ = anonymous.Value; });
         getAnonymousValue.ShouldThrow<NoIdentityException>();
     }
+
+    [Fact]
+    public void Implicit_operator_allows_conversion_from_long()
+    {
+        var expectedId = this.faker.Id();
+        RatIdentity id = expectedId;
+        id.Value.ShouldBe(expectedId);
+    }
+
+    [Fact]
+    public void Implicit_operator_allows_conversion_to_long()
+    {
+        var expectedId = this.faker.Id();
+        var id = new RatIdentity(expectedId);
+        long implicitlyConvertedId = id;
+        
+        implicitlyConvertedId.ShouldBe(expectedId);
+    }
 }

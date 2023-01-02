@@ -1,0 +1,37 @@
+@page "/rats"
+@using Basemix.Rats.Persistence
+@using Basemix.Rats
+@inject RatsRepository Repository;
+
+<h1>Rats</h1>
+
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Sex</th>
+        <th scope="col">DoB</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var rat in this.rats)
+    {
+        <tr>
+            <th scope="row">@rat.Id.Value</th>
+            <td>@rat.Name</td>
+            <td>@rat.Sex</td>
+            <td>@rat.DateOfBirth</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+    List<Rat> rats = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        this.rats = await this.Repository.GetAll();
+    }
+}

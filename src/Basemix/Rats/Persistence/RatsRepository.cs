@@ -35,4 +35,18 @@ public class RatsRepository
 
         return rat.AsModelledRat();
     }
+
+    public async Task<List<Rat>> GetAll()
+    {
+        using var db = this.getDatabase();
+
+        var rat = await db.QueryAsync<PersistedRat>(
+            @"SELECT
+                id, name, sex, date_of_birth, genotype, variety, notes, birth_notes, type_score,
+                temperament_score, date_of_death, death_reason
+            FROM rat
+            ORDER BY date_of_birth DESC");
+
+        return rat.Select(x => x.AsModelledRat()).ToList();
+    }
 }
