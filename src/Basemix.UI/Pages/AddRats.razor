@@ -8,32 +8,35 @@
 
 <form>
     <div class="form-group">
-        <label for="nameInput">Name</label>
-        <input class="form-control" id="nameInput" placeholder="Otis" @bind="rat.Name"/>
+        <label for="nameInput">Name*</label>
+        <input required class="form-control" id="nameInput" @bind="rat.Name"/>
     </div>
+    <br />
     <div class="form-group">
-        <label for="dateFoundedInput">Date of Birth</label>
-        <input class="form-control" type="date" id="dateFoundedInput" @bind="rat.DateOfBirth"/>
+        <label for="dateOfBirthInput">Date of Birth*</label>
+        <input required class="form-control" type="date" id="dateOfBirthInput" @bind="rat.DateOfBirth"/>
     </div>
+    <br />
     <div class="form-group">
-        <label for="sexInput">Sex</label>
-        <select id="sexInput" @bind="rat.Sex">
+        <label for="sexInput">Sex*</label>
+        <select required id="sexInput" @bind="rat.Sex">
             <option value="">-</option>
             <option value="Buck">Buck</option>
             <option value="Doe">Doe</option>
         </select>
     </div>
+    <br />
     <div class="form-group">
         <label for="notesInput">Notes</label>
         <br />
         <textarea class="full-textarea" wrap="hard" id="notesInput" rows="5" @bind="rat.Notes"></textarea>
     </div>
-    <button @onclick="CreateNewRat">Create</button>
+    <button class="btn btn-primary" @onclick="CreateNewRat">Create</button>
 </form>
 
 @code
 {
-    private RatForm rat { get; } = new();
+    private readonly RatForm rat = new();
     
     private class RatForm
     {
@@ -43,15 +46,14 @@
         public string? Notes { get; set; }
     }
 
-    private async Task<bool> CreateNewRat()
+    private async Task CreateNewRat()
     {
         if (string.IsNullOrEmpty(this.rat.Name) || this.rat.DateOfBirth == null || this.rat.Sex == null)
         {
-            return false;
+            return;
         }
 
         var sex = Enum.Parse<Sex>(this.rat.Sex);
         await this.Repository.AddRat(new Rat(this.rat.Name, sex, this.rat.DateOfBirth.Value));
-        return true;
     }
 }
