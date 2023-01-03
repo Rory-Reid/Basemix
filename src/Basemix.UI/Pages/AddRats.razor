@@ -37,7 +37,7 @@
 @code
 {
     private readonly RatForm rat = new();
-    
+
     private class RatForm
     {
         public string? Name { get; set; }
@@ -48,12 +48,11 @@
 
     private async Task CreateNewRat()
     {
-        if (string.IsNullOrEmpty(this.rat.Name) || this.rat.DateOfBirth == null || this.rat.Sex == null)
+        if (string.IsNullOrEmpty(this.rat.Name) || this.rat.DateOfBirth == null || !Enum.TryParse<Sex>(this.rat.Sex, out var sex) || sex == Sex.Error)
         {
             return;
         }
 
-        var sex = Enum.Parse<Sex>(this.rat.Sex);
         await this.Repository.AddRat(new Rat(this.rat.Name, sex, this.rat.DateOfBirth.Value));
     }
 }
