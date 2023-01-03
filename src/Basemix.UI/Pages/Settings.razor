@@ -1,0 +1,29 @@
+@page "/settings"
+@using Basemix.Db
+@using System.IO
+@inject GetDatabasePath GetDatabasePath;
+@inject Migrator Migrator;
+
+<h3>Settings</h3>
+
+Database location: @dbPath
+<br />
+<button class="btn btn-danger" @onclick="RecreateDatabase">Delete and re-create database</button>
+
+@code
+{
+    private string dbPath = "ERROR";
+    protected override void OnInitialized()
+    {
+        this.dbPath = GetDatabasePath();
+    }
+
+    public void RecreateDatabase()
+    {
+        Console.WriteLine("Deleting");
+        File.Delete(dbPath);
+        Console.WriteLine("Deleted");
+        this.Migrator.Start();
+        Console.WriteLine("Migrating");
+    }
+}

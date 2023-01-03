@@ -34,8 +34,9 @@ namespace Basemix.UI
             var basemixPath = Path.Combine(docsDirectory, "basemix");
             Directory.CreateDirectory(basemixPath);
             var dbPath = Path.Combine(basemixPath, "db.sqlite");
-            
-            services.AddSingleton(s => new Migrator(dbPath, s.GetService<ILogger<Migrator>>()));
+
+            services.AddSingleton<GetDatabasePath>(() => dbPath);
+            services.AddSingleton(s => new Migrator(dbPath, s.GetRequiredService<ILogger<Migrator>>()));
             services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath}"));
             services.AddSingleton<BreedersRepository>();
             services.AddSingleton<RatsRepository>();
