@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS rat
   
   notes             TEXT    NULL,
   birth_notes       TEXT    NULL,
+  birth_weight      INTEGER NULL,
   type_score                NULL     CHECK (type_score IN ('Excellent', 'Good', 'Average', 'Poor')),
   temperament_score         NULL     CHECK (temperament_score IN ('Excellent', 'Good', 'Average', 'Poor')),
   
