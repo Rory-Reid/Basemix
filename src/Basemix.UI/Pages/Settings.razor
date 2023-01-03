@@ -4,15 +4,40 @@
 @inject GetDatabasePath GetDatabasePath;
 @inject Migrator Migrator;
 
-<h3>Settings</h3>
+<h1>Settings</h1>
 
-Database location: @dbPath
+<p>
+    Database location:
+    <br />
+    @dbPath
+</p>
+<hr />
+<h2>Danger zone</h2>
+
+<p>
+    The buttons and options in this section will perform irreversible changes to your data. Please make sure you've
+    backed up your database, or at the very least have made peace with whatever will happen as a result of these actions.
+</p>
+
+<input type="checkbox" @bind="dangerZoneEnabled" id="dangerCheckbox"/>
+<label for="dangerCheckbox">I know what I'm doing</label>
 <br />
-<button class="btn btn-danger" @onclick="RecreateDatabase">Delete and re-create database</button>
+<br />
+<button class="btn btn-danger" @onclick="RecreateDatabase" disabled="@(!dangerZoneEnabled)">Delete and re-create database</button>
+@if (this.dbDeleted)
+{
+    <p>
+        <strong>Please restart basemix.</strong> The database has been deleted but anything basemix has already loaded
+        from it will remain in memory until restarted - sorry.
+    </p>
+}
 
 @code
 {
+    private bool dangerZoneEnabled = false;
     private string dbPath = "ERROR";
+    private bool dbDeleted = false;
+    
     protected override void OnInitialized()
     {
         this.dbPath = GetDatabasePath();
@@ -20,10 +45,13 @@ Database location: @dbPath
 
     public void RecreateDatabase()
     {
-        Console.WriteLine("Deleting");
+        if (!File.Exists(dbPath) || !this.dangerZoneEnabled)
+        {
+            return;
+        }
+        
         File.Delete(dbPath);
-        Console.WriteLine("Deleted");
         this.Migrator.Start();
-        Console.WriteLine("Migrating");
+        this.dbDeleted = true;
     }
 }
