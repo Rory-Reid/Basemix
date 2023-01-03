@@ -32,4 +32,10 @@ public class TypeExtensionsTests
         var date = new DateOnly(2022, 12, 31);
         date.AsPersistedDateTime().ShouldBe(1672444800L);
     }
+
+    [Fact]
+    public void DateOnly_conversion_works_for_BST_date()
+    {
+        new DateOnly(2022, 07, 30).AsPersistedDateTime().AsDateOnly().ShouldBe(new DateOnly(2022, 07, 30));
+    }
 }
