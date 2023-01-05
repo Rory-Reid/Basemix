@@ -16,8 +16,8 @@ public class RatsRepository
         using var db = this.getDatabase();
 
         return await db.ExecuteScalarAsync<long>(
-            @"INSERT INTO rat (name, sex, date_of_birth)
-               VALUES (@Name, @Sex, @DateOfBirth)
+            @"INSERT INTO rat (name, sex, date_of_birth, notes)
+               VALUES (@Name, @Sex, @DateOfBirth, @Notes)
                RETURNING id",
             new PersistedRat(rat));
     }

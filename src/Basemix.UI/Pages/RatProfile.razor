@@ -1,0 +1,37 @@
+@page "/rats/{Id:long}"
+@using Basemix.Rats.Persistence
+@using Basemix.Rats
+@inject RatsRepository Repository;
+
+<h1>@rat.Name</h1>
+
+<p>
+    Dob: @rat.DateOfBirth
+</p>
+<p>
+    Sex: @rat.Sex
+</p>
+@if (!string.IsNullOrEmpty(rat.Notes))
+{
+    <p>
+        Additional Notes:
+        @foreach (var line in rat.Notes.Split("\n"))
+        {
+            <br />
+            @line
+        }
+    </p>
+}
+
+@code {
+    private Rat rat;
+
+    [Parameter]
+    public long Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.rat = await this.Repository.GetRat(Id);
+    }
+
+}

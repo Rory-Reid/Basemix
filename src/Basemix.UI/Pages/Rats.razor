@@ -2,10 +2,11 @@
 @using Basemix.Rats.Persistence
 @using Basemix.Rats
 @inject RatsRepository Repository;
+@inject NavigationManager Nav;
 
 <h1>Rats</h1>
 
-<table class="table">
+<table class="table table-hover">
     <thead>
     <tr>
         <th scope="col">Id</th>
@@ -17,7 +18,7 @@
     <tbody>
     @foreach (var rat in this.rats)
     {
-        <tr>
+        <tr @onclick="@(() => this.OpenRatProfile(rat.Id))">
             <th scope="row">@rat.Id.Value</th>
             <td>@rat.Name</td>
             <td>@rat.Sex</td>
@@ -33,5 +34,10 @@
     protected override async Task OnInitializedAsync()
     {
         this.rats = await this.Repository.GetAll();
+    }
+
+    private void OpenRatProfile(long ratId)
+    {
+        this.Nav.NavigateTo($"/rats/{ratId}");
     }
 }
