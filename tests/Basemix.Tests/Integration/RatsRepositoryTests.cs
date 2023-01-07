@@ -8,11 +8,11 @@ namespace Basemix.Tests.Integration;
 public class RatRepositoryTests : SqliteIntegration
 {
     private readonly Faker faker = new();
-    private readonly RatsRepository repository;
+    private readonly SqliteRatsRepository repository;
 
     public RatRepositoryTests(SqliteFixture fixture) : base(fixture)
     {
-        this.repository = new RatsRepository(fixture.GetConnection);
+        this.repository = new SqliteRatsRepository(fixture.GetConnection);
     }
     
     [Fact]

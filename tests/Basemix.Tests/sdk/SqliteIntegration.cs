@@ -36,10 +36,10 @@ public class SqliteFixture
         this.ProvisionDatabase();
         DapperSetup.Configure();
 
-        this.RatsRepository = new RatsRepository(this.GetConnection);
+        this.RatsRepository = new SqliteRatsRepository(this.GetConnection);
     }
 
-    public RatsRepository RatsRepository { get; }
+    public SqliteRatsRepository RatsRepository { get; }
     
     private void ProvisionDatabase()
     {

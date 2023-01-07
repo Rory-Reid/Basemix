@@ -1,4 +1,3 @@
-using System.Threading.Channels;
 using Basemix.Identity;
 using Basemix.Litters.Persistence;
 using Basemix.Rats;
@@ -7,7 +6,7 @@ namespace Basemix.Litters;
 
 public class Litter
 {
-    private List<Offspring> offspring;
+    private readonly List<Offspring> offspring;
 
     public Litter(LitterIdentity? identity = null,
         (RatIdentity Id, string Name)? dam = null,
@@ -40,25 +39,29 @@ public class Litter
     public DateOnly? DateOfBirth { get; private set; }
     public IReadOnlyList<Offspring> Offspring => this.offspring;
 
-    public async Task<LitterAddResult> SetDam(LittersRepository litterRepository, Rat rat)
+    public async Task<LitterAddResult> SetDam(ILittersRepository litterRepository, Rat rat)
     {
         if (rat.Sex != Sex.Doe)
         {
             return LitterAddResult.WrongSex;
         }
 
-        // Save
+        this.DamId = rat.Id;
+        this.DamName = rat.Name;
+        await litterRepository.UpdateLitter(this);
         return LitterAddResult.Success;
     }
 
-    public async Task<LitterAddResult> SetSire(LittersRepository litterRepository, Rat rat)
+    public async Task<LitterAddResult> SetSire(ILittersRepository litterRepository, Rat rat)
     {
         if (rat.Sex != Sex.Buck)
         {
             return LitterAddResult.WrongSex;
         }
 
-        // Save
+        this.SireId = rat.Id;
+        this.SireName = rat.Name;
+        await litterRepository.UpdateLitter(this);
         return LitterAddResult.Success;
     }
 }
@@ -100,8 +103,34 @@ public class LitterIdentity
         }
     }
 
+    public override bool Equals(object? obj)
+    {
+        if (obj is LitterIdentity id)
+        {
+            return this.Value == id.Value;
+        }
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return this.idValue.GetHashCode();
+    }
+
     public static implicit operator long(LitterIdentity id) => id.Value;
     public static implicit operator LitterIdentity(long id) => new(id);
+    public static implicit operator long?(LitterIdentity? id) => id?.Value;
+    public static implicit operator LitterIdentity?(long? id) => id == null ? null : new(id.Value);
+    public static bool operator ==(LitterIdentity? lhs, LitterIdentity? rhs) => 
+        (lhs is null || rhs is null)
+            ? lhs is null && rhs is null
+            : lhs.Equals(rhs);
+    
+    public static bool operator !=(LitterIdentity? lhs, LitterIdentity? rhs) => 
+        (lhs is null || rhs is null)
+            ? !(lhs is null && rhs is null)
+            : !lhs.Equals(rhs);
 
     public static LitterIdentity Anonymous => new();
 }

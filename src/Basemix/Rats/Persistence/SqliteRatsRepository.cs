@@ -2,11 +2,11 @@
 
 namespace Basemix.Rats.Persistence;
 
-public class RatsRepository
+public class SqliteRatsRepository : IRatsRepository
 {
     private readonly GetDatabase getDatabase;
 
-    public RatsRepository(GetDatabase getDatabase)
+    public SqliteRatsRepository(GetDatabase getDatabase)
     {
         this.getDatabase = getDatabase;
     }

@@ -1,7 +1,7 @@
 @page "/rats/{Id:long}"
 @using Basemix.Rats.Persistence
 @using Basemix.Rats
-@inject RatsRepository Repository;
+@inject SqliteRatsRepository Repository;
 @inject IJSRuntime JsRuntime;
 
 <h1>@rat.Name</h1>

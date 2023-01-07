@@ -24,7 +24,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Add_litter_creates_new_record()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
         
         using var db = this.fixture.GetConnection();
         var litter = await db.QuerySingleAsync<LitterRow>(
@@ -42,7 +42,7 @@ public class LittersRepositoryTests : SqliteIntegration
     {
         var rat = this.faker.Rat(sex: Sex.Doe);
         var ratId = await this.fixture.Seed(rat);
-        var id = await this.repository.AddLitter(damId: ratId);
+        var id = await this.repository.CreateLitter(damId: ratId);
         
         using var db = this.fixture.GetConnection();
         var litter = await db.QuerySingleAsync<LitterRow>(
@@ -60,7 +60,7 @@ public class LittersRepositoryTests : SqliteIntegration
     {
         var rat = this.faker.Rat(sex: Sex.Buck);
         var ratId = await this.fixture.Seed(rat);
-        var id = await this.repository.AddLitter(sireId: ratId);
+        var id = await this.repository.CreateLitter(sireId: ratId);
         
         using var db = this.fixture.GetConnection();
         var litter = await db.QuerySingleAsync<LitterRow>(
@@ -80,7 +80,7 @@ public class LittersRepositoryTests : SqliteIntegration
         var damId = await this.fixture.Seed(dam);
         var sire = this.faker.Rat(sex: Sex.Buck);
         var sireId = await this.fixture.Seed(sire);
-        var id = await this.repository.AddLitter(damId: damId, sireId: sireId);
+        var id = await this.repository.CreateLitter(damId: damId, sireId: sireId);
         
         using var db = this.fixture.GetConnection();
         var litter = await db.QuerySingleAsync<LitterRow>(
@@ -96,7 +96,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Update_litter_updates()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
 
         var dam = this.faker.Rat(sex: Sex.Doe);
         var sire = this.faker.Rat(sex: Sex.Buck);
@@ -121,7 +121,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Add_offspring_adds_successfully()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
 
         var rat = this.faker.Rat();
         var ratId = await this.fixture.Seed(rat);
@@ -139,7 +139,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Add_offspring_adds_only_once()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
 
         var rat = this.faker.Rat();
         var ratId = await this.fixture.Seed(rat);
@@ -168,7 +168,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Add_offspring_returns_error_for_nonexistant_rat()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
 
         var result = await this.repository.AddOffspring(id, long.MaxValue);
         
@@ -178,7 +178,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Remove_offspring_removes()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
 
         var rat = this.faker.Rat();
         var ratId = await this.fixture.Seed(rat);
@@ -196,7 +196,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Remove_offspring_succeeds_if_link_does_not_exist()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
         var ratId = await this.fixture.Seed(this.faker.Rat());
 
         await this.repository.RemoveOffspring(id, ratId);
@@ -211,7 +211,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Delete_litter_deletes()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
         await this.repository.AddOffspring(id, await this.fixture.Seed(this.faker.Rat()));
         await this.repository.AddOffspring(id, await this.fixture.Seed(this.faker.Rat()));
         
@@ -230,7 +230,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Get_litter_gets_litter_details_and_parents()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
 
         var dam = this.faker.Rat(sex: Sex.Doe);
         var sire = this.faker.Rat(sex: Sex.Buck);
@@ -248,7 +248,7 @@ public class LittersRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Get_litter_gets_litter_offspring()
     {
-        var id = await this.repository.AddLitter();
+        var id = await this.repository.CreateLitter();
         
         var rat1 = this.faker.Rat();
         var rat2 = this.faker.Rat();

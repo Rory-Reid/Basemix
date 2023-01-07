@@ -45,6 +45,6 @@ CREATE TABLE IF NOT EXISTS litter_kin
     litter_id    INTEGER NOT NULL,
     offspring_id INTEGER NOT NULL,
     CONSTRAINT fk_litter    FOREIGN KEY (litter_id)    REFERENCES litter(id) ON DELETE CASCADE,
-    CONSTRAINT fk_offspring FOREIGN KEY (offspring_id) REFERENCES rat(id) ON DELETE CASCADE,
+    CONSTRAINT fk_offspring FOREIGN KEY (offspring_id) REFERENCES rat(id)    ON DELETE CASCADE,
     UNIQUE (litter_id, offspring_id)
 )

@@ -47,10 +47,34 @@ public class RatIdentity
         }
     }
 
+    public override bool Equals(object? obj)
+    {
+        if (obj is RatIdentity id)
+        {
+            return this.Value == id.Value;
+        }
+
+        return false;
+    }
+
+    public override int GetHashCode()
+    {
+        return this.idValue.GetHashCode();
+    }
+
     public static implicit operator long(RatIdentity id) => id.Value;
     public static implicit operator RatIdentity(long id) => new(id);
     public static implicit operator long?(RatIdentity? id) => id?.Value;
     public static implicit operator RatIdentity?(long? id) => id == null ? null : new(id.Value);
+    public static bool operator ==(RatIdentity? lhs, RatIdentity? rhs) => 
+        (lhs is null || rhs is null)
+        ? lhs is null && rhs is null
+        : lhs.Equals(rhs);
+    
+    public static bool operator !=(RatIdentity? lhs, RatIdentity? rhs) => 
+        (lhs is null || rhs is null)
+            ? !(lhs is null && rhs is null)
+            : !lhs.Equals(rhs);
 
     public static RatIdentity Anonymous => new();
 }

@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Basemix.Litters.Persistence;
 
-public class LittersRepository
+public class LittersRepository : ILittersRepository
 {
     private readonly GetDatabase getDatabase;
 
@@ -14,7 +14,7 @@ public class LittersRepository
         this.getDatabase = getDatabase;
     }
 
-    public async Task<Litter> GetLitter(long id)
+    public async Task<Litter?> GetLitter(long id)
     {
         using var db = this.getDatabase();
 
@@ -33,13 +33,18 @@ public class LittersRepository
             WHERE litter_kin.litter_id=@Id",
             new { Id = id });
 
-        var litter = await reader.ReadSingleAsync<LitterReadModel>();
+        var litter = await reader.ReadSingleOrDefaultAsync<LitterReadModel?>();
+        if (litter == null)
+        {
+            return null;
+        }
+        
         var offspring = await reader.ReadAsync<LitterOffspringReadModel>();
 
         return litter.ToModelledLitter(offspring);
     }
     
-    public Task<long> AddLitter(RatIdentity? damId = null, RatIdentity? sireId = null)
+    public Task<long> CreateLitter(RatIdentity? damId = null, RatIdentity? sireId = null)
     {
         using var db = this.getDatabase();
 
@@ -103,15 +108,10 @@ public class LittersRepository
         return db.ExecuteAsync("DELETE FROM litter WHERE id=@Id", new {Id = id.Value});
     }
 }
+
 public enum AddOffspringResult
 {
     Error = default,
     Success,
     NonExistantRatOrLitter,
-}
-
-public enum RemoveOffspringResult
-{
-    Error = default,
-    Success
 }

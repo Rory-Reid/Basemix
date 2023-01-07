@@ -71,4 +71,16 @@ public class LitterIdentityTests
         long? id = (LitterIdentity?) null;
         id.ShouldBeNull();
     }
+    
+    [Fact]
+    public void Litter_ids_are_equal()
+    {
+        var value = this.faker.Id();
+        var id1 = new LitterIdentity(value);
+        var id2 = new LitterIdentity(value);
+        
+        id1.GetHashCode().ShouldBe(id2.GetHashCode());
+        id1.Equals(id2).ShouldBeTrue();
+        (id1 == id2).ShouldBeTrue();
+    }
 }

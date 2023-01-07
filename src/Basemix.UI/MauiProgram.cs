@@ -39,7 +39,7 @@ namespace Basemix.UI
             services.AddSingleton(s => new Migrator(dbPath, s.GetRequiredService<ILogger<Migrator>>()));
             services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath}"));
             services.AddSingleton<BreedersRepository>();
-            services.AddSingleton<RatsRepository>();
+            services.AddSingleton<SqliteRatsRepository>();
         }
     }
 }

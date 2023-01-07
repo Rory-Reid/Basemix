@@ -71,4 +71,16 @@ public class RatIdentityTests
         long? id = (RatIdentity?) null;
         id.ShouldBeNull();
     }
+
+    [Fact]
+    public void Rat_ids_are_equal()
+    {
+        var value = this.faker.Id();
+        var id1 = new RatIdentity(value);
+        var id2 = new RatIdentity(value);
+        
+        id1.GetHashCode().ShouldBe(id2.GetHashCode());
+        id1.Equals(id2).ShouldBeTrue();
+        (id1 == id2).ShouldBeTrue();
+    }
 }
