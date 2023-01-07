@@ -1,3 +1,5 @@
+using Basemix.Identity;
+
 namespace Basemix.Rats;
 
 public class Rat
@@ -47,20 +49,8 @@ public class RatIdentity
 
     public static implicit operator long(RatIdentity id) => id.Value;
     public static implicit operator RatIdentity(long id) => new(id);
+    public static implicit operator long?(RatIdentity? id) => id?.Value;
+    public static implicit operator RatIdentity?(long? id) => id == null ? null : new(id.Value);
 
     public static RatIdentity Anonymous => new();
-}
-
-public class InvalidIdentityException : Exception
-{
-    public InvalidIdentityException(string message) : base(message)
-    {
-    }
-}
-
-public class NoIdentityException : Exception
-{
-    public NoIdentityException(string message) : base(message)
-    {
-    }
 }

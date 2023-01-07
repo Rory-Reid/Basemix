@@ -2,8 +2,11 @@
 @using Basemix.Rats.Persistence
 @using Basemix.Rats
 @inject RatsRepository Repository;
+@inject IJSRuntime JsRuntime;
 
 <h1>@rat.Name</h1>
+
+<button class="btn btn-secondary" @onclick="GoBack">&lt; Back</button>
 
 <p>
     Dob: @rat.DateOfBirth
@@ -23,8 +26,74 @@
     </p>
 }
 
+<h2>Litters</h2>
+
+<button class="btn btn-primary" @onclick="NewLitter">Create litter</button>
+
+@if (this.showLitterPopup)
+{
+    <!-- This is the popup to create or edit a forecast -->
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Edit litter</h3>
+                    <!-- Button to close the popup -->
+                    <button type="button" class="close"
+                    @onclick="@(() => this.showLitterPopup = false)">
+                        <span class="oi oi-x" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <!-- Edit form for the current forecast -->
+                <div class="modal-body">
+                    @if (string.IsNullOrEmpty(this.litter.SireName))
+                    {
+                        <button>Add sire</button>
+                    }
+                    else
+                    {
+                        <p>
+                            Sire: @this.litter.SireName
+                        </p>
+                    }
+                    
+                    @if (string.IsNullOrEmpty(this.litter.DamName))
+                    {
+                        <button>Add dam</button>
+                    }
+                    else
+                    {
+                        <p>
+                            Dam: @this.litter.DamName
+                        </p>
+                    }
+                    
+                    <form>
+                        <div class="form-group">
+                            <label for="dateOfBirthInput">Date of Birth*</label>
+                            <input required class="form-control" type="date" id="dateOfBirthInput" @bind="this.litter.DateOfBirth"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="notesInput">Notes</label>
+                            <br />
+                            <textarea class="full-textarea" wrap="hard" id="notesInput" rows="5" @bind="rat.Notes"></textarea>
+                        </div>
+                    </form>
+
+                    <button class="btn btn-primary">Add rat</button>
+                    <button class="btn btn-success">
+                        Save
+                    </button>&nbsp;
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private Rat rat;
+    private bool showLitterPopup;
+    private LitterForm litter;
 
     [Parameter]
     public long Id { get; set; }
@@ -34,4 +103,34 @@
         this.rat = await this.Repository.GetRat(Id);
     }
 
+    private async Task GoBack()
+    {
+        await this.JsRuntime.InvokeAsync<object>("history.back");
+    }
+
+    private void NewLitter()
+    {
+        this.showLitterPopup = true;
+        this.litter = new();
+        if (this.rat.Sex == Sex.Buck)
+        {
+            this.litter.SireId = this.rat.Id;
+            this.litter.SireName = this.rat.Name;
+        }
+        else
+        {
+            this.litter.DamId = this.rat.Id;
+            this.litter.DamName = this.rat.Name;
+        }
+    }
+
+    public class LitterForm
+    {
+        public DateOnly DateOfBirth { get; set; }
+        public string Notes { get; set; }
+        public long SireId { get; set; }
+        public string SireName { get; set; }
+        public long DamId { get; set; }
+        public string DamName { get; set; }
+    }
 }

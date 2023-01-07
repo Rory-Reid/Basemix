@@ -64,7 +64,7 @@ public class PersistedBreeder
         new()
         {
             Name = breeder.Name,
-            Founded = breeder.Founded?.AsPersistedDateTime(),
+            Founded = breeder.Founded?.ToPersistedDateTime(),
             Active = breeder.Active,
             Owned = breeder.Owned
         };
@@ -73,7 +73,7 @@ public class PersistedBreeder
         new Breeder()
         {
             Name = this.Name,
-            Founded = this.Founded?.AsDateTime(),
+            Founded = this.Founded?.ToDateTime(),
             Active = this.Active,
             Owned = this.Owned
         };

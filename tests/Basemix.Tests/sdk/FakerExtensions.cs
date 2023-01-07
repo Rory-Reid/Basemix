@@ -14,19 +14,19 @@ public static class FakerExtensions
     public static T PickNonDefault<T>(this Faker faker) where T : struct, Enum =>
         faker.PickRandom(Enum.GetValues<T>().Except(new [] {default(T)}));
 
-    public static Rat Rat(this Faker faker)
+    public static Rat Rat(this Faker faker, Sex? sex = null)
     {
-        var sex = faker.PickNonDefault<Sex>();
-        var name = sex switch
+        var ratSex = sex ?? faker.PickNonDefault<Sex>();
+        var name = ratSex switch
         {
             Sex.Buck => faker.Name.FirstName(Name.Gender.Male),
             Sex.Doe => faker.Name.FirstName(Name.Gender.Female),
             _ => throw new ArgumentOutOfRangeException()
         };
-        
-        return new(name, sex, faker.Date.PastDateOnly(1))
+
+        return new(name, ratSex, faker.Date.PastDateOnly(1))
         {
-            Notes = faker.Lorem.Paragraphs()
+            Notes = faker.PickRandom(null, faker.Lorem.Paragraphs())
         };
     }
 }

@@ -9,7 +9,7 @@ public record PersistedRat
     {
         this.Name = rat.Name;
         this.Sex = rat.Sex.ToString();
-        this.DateOfBirth = rat.DateOfBirth.AsPersistedDateTime();
+        this.DateOfBirth = rat.DateOfBirth.ToPersistedDateTime();
         this.Notes = rat.Notes;
     }
     
@@ -26,10 +26,10 @@ public record PersistedRat
     public long? DateOfDeath { get; init; }
     public string? DeathReason { get; init; }
 
-    public Rat AsModelledRat()
+    public Rat ToModelledRat()
     {
         var id = this.Id.HasValue ? new RatIdentity(this.Id.Value) : RatIdentity.Anonymous;
-        return new Rat(this.Name, Enum.Parse<Sex>(this.Sex), this.DateOfBirth.AsDateOnly(), id)
+        return new Rat(this.Name, Enum.Parse<Sex>(this.Sex), this.DateOfBirth.ToDateOnly(), id)
         {
             Notes = this.Notes
         };

@@ -23,7 +23,7 @@ public class RatRepositoryTests : SqliteIntegration
         var id = await this.repository.AddRat(rat);
         var storedRat = await this.repository.GetRat(id);
         
-        storedRat.ShouldSatisfyAllConditions(
+        storedRat.ShouldNotBeNull().ShouldSatisfyAllConditions(
             () => storedRat.Id.Value.ShouldBe(id),
             () => storedRat.Name.ShouldBe(rat.Name),
             () => storedRat.DateOfBirth.ShouldBe(rat.DateOfBirth),
@@ -44,5 +44,12 @@ public class RatRepositoryTests : SqliteIntegration
         {
             allRats.Any(x => x.Id == id).ShouldBeTrue();
         }
+    }
+
+    [Fact]
+    public async Task Returns_null_when_rat_not_found()
+    {
+        var rat = await this.repository.GetRat(long.MaxValue);
+        rat.ShouldBeNull();
     }
 }

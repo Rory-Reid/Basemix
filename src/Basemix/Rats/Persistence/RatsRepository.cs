@@ -22,18 +22,17 @@ public class RatsRepository
             new PersistedRat(rat));
     }
 
-    public async Task<Rat> GetRat(long id)
+    public async Task<Rat?> GetRat(long id)
     {
         using var db = this.getDatabase();
 
         var rat = await db.QuerySingleOrDefaultAsync<PersistedRat>(
             @"SELECT
-                id, name, sex, date_of_birth, genotype, variety, notes, birth_notes, type_score,
-                temperament_score, date_of_death, death_reason
+                id, name, sex, date_of_birth, notes
             FROM rat WHERE id=@Id",
             new { Id = id });
 
-        return rat.AsModelledRat();
+        return rat?.ToModelledRat();
     }
 
     public async Task<List<Rat>> GetAll()
@@ -42,11 +41,10 @@ public class RatsRepository
 
         var rat = await db.QueryAsync<PersistedRat>(
             @"SELECT
-                id, name, sex, date_of_birth, genotype, variety, notes, birth_notes, type_score,
-                temperament_score, date_of_death, death_reason
+                id, name, sex, date_of_birth, notes
             FROM rat
             ORDER BY date_of_birth DESC");
 
-        return rat.Select(x => x.AsModelledRat()).ToList();
+        return rat.Select(x => x.ToModelledRat()).ToList();
     }
 }

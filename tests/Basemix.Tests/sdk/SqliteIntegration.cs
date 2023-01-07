@@ -1,5 +1,8 @@
 using System.Data;
+using System.Runtime.CompilerServices;
 using Basemix.Db;
+using Basemix.Rats.Persistence;
+using Bogus;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -32,8 +35,12 @@ public class SqliteFixture
 
         this.ProvisionDatabase();
         DapperSetup.Configure();
+
+        this.RatsRepository = new RatsRepository(this.GetConnection);
     }
 
+    public RatsRepository RatsRepository { get; }
+    
     private void ProvisionDatabase()
     {
         var db = new Migrator(this.Database, NullLogger<Migrator>.Instance);
