@@ -4,6 +4,7 @@ namespace Basemix.Rats;
 
 public class Rat
 {
+    // TODO - follow pattern of litters - allow stubbing in db and filling in details later
     public Rat(string name, Sex sex, DateOnly dateOfBirth, RatIdentity? id = null)
     {
         this.Name = name;

@@ -93,13 +93,17 @@ public class LittersRepository : ILittersRepository
         return AddOffspringResult.Success;
     }
 
-    public Task RemoveOffspring(LitterIdentity id, RatIdentity ratId)
+    public async Task<RemoveOffspringResult> RemoveOffspring(LitterIdentity id, RatIdentity ratId)
     {
         using var db = this.getDatabase();
         
-        return db.ExecuteAsync(
+        var rowsAffected = await db.ExecuteAsync(
             @"DELETE FROM litter_kin WHERE litter_id=@LitterId AND offspring_id=@OffspringId",
             new {LitterId = id.Value, OffspringId = ratId.Value});
+
+        return rowsAffected != 0
+            ? RemoveOffspringResult.Success
+            : RemoveOffspringResult.NothingToRemove;
     }
     
     public Task DeleteLitter(LitterIdentity id)
@@ -114,4 +118,11 @@ public enum AddOffspringResult
     Error = default,
     Success,
     NonExistantRatOrLitter,
+}
+
+public enum RemoveOffspringResult
+{
+    Error = default,
+    Success,
+    NothingToRemove
 }

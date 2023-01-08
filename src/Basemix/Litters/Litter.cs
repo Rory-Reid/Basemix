@@ -1,6 +1,7 @@
 using Basemix.Identity;
 using Basemix.Litters.Persistence;
 using Basemix.Rats;
+using Basemix.Rats.Persistence;
 
 namespace Basemix.Litters;
 
@@ -36,10 +37,10 @@ public class Litter
     public RatIdentity? SireId { get; private set; }
     public string? DamName { get; private set; }
     public string? SireName { get; private set; }
-    public DateOnly? DateOfBirth { get; private set; }
+    public DateOnly? DateOfBirth { get; set; }
     public IReadOnlyList<Offspring> Offspring => this.offspring;
 
-    public async Task<LitterAddResult> SetDam(ILittersRepository litterRepository, Rat rat)
+    public async Task<LitterAddResult> SetDam(ILittersRepository repository, Rat rat)
     {
         if (rat.Sex != Sex.Doe)
         {
@@ -48,11 +49,11 @@ public class Litter
 
         this.DamId = rat.Id;
         this.DamName = rat.Name;
-        await litterRepository.UpdateLitter(this);
+        await repository.UpdateLitter(this);
         return LitterAddResult.Success;
     }
 
-    public async Task<LitterAddResult> SetSire(ILittersRepository litterRepository, Rat rat)
+    public async Task<LitterAddResult> SetSire(ILittersRepository repository, Rat rat)
     {
         if (rat.Sex != Sex.Buck)
         {
@@ -61,8 +62,67 @@ public class Litter
 
         this.SireId = rat.Id;
         this.SireName = rat.Name;
-        await litterRepository.UpdateLitter(this);
+        await repository.UpdateLitter(this);
         return LitterAddResult.Success;
+    }
+
+    public async Task AddOffspring(ILittersRepository repository, Rat rat)
+    {
+        var result = await repository.AddOffspring(this.Id, rat.Id);
+        if (result == AddOffspringResult.Success)
+        {
+            this.offspring.Add(new Offspring(rat.Id, rat.Name));
+        }
+    }
+
+    public async Task RemoveOffspring(ILittersRepository repository, Rat rat)
+    {
+        var result = await repository.RemoveOffspring(this.Id, rat.Id);
+        if (result == RemoveOffspringResult.Success)
+        {
+            this.offspring.RemoveAll(x => x.Id == rat.Id);
+        }
+    }
+
+    public async Task<CreateMultipleResult> CreateMultipleOffspring(ILittersRepository littersRepository, IRatsRepository ratsRepository,
+        int amount)
+    {
+        // TODO - write tests once rats are fixed
+        if (this.DamId == null)
+        {
+            return CreateMultipleResult.NoDam;
+        }
+
+        if (this.SireId == null)
+        {
+            return CreateMultipleResult.NoSire;
+        }
+
+        if (this.DateOfBirth == null)
+        {
+            return CreateMultipleResult.NoDateOfBirth;
+        }
+        
+        var count = this.Offspring.Count;
+        for (var i = 0; i < amount; i++)
+        {
+            // Todo - should be transactional
+            var rat = new Rat($"{this.DamName} & {this.SireName}'s offspring ({count + i})", Sex.Buck, // TODO allow null sex
+                this.DateOfBirth!.Value);
+            var id = await ratsRepository.AddRat(rat);
+            
+            await this.AddOffspring(littersRepository, new Rat(rat.Name, rat.Sex, rat.DateOfBirth, id)); // TODO make it so we don't have to recreate rat with ID
+        }
+
+        return CreateMultipleResult.Success;
+    }
+
+    public Task Save(ILittersRepository repository) => repository.UpdateLitter(this);
+
+    public static async Task<Litter> Create(ILittersRepository repository)
+    {
+        var id = await repository.CreateLitter();
+        return new Litter(id);
     }
 }
 
@@ -73,6 +133,15 @@ public enum LitterAddResult
     Error = default,
     Success,
     WrongSex
+}
+
+public enum CreateMultipleResult
+{
+    Error = default,
+    Success,
+    NoDam,
+    NoSire,
+    NoDateOfBirth
 }
 
 public class LitterIdentity

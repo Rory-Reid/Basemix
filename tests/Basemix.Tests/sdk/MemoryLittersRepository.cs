@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Basemix.Litters;
 using Basemix.Litters.Persistence;
 using Basemix.Rats;
@@ -19,7 +20,7 @@ public class MemoryLittersRepository : ILittersRepository
     public Task<Litter?> GetLitter(long id)
     {
         return this.Litters.TryGetValue(id, out var litter)
-            ? Task.FromResult(litter.AsNullable())
+            ? Task.FromResult(CopyOf(litter, this.UpdateNames(litter.Offspring)).AsNullable())
             : Task.FromResult((Litter?)null);
     }
 
@@ -58,7 +59,7 @@ public class MemoryLittersRepository : ILittersRepository
     {
         if (this.Litters.ContainsKey(litter.Id))
         {
-            this.Litters[litter.Id] = litter;
+            this.Litters[litter.Id] = CopyOf(litter);
         }
         else
         {
@@ -83,18 +84,20 @@ public class MemoryLittersRepository : ILittersRepository
         return Task.FromResult(AddOffspringResult.NonExistantRatOrLitter);
     }
 
-    public Task RemoveOffspring(LitterIdentity id, RatIdentity ratId)
+    public Task<RemoveOffspringResult> RemoveOffspring(LitterIdentity id, RatIdentity ratId)
     {
         var litter = this.Litters[id];
         var rat = litter.Offspring.SingleOrDefault(x => x.Id == ratId);
-        if (rat != null)
+        if (rat == null)
         {
-            var offspring = litter.Offspring.ToList();
-            offspring.Remove(rat);
-            this.Litters[id] = CopyOf(litter, offspring);
+            return Task.FromResult(RemoveOffspringResult.NothingToRemove);
         }
+        
+        var offspring = litter.Offspring.ToList();
+        offspring.Remove(rat);
+        this.Litters[id] = CopyOf(litter, offspring);
+        return Task.FromResult(RemoveOffspringResult.Success);
 
-        return Task.CompletedTask;
     }
 
     public Task DeleteLitter(LitterIdentity id)
@@ -102,7 +105,10 @@ public class MemoryLittersRepository : ILittersRepository
         this.Litters.Remove(id);
         return Task.CompletedTask;
     }
-
+    
+    private List<Offspring> UpdateNames(IEnumerable<Offspring> offspring) =>
+        offspring.Select(x => x with {Name = this.backplane.Rats[x.Id].Name}).ToList();
+    
     private static Litter CopyOf(Litter litter, List<Offspring>? newOffspring = null) =>
         new(
             litter.Id,
@@ -114,5 +120,4 @@ public class MemoryLittersRepository : ILittersRepository
                 : (litter.SireId, litter.SireName!),
             litter.DateOfBirth,
             newOffspring ?? litter.Offspring.ToList());
-
 }

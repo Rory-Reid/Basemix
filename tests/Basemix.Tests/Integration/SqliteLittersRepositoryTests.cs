@@ -184,8 +184,9 @@ public class LittersRepositoryTests : SqliteIntegration
         var ratId = await this.fixture.Seed(rat);
         await this.repository.AddOffspring(id, ratId);
 
-        await this.repository.RemoveOffspring(id, ratId);
-
+        var result = await this.repository.RemoveOffspring(id, ratId);
+        result.ShouldBe(RemoveOffspringResult.Success);
+        
         using var db = this.fixture.GetConnection();
         var litterKin = await db.QueryAsync<LitterKinRow>(
             @"SELECT * FROM litter_kin WHERE litter_id=@Id", new {Id=id});
@@ -199,7 +200,8 @@ public class LittersRepositoryTests : SqliteIntegration
         var id = await this.repository.CreateLitter();
         var ratId = await this.fixture.Seed(this.faker.Rat());
 
-        await this.repository.RemoveOffspring(id, ratId);
+        var result = await this.repository.RemoveOffspring(id, ratId);
+        result.ShouldBe(RemoveOffspringResult.NothingToRemove);
         
         using var db = this.fixture.GetConnection();
         var litterKin = await db.QueryAsync<LitterKinRow>(

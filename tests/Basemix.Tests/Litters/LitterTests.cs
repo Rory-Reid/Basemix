@@ -35,6 +35,16 @@ public class LitterTests
     }
 
     [Fact]
+    public async Task Create_saves_and_returns_litter_with_id()
+    {
+        var litter = await Litter.Create(this.littersRepository);
+        
+        litter.Id.Value.ShouldBePositive();
+        
+        this.littersRepository.Litters.ShouldContainKey(litter.Id);
+    }
+
+    [Fact]
     public async Task Set_dam_updates_local_and_stored_litter_with_valid_dam()
     {
         var litter = await this.CreateLitter();
@@ -150,6 +160,87 @@ public class LitterTests
             storedLitter => storedLitter.SireName.ShouldBeNull());
     }
 
-    private async Task<Litter> CreateLitter() =>
-        (await this.littersRepository.GetLitter(await this.littersRepository.CreateLitter()))!;
+    [Fact]
+    public async Task Add_offspring_stores_in_litter()
+    {
+        var litter = await this.CreateLitter();
+
+        var rat = await this.ratsRepository.Seed(this.faker.Rat());
+        await litter.AddOffspring(this.littersRepository, rat);
+        
+        litter.Offspring.ShouldContain(x => x.Id == rat.Id && x.Name == rat.Name);
+    }
+
+    [Fact]
+    public async Task Add_offspring_stores_in_repository()
+    {
+        var litter = await this.CreateLitter();
+
+        var rat = await this.ratsRepository.Seed(this.faker.Rat());
+        await litter.AddOffspring(this.littersRepository, rat);
+        
+        this.littersRepository.Litters[litter.Id].Offspring.ShouldContain(x => x.Id == rat.Id && x.Name == rat.Name);
+    }
+
+    [Fact]
+    public async Task Add_offspring_with_unsaved_rat_does_not_add()
+    {
+        var litter = await this.CreateLitter();
+
+        await litter.AddOffspring(this.littersRepository, this.faker.Rat());
+        
+        litter.Offspring.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Remove_offspring_removes_from_litter()
+    {
+        var litter = await this.CreateLitter();
+        var rat = await this.ratsRepository.Seed(this.faker.Rat());
+        await litter.AddOffspring(this.littersRepository, rat);
+
+        await litter.RemoveOffspring(this.littersRepository, rat);
+        
+        litter.Offspring.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Remove_offspring_removes_from_repository()
+    {
+        var litter = await this.CreateLitter();
+        var rat = await this.ratsRepository.Seed(this.faker.Rat());
+        await litter.AddOffspring(this.littersRepository, rat);
+
+        await litter.RemoveOffspring(this.littersRepository, rat);
+        
+        this.littersRepository.Litters[litter.Id].Offspring.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task Remove_offspring_with_rat_not_in_litter_does_nothing_and_does_not_error()
+    {
+        var litter = await this.CreateLitter();
+        var rat = await this.ratsRepository.Seed(this.faker.Rat());
+        await litter.AddOffspring(this.littersRepository, rat);
+
+        var otherRat = await this.ratsRepository.Seed(this.faker.Rat());
+        await litter.RemoveOffspring(this.littersRepository, otherRat);
+
+        litter.Offspring.ShouldHaveSingleItem();
+    }
+    
+    [Fact]
+    public async Task Setting_date_of_birth_only_persists_on_save()
+    {
+        var litter = await this.CreateLitter();
+        litter.DateOfBirth = this.faker.Date.PastDateOnly();
+        
+        (await this.littersRepository.GetLitter(litter.Id))!.DateOfBirth.ShouldNotBe(litter.DateOfBirth);
+
+        await litter.Save(this.littersRepository);
+        
+        (await this.littersRepository.GetLitter(litter.Id))!.DateOfBirth.ShouldBe(litter.DateOfBirth);
+    }
+
+    private async Task<Litter> CreateLitter() => await Litter.Create(this.littersRepository);
 }
