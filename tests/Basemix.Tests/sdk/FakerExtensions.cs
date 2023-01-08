@@ -24,7 +24,7 @@ public static class FakerExtensions
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        return new(name, ratSex, faker.Date.PastDateOnly(1))
+        return new(name: name, sex: ratSex, dateOfBirth: faker.Date.PastDateOnly(1))
         {
             Notes = faker.PickRandom(null, faker.Lorem.Paragraphs())
         };

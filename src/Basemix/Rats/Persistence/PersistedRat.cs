@@ -7,16 +7,17 @@ public record PersistedRat
     public PersistedRat() {}
     public PersistedRat(Rat rat)
     {
+        this.Id = rat.Id.IsAnonymous ? null : rat.Id;
         this.Name = rat.Name;
-        this.Sex = rat.Sex.ToString();
-        this.DateOfBirth = rat.DateOfBirth.ToPersistedDateTime();
+        this.Sex = rat.Sex?.ToString();
+        this.DateOfBirth = rat.DateOfBirth?.ToPersistedDateTime();
         this.Notes = rat.Notes;
     }
     
     public long? Id { get; init; }
-    public string Name { get; init; } = null!;
-    public string Sex { get; init; } = null!;
-    public long DateOfBirth { get; init; }
+    public string? Name { get; init; }
+    public string? Sex { get; init; }
+    public long? DateOfBirth { get; init; }
     public string? Genotype { get; init; }
     public string? Variety { get; init; }
     public string? Notes { get; init; }
@@ -29,7 +30,9 @@ public record PersistedRat
     public Rat ToModelledRat()
     {
         var id = this.Id.HasValue ? new RatIdentity(this.Id.Value) : RatIdentity.Anonymous;
-        return new Rat(this.Name, Enum.Parse<Sex>(this.Sex), this.DateOfBirth.ToDateOnly(), id)
+        Sex? sex = !string.IsNullOrEmpty(this.Sex) ? Enum.Parse<Sex>(this.Sex) : null;
+        var dateOfBirth = this.DateOfBirth?.ToDateOnly();
+        return new Rat(id, this.Name, sex, dateOfBirth)
         {
             Notes = this.Notes
         };

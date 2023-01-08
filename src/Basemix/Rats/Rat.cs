@@ -1,23 +1,34 @@
 using Basemix.Identity;
+using Basemix.Rats.Persistence;
 
 namespace Basemix.Rats;
 
 public class Rat
 {
-    // TODO - follow pattern of litters - allow stubbing in db and filling in details later
-    public Rat(string name, Sex sex, DateOnly dateOfBirth, RatIdentity? id = null)
+    public Rat(RatIdentity? id = null,
+        string? name = null,
+        Sex? sex = null,
+        DateOnly? dateOfBirth = null)
     {
+        this.Id = id ?? RatIdentity.Anonymous;
         this.Name = name;
         this.Sex = sex;
         this.DateOfBirth = dateOfBirth;
-        this.Id = id ?? RatIdentity.Anonymous;
     }
     
-    public RatIdentity Id { get; init; }
-    public string Name { get; set; }
-    public Sex Sex { get; set; }
-    public DateOnly DateOfBirth { get; set; }
+    public RatIdentity Id { get; }
+    public string? Name { get; set; }
+    public Sex? Sex { get; set; }
+    public DateOnly? DateOfBirth { get; set; }
     public string? Notes { get; set; }
+
+    public Task Save(IRatsRepository repository) => repository.UpdateRat(this);
+    
+    public static async Task<Rat> Create(IRatsRepository repository)
+    {
+        var id = await repository.CreateRat();
+        return new Rat(id);
+    }
 }
 
 public class RatIdentity
@@ -47,6 +58,8 @@ public class RatIdentity
             return this.idValue.Value;
         }
     }
+
+    public bool IsAnonymous => this.idValue == null;
 
     public override bool Equals(object? obj)
     {

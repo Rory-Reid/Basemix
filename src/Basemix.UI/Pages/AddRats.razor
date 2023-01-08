@@ -53,7 +53,7 @@
             return;
         }
 
-        await this.Repository.AddRat(new Rat(this.rat.Name, sex, this.rat.DateOfBirth.Value)
+        await this.Repository.AddRat(new Rat(name: this.rat.Name, sex: sex, dateOfBirth: this.rat.DateOfBirth.Value)
         {
             Notes = this.rat.Notes
         });

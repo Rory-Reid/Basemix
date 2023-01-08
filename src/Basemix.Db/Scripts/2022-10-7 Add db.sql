@@ -10,10 +10,10 @@ CREATE TABLE IF NOT EXISTS breeder
 CREATE TABLE IF NOT EXISTS rat
 (
     id                INTEGER NOT NULL PRIMARY KEY,
-    name              TEXT    NOT NULL,
+    name              TEXT    NULL,
       
-    sex               TEXT    NOT NULL CHECK (sex IN ('Doe', 'Buck')),
-    date_of_birth     INTEGER NOT NULL,
+    sex               TEXT    NULL CHECK (sex IN ('Doe', 'Buck')),
+    date_of_birth     INTEGER NULL,
   --   genotype          TEXT    NULL,
   --   variety           TEXT    NULL,
     

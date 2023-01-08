@@ -107,11 +107,12 @@ public class Litter
         for (var i = 0; i < amount; i++)
         {
             // Todo - should be transactional
-            var rat = new Rat($"{this.DamName} & {this.SireName}'s offspring ({count + i})", Sex.Buck, // TODO allow null sex
-                this.DateOfBirth!.Value);
-            var id = await ratsRepository.AddRat(rat);
-            
-            await this.AddOffspring(littersRepository, new Rat(rat.Name, rat.Sex, rat.DateOfBirth, id)); // TODO make it so we don't have to recreate rat with ID
+            var rat = await Rat.Create(ratsRepository);
+            rat.Name = $"{this.DamName} & {this.SireName}'s offspring ({count + i})";
+            rat.DateOfBirth = this.DateOfBirth;
+            await rat.Save(ratsRepository);
+
+            await this.AddOffspring(littersRepository, rat);
         }
 
         return CreateMultipleResult.Success;

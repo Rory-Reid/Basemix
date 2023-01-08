@@ -1,6 +1,9 @@
+using Basemix.Persistence;
+using Basemix.Rats;
 using Basemix.Rats.Persistence;
 using Basemix.Tests.sdk;
 using Bogus;
+using Dapper;
 using Shouldly;
 
 namespace Basemix.Tests.Integration;
@@ -8,10 +11,12 @@ namespace Basemix.Tests.Integration;
 public class RatRepositoryTests : SqliteIntegration
 {
     private readonly Faker faker = new();
+    private readonly SqliteFixture fixture;
     private readonly SqliteRatsRepository repository;
 
     public RatRepositoryTests(SqliteFixture fixture) : base(fixture)
     {
+        this.fixture = fixture;
         this.repository = new SqliteRatsRepository(fixture.GetConnection);
     }
     
@@ -52,4 +57,51 @@ public class RatRepositoryTests : SqliteIntegration
         var rat = await this.repository.GetRat(long.MaxValue);
         rat.ShouldBeNull();
     }
+
+    [Fact]
+    public async Task Create_rat_creates_rat_with_only_id()
+    {
+        var id = await this.repository.CreateRat();
+
+        using var db = this.fixture.GetConnection();
+        var rat = await db.QuerySingleAsync<RatRow>(
+            @"SELECT * FROM rat WHERE id=@Id", new {Id = id});
+        
+        rat.ShouldSatisfyAllConditions(
+            () => rat.id.ShouldBe(id),
+            () => rat.name.ShouldBeNull(),
+            () => rat.date_of_birth.ShouldBeNull(),
+            () => rat.sex.ShouldBeNull(),
+            () => rat.notes.ShouldBeNull());
+    }
+
+    [Fact]
+    public async Task Update_rat_updates()
+    {
+        var id = await this.repository.CreateRat();
+        var rat = new Rat(id,
+            this.faker.Person.FirstName,
+            this.faker.PickNonDefault<Sex>(),
+            this.faker.Date.PastDateOnly())
+        {
+            Notes = this.faker.Lorem.Paragraphs()
+        };
+
+        await this.repository.UpdateRat(rat);
+        
+        using var db = this.fixture.GetConnection();
+        var storedRat = await db.QuerySingleAsync<RatRow>(
+            @"SELECT * FROM rat WHERE id=@Id", new {Id = id});
+        
+        storedRat.ShouldSatisfyAllConditions(
+            () => storedRat.id.ShouldBe(id),
+            () => storedRat.name.ShouldBe(rat.Name),
+            () => storedRat.date_of_birth!.ShouldBe(rat.DateOfBirth?.ToPersistedDateTime()),
+            () => storedRat.sex.ShouldBe(rat.Sex.ToString()),
+            () => storedRat.notes.ShouldBe(rat.Notes));
+    }
+
+    // ReSharper disable InconsistentNaming
+    private record RatRow(long id, string? name, string? sex, long? date_of_birth, string? notes);
+    // ReSharper restore InconsistentNaming
 }

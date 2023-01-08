@@ -11,6 +11,14 @@ public class SqliteRatsRepository : IRatsRepository
         this.getDatabase = getDatabase;
     }
 
+    public async Task<long> CreateRat()
+    {
+        using var db = this.getDatabase();
+        
+        return await db.ExecuteScalarAsync<long>(
+            @"INSERT INTO rat DEFAULT VALUES RETURNING id");
+    }
+    
     public async Task<long> AddRat(Rat rat)
     {
         using var db = this.getDatabase();
@@ -22,6 +30,21 @@ public class SqliteRatsRepository : IRatsRepository
             new PersistedRat(rat));
     }
 
+    public Task UpdateRat(Rat rat)
+    {
+        using var db = this.getDatabase();
+
+        return db.ExecuteAsync(
+            @"UPDATE rat
+            SET
+                name=@Name,
+                sex=@Sex,
+                date_of_birth=@DateOfBirth,
+                notes=@Notes
+            WHERE id=@Id",
+            new PersistedRat(rat));
+    }
+    
     public async Task<Rat?> GetRat(long id)
     {
         using var db = this.getDatabase();
