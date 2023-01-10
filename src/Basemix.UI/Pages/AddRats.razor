@@ -3,6 +3,9 @@
 @using Basemix.Rats
 @using Basemix.Rats.Persistence
 @inject SqliteRatsRepository Repository;
+@inject IJSRuntime JsRuntime;
+
+<button class="btn btn-secondary" @onclick="GoBack">&lt; Back</button>
 
 <h1>Add a rat</h1>
 
@@ -44,6 +47,11 @@
         public DateOnly? DateOfBirth { get; set; }
         public string? Sex { get; set; }
         public string? Notes { get; set; }
+    }
+
+    private async Task GoBack()
+    {
+        await this.JsRuntime.InvokeAsync<object>("history.back");
     }
 
     private async Task CreateNewRat()

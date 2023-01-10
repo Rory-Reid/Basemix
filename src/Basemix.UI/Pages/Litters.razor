@@ -1,0 +1,68 @@
+@page "/litters"
+@using Basemix.Litters.Persistence
+@using Basemix.Litters
+@inject ILittersRepository Repository;
+@inject NavigationManager Nav;
+@inject IJSRuntime JsRuntime;
+
+<div class="d-flex justify-content-between">
+    <button class="btn btn-secondary" @onclick="GoBack">
+        <span class="oi oi-arrow-left"></span> Back
+    </button>
+    <button class="btn btn-primary" @onclick="CreateLitter">
+        <span class="oi oi-plus"></span> Create
+    </button>
+</div>
+
+<hr/>
+
+<h1>Litters</h1>
+
+<p>Click any litter to view details.</p>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th scope="col">DoB</th>
+        <th scope="col">Dam</th>
+        <th scope="col">Sire</th>
+        <th scope="col"># of rats</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var litter in this.litters)
+    {
+        <tr @onclick="@(() => this.OpenLitterProfile(litter.Id))">
+            <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
+            <td>@(litter.Dam ?? "-")</td>
+            <td>@(litter.Sire ?? "-")</td>
+            <td>@litter.OffspringCount</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code {
+    List<LitterOverview> litters = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        this.litters = await this.Repository.GetAll();
+    }
+
+    private void OpenLitterProfile(long litterId)
+    {
+        this.Nav.NavigateTo($"/litters/{litterId}");
+    }
+    
+    private async Task GoBack()
+    {
+        await this.JsRuntime.InvokeAsync<object>("history.back");
+    }
+
+    private async Task CreateLitter()
+    {
+        var litter = await Litter.Create(this.Repository);
+        this.Nav.NavigateTo($"/litters/{litter.Id.Value}/edit");
+    }
+}

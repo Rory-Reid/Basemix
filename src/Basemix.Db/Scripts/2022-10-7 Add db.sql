@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS breeder
 (
     id      INTEGER NOT NULL PRIMARY KEY,
-    name    TEXT    NOT NULL,
+    name    TEXT    NULL,
     founded INTEGER NULL,
     active  BOOLEAN NOT NULL DEFAULT(0),
     owned   BOOLEAN NOT NULL DEFAULT(0)
@@ -47,4 +47,21 @@ CREATE TABLE IF NOT EXISTS litter_kin
     CONSTRAINT fk_litter    FOREIGN KEY (litter_id)    REFERENCES litter(id) ON DELETE CASCADE,
     CONSTRAINT fk_offspring FOREIGN KEY (offspring_id) REFERENCES rat(id)    ON DELETE CASCADE,
     UNIQUE (litter_id, offspring_id)
-)
+);
+
+CREATE VIRTUAL TABLE IF NOT EXISTS rat_search USING fts5
+(
+    id,
+    name,
+    content=rat
+);
+
+CREATE TRIGGER IF NOT EXISTS rat_search_insert AFTER INSERT ON rat
+BEGIN
+    INSERT INTO rat_search (id, name) VALUES (new.id, new.name);
+END;
+
+CREATE TRIGGER IF NOT EXISTS rat_search_delete AFTER DELETE ON rat
+BEGIN
+    DELETE FROM rat_search WHERE id=old.id;
+END;

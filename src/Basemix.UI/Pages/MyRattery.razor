@@ -1,5 +1,17 @@
 ﻿@page "/my-rattery"
 @inject BreedersRepository breedersRepository
+@inject IJSRuntime JsRuntime;
+
+<div class="d-flex justify-content-between">
+    <button class="btn btn-secondary" @onclick="GoBack">
+        <span class="oi oi-arrow-left"></span> Back
+    </button>
+    <button class="btn btn-success">
+        <span class="oi oi-check" @onclick="SaveBreeder"></span> Save
+    </button>
+</div>
+
+<hr/>
 
 <h1>My Rattery</h1>
 
@@ -18,8 +30,6 @@
         <input type="checkbox" id="currentlyBreedingInput" required @bind="rattery.Active"/>
         <label for="currentlyBreedingInput">Currently Breeding</label>
     </div>
-    <br />
-    <button class="btn btn-primary" @onclick="SaveBreeder">Save</button>
 </form>
 
 @code
@@ -33,5 +43,10 @@
     private Task SaveBreeder()
     {
         return breedersRepository.SetMyBreeder(this.rattery);
+    }
+
+    private async Task GoBack()
+    {
+        await this.JsRuntime.InvokeAsync<object>("history.back");
     }
 }

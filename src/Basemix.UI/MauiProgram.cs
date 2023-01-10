@@ -1,4 +1,5 @@
 ﻿using Basemix.Db;
+using Basemix.Litters.Persistence;
 using Basemix.Rats.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
@@ -40,6 +41,12 @@ namespace Basemix.UI
             services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath}"));
             services.AddSingleton<BreedersRepository>();
             services.AddSingleton<SqliteRatsRepository>();
+            services.AddSingleton<IRatsRepository>(s => s.GetRequiredService<SqliteRatsRepository>());
+            services.AddSingleton<ILittersRepository, SqliteLittersRepository>();
+            
+            // UI Nonsense
+            services.AddSingleton<JsInteropExports>();
+            services.AddSingleton<HistoryBack>(s => s.GetRequiredService<JsInteropExports>().HistoryBack);
         }
     }
 }

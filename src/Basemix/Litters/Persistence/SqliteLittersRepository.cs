@@ -5,11 +5,11 @@ using Microsoft.Data.Sqlite;
 
 namespace Basemix.Litters.Persistence;
 
-public class LittersRepository : ILittersRepository
+public class SqliteLittersRepository : ILittersRepository
 {
     private readonly GetDatabase getDatabase;
 
-    public LittersRepository(GetDatabase getDatabase)
+    public SqliteLittersRepository(GetDatabase getDatabase)
     {
         this.getDatabase = getDatabase;
     }
@@ -42,6 +42,25 @@ public class LittersRepository : ILittersRepository
         var offspring = await reader.ReadAsync<LitterOffspringReadModel>();
 
         return litter.ToModelledLitter(offspring);
+    }
+    
+    public async Task<List<LitterOverview>> GetAll()
+    {
+        using var db = this.getDatabase();
+
+        var litters = await db.QueryAsync<PersistedLitterOverview>(
+            @"SELECT
+                litter.id,
+                litter.date_of_birth,
+                sire.name AS sire,
+                dam.name AS dam,
+                (SELECT COUNT(offspring_id) FROM litter_kin WHERE litter_id=litter.id) AS offspring_count
+            FROM litter
+            LEFT JOIN rat sire on sire.id=litter.sire_id
+            LEFT JOIN rat dam on dam.id=litter.dam_id
+            ORDER BY litter.date_of_birth DESC");
+
+        return litters.Select(x => x.ToModelledOverview()).ToList();
     }
     
     public Task<long> CreateLitter(RatIdentity? damId = null, RatIdentity? sireId = null)

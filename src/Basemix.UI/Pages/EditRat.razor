@@ -1,0 +1,180 @@
+@page "/rats/{Id:long}/edit"
+@using Basemix.Rats.Persistence
+@using Basemix.Rats
+@using Basemix.Litters
+@using Basemix.Litters.Persistence
+@inject SqliteRatsRepository Repository;
+@inject ILittersRepository LittersRepository;
+@inject IJSRuntime JsRuntime;
+@inject NavigationManager Nav;
+
+<div class="d-flex justify-content-between">
+    <button class="btn btn-secondary" @onclick="GoBack">
+        <span class="oi oi-arrow-left"></span> Back
+    </button>
+    <button class="btn btn-success" @onclick="SaveAndGoBack">
+        <span class="oi oi-check"></span> Save
+    </button>
+</div>
+
+<hr/>
+
+<h1>Editing @ratForm.Name</h1>
+
+<dl class="row">
+    <dt class="col-sm-2">Name</dt>
+    <dd class="col-sm-9">
+        <input required class="form-control" @bind="ratForm.Name"/>
+    </dd>
+    
+    <dt class="col-sm-2">Date of Birth</dt>
+    <dd class="col-sm-9">
+        <input required class="form-control" type="date" id="dateOfBirthInput" @bind="ratForm.DateOfBirth"/>
+    </dd>
+    
+    <dt class="col-sm-2">Sex</dt>
+    <dd class="col-sm-9">
+        <select required id="sexInput" @bind="ratForm.Sex">
+            <option value="">-</option>
+            <option value="Buck">Buck</option>
+            <option value="Doe">Doe</option>
+        </select>
+    </dd>
+    
+    <dt class="col-sm-2">Notes</dt>
+    <dd class="col-sm-9">
+        <textarea style="box-sizing: border-box;width: 100%" wrap="hard" id="notesInput" rows="5" @bind="ratForm.Notes"></textarea>
+    </dd>
+</dl>
+
+<h2>Litters</h2>
+
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th scope="col">DoB</th>
+        <th scope="col">
+            @(rat.Sex switch
+            {
+                Sex.Buck => "Dam",
+                Sex.Doe => "Sire",
+                _ => "Paired with"
+            })
+        </th>
+        <th scope="col"># of rats</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var litter in this.rat.Litters)
+    {
+        <tr>
+            <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
+            <td>@(litter.PairedWith ?? "-")</td>
+            <td>@litter.OffspringCount</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<button class="btn btn-primary" @onclick="NewLitter" disabled="@DisableCreateLitter">
+    <span class="oi oi-plus"></span> Create litter
+</button>
+
+<hr/>
+
+<div class="d-flex justify-content-between">
+    <button class="btn btn-danger" @onclick="DeleteRat">
+        <span class="oi oi-delete"></span> Delete
+    </button>
+    
+    <button class="btn btn-success" @onclick="SaveAndGoBack">
+        <span class="oi oi-check"></span> Save
+    </button>
+</div>
+
+@code {
+    private Rat rat;
+    private RatForm ratForm;
+
+    private class RatForm
+    {
+        public string? Name { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
+        public string? Sex { get; set; }
+        public string? Notes { get; set; }
+    }
+    
+    [Parameter]
+    public long Id { get; set; }
+
+    public bool DisableCreateLitter => !this.CanAddLitter();
+
+    protected override async Task OnInitializedAsync()
+    {
+        this.rat = (await this.Repository.GetRat(Id))!;
+        this.ratForm = new()
+        {
+            Name = this.rat.Name,
+            DateOfBirth = this.rat.DateOfBirth,
+            Sex = this.rat.Sex?.ToString(),
+            Notes = this.rat.Notes
+        };
+    }
+
+    private async Task GoBack()
+    {
+        await this.JsRuntime.InvokeAsync<object>("history.back");
+    }
+
+    private bool CanAddLitter() =>
+        !string.IsNullOrEmpty(this.ratForm.Notes) &&
+        !string.IsNullOrEmpty(this.ratForm.Sex);
+
+    private async Task NewLitter()
+    {
+        if (!this.CanAddLitter())
+        {
+            return;
+        }
+
+        await this.SaveRat();
+        var litter = await Litter.Create(this.LittersRepository);
+        switch (this.rat.Sex)
+        {
+            case Sex.Buck:
+                await litter.SetSire(this.LittersRepository, this.rat);
+                break;
+            case Sex.Doe:
+                await litter.SetDam(this.LittersRepository, this.rat);
+                break;
+            default:
+                return;
+        }
+        
+        this.Nav.NavigateTo($"/litters/{litter.Id.Value}");
+    }
+
+    private async Task SaveRat()
+    {
+        Enum.TryParse<Sex>(this.ratForm.Sex, out var sex);
+
+        this.rat.Name = this.ratForm.Name;
+        this.rat.Sex = sex != Sex.Error ? sex : null;
+        this.rat.DateOfBirth = this.ratForm.DateOfBirth;
+        this.rat.Notes = this.ratForm.Notes;
+
+        await this.rat.Save(this.Repository);
+    }
+
+    private async void SaveAndGoBack()
+    {
+        await this.SaveRat();
+        await this.GoBack();
+    }
+
+    private async void DeleteRat()
+    {
+        await this.Repository.DeleteRat(this.Id);
+        this.Nav.NavigateTo("/rats");
+    }
+}

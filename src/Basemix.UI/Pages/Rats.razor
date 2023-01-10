@@ -3,13 +3,35 @@
 @using Basemix.Rats
 @inject SqliteRatsRepository Repository;
 @inject NavigationManager Nav;
+@inject IJSRuntime JsRuntime;
+
+<div class="d-flex justify-content-between">
+    <button class="btn btn-secondary" @onclick="GoBack">
+        <span class="oi oi-arrow-left"></span> Back
+    </button>
+    <button class="btn btn-primary" @onclick="CreateRat">
+        <span class="oi oi-plus"></span> Create
+    </button>
+</div>
+
+<hr/>
 
 <h1>Rats</h1>
+
+<p>Click any rat to view the rat's profile.</p>
+
+<div class="input-group mb-3">
+    <input id="ratSearchInput" type="text" class="form-control" @bind="searchTerm" placeholder="Search for a rat here"/>
+    <div class="input-group-append">
+        <button class="btn btn-primary" @onclick="Search">
+            <span class="oi oi-magnifying-glass"></span>
+        </button>
+    </div>
+</div>
 
 <table class="table table-hover">
     <thead>
     <tr>
-        <th scope="col">Id</th>
         <th scope="col">Name</th>
         <th scope="col">Sex</th>
         <th scope="col">DoB</th>
@@ -19,25 +41,51 @@
     @foreach (var rat in this.rats)
     {
         <tr @onclick="@(() => this.OpenRatProfile(rat.Id))">
-            <th scope="row">@rat.Id.Value</th>
-            <td>@rat.Name</td>
-            <td>@rat.Sex</td>
-            <td>@rat.DateOfBirth</td>
+            <th scope="row">@(rat.Name ?? "Unnamed")</th>
+            <td>@(rat.Sex.ToString() ?? "-")</td>
+            <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
         </tr>
     }
     </tbody>
 </table>
 
 @code {
-    List<Rat> rats = new();
-    
+    private string searchTerm;
+
+    List<SqliteRatsRepository.RatSearchResult> rats = new();
+
     protected override async Task OnInitializedAsync()
     {
-        this.rats = await this.Repository.GetAll();
+        var allRats = await this.Repository.GetAll();
+        this.rats = allRats.Select(x => x.ToSearchResult()).ToList();
     }
 
     private void OpenRatProfile(long ratId)
     {
         this.Nav.NavigateTo($"/rats/{ratId}");
+    }
+
+    private async Task GoBack()
+    {
+        await this.JsRuntime.InvokeAsync<object>("history.back");
+    }
+
+    private async Task CreateRat()
+    {
+        var rat = await Rat.Create(this.Repository);
+        this.Nav.NavigateTo($"/rats/{rat.Id.Value}/edit");
+    }
+
+    private async Task Search()
+    {
+        if (string.IsNullOrEmpty(this.searchTerm))
+        {
+            var allRats = await this.Repository.GetAll();
+            this.rats = allRats.Select(x => x.ToSearchResult()).ToList();
+        }
+        else
+        {
+            this.rats = await this.Repository.SearchRat(this.searchTerm);
+        }
     }
 }

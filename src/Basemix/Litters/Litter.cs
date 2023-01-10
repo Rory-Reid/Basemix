@@ -53,6 +53,26 @@ public class Litter
         return LitterAddResult.Success;
     }
 
+    public async Task<LitterAddResult> SetDam(ILittersRepository repository, SqliteRatsRepository.RatSearchResult rat)
+    {
+        if (rat.Sex != Sex.Doe)
+        {
+            return LitterAddResult.WrongSex;
+        }
+
+        this.DamId = rat.Id;
+        this.DamName = rat.Name;
+        await repository.UpdateLitter(this);
+        return LitterAddResult.Success;
+    }
+
+    public Task RemoveDam(ILittersRepository repository)
+    {
+        this.DamId = null;
+        this.DamName = null;
+        return repository.UpdateLitter(this);
+    }
+
     public async Task<LitterAddResult> SetSire(ILittersRepository repository, Rat rat)
     {
         if (rat.Sex != Sex.Buck)
@@ -65,6 +85,26 @@ public class Litter
         await repository.UpdateLitter(this);
         return LitterAddResult.Success;
     }
+    
+    public async Task<LitterAddResult> SetSire(ILittersRepository repository, SqliteRatsRepository.RatSearchResult rat)
+    {
+        if (rat.Sex != Sex.Buck)
+        {
+            return LitterAddResult.WrongSex;
+        }
+
+        this.SireId = rat.Id;
+        this.SireName = rat.Name;
+        await repository.UpdateLitter(this);
+        return LitterAddResult.Success;
+    }
+
+    public Task RemoveSire(ILittersRepository repository)
+    {
+        this.SireId = null;
+        this.SireName = null;
+        return repository.UpdateLitter(this);
+    }
 
     public async Task AddOffspring(ILittersRepository repository, Rat rat)
     {
@@ -74,13 +114,22 @@ public class Litter
             this.offspring.Add(new Offspring(rat.Id, rat.Name));
         }
     }
-
-    public async Task RemoveOffspring(ILittersRepository repository, Rat rat)
+    
+    public async Task AddOffspring(ILittersRepository repository, SqliteRatsRepository.RatSearchResult rat)
     {
-        var result = await repository.RemoveOffspring(this.Id, rat.Id);
+        var result = await repository.AddOffspring(this.Id, rat.Id);
+        if (result == AddOffspringResult.Success)
+        {
+            this.offspring.Add(new Offspring(rat.Id, rat.Name));
+        }
+    }
+
+    public async Task RemoveOffspring(ILittersRepository repository, RatIdentity ratId)
+    {
+        var result = await repository.RemoveOffspring(this.Id, ratId);
         if (result == RemoveOffspringResult.Success)
         {
-            this.offspring.RemoveAll(x => x.Id == rat.Id);
+            this.offspring.RemoveAll(x => x.Id == ratId);
         }
     }
 

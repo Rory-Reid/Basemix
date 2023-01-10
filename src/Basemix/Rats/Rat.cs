@@ -1,4 +1,5 @@
 using Basemix.Identity;
+using Basemix.Litters;
 using Basemix.Rats.Persistence;
 
 namespace Basemix.Rats;
@@ -8,12 +9,14 @@ public class Rat
     public Rat(RatIdentity? id = null,
         string? name = null,
         Sex? sex = null,
-        DateOnly? dateOfBirth = null)
+        DateOnly? dateOfBirth = null,
+        List<RatLitter>? litters = null)
     {
         this.Id = id ?? RatIdentity.Anonymous;
         this.Name = name;
         this.Sex = sex;
         this.DateOfBirth = dateOfBirth;
+        this.Litters = litters ?? new();
     }
     
     public RatIdentity Id { get; }
@@ -22,6 +25,8 @@ public class Rat
     public DateOnly? DateOfBirth { get; set; }
     public string? Notes { get; set; }
 
+    public List<RatLitter> Litters { get; }
+
     public Task Save(IRatsRepository repository) => repository.UpdateRat(this);
     
     public static async Task<Rat> Create(IRatsRepository repository)
@@ -29,7 +34,14 @@ public class Rat
         var id = await repository.CreateRat();
         return new Rat(id);
     }
+
+    public SqliteRatsRepository.RatSearchResult ToSearchResult()
+    {
+        return new SqliteRatsRepository.RatSearchResult(this.Id, this.Name, this.Sex, this.DateOfBirth);
+    }
 }
+
+public record RatLitter(LitterIdentity Id, DateOnly? DateOfBirth, string? PairedWith, int OffspringCount);
 
 public class RatIdentity
 {

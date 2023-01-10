@@ -44,6 +44,16 @@ public class MemoryRatsRepository : IRatsRepository
     public Task<List<Rat>> GetAll() =>
         Task.FromResult(this.Rats.Values.ToList());
 
+    public Task DeleteRat(long id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<SqliteRatsRepository.RatSearchResult>> SearchRat(string nameSearchTerm)
+    {
+        throw new NotImplementedException();
+    }
+
     private static Rat CopyOf(Rat rat, RatIdentity id) =>
         new(id, rat.Name, rat.Sex, rat.DateOfBirth)
         {

@@ -199,7 +199,7 @@ public class LitterTests
         var rat = await this.ratsRepository.Seed(this.faker.Rat());
         await litter.AddOffspring(this.littersRepository, rat);
 
-        await litter.RemoveOffspring(this.littersRepository, rat);
+        await litter.RemoveOffspring(this.littersRepository, rat.Id);
         
         litter.Offspring.ShouldBeEmpty();
     }
@@ -211,7 +211,7 @@ public class LitterTests
         var rat = await this.ratsRepository.Seed(this.faker.Rat());
         await litter.AddOffspring(this.littersRepository, rat);
 
-        await litter.RemoveOffspring(this.littersRepository, rat);
+        await litter.RemoveOffspring(this.littersRepository, rat.Id);
         
         this.littersRepository.Litters[litter.Id].Offspring.ShouldBeEmpty();
     }
@@ -224,7 +224,7 @@ public class LitterTests
         await litter.AddOffspring(this.littersRepository, rat);
 
         var otherRat = await this.ratsRepository.Seed(this.faker.Rat());
-        await litter.RemoveOffspring(this.littersRepository, otherRat);
+        await litter.RemoveOffspring(this.littersRepository, otherRat.Id);
 
         litter.Offspring.ShouldHaveSingleItem();
     }

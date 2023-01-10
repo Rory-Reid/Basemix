@@ -13,12 +13,12 @@ public class LittersRepositoryTests : SqliteIntegration
 {
     private readonly Faker faker = new();
     private readonly SqliteFixture fixture;
-    private readonly LittersRepository repository;
+    private readonly SqliteLittersRepository repository;
     
     public LittersRepositoryTests(SqliteFixture fixture) : base(fixture)
     {
         this.fixture = fixture;
-        this.repository = new LittersRepository(this.fixture.GetConnection);
+        this.repository = new SqliteLittersRepository(this.fixture.GetConnection);
     }
 
     [Fact]

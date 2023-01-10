@@ -27,12 +27,18 @@ public record PersistedRat
     public long? DateOfDeath { get; init; }
     public string? DeathReason { get; init; }
 
-    public Rat ToModelledRat()
+    public Rat ToModelledRat(List<PersistedRatLitter>? litters = null)
     {
         var id = this.Id.HasValue ? new RatIdentity(this.Id.Value) : RatIdentity.Anonymous;
         Sex? sex = !string.IsNullOrEmpty(this.Sex) ? Enum.Parse<Sex>(this.Sex) : null;
         var dateOfBirth = this.DateOfBirth?.ToDateOnly();
-        return new Rat(id, this.Name, sex, dateOfBirth)
+        return new Rat(id, this.Name, sex, dateOfBirth,
+            litters?.Select(x =>
+                new RatLitter(
+                    x.Id,
+                    x.DateOfBirth?.ToDateOnly(),
+                    sex == Rats.Sex.Buck ? x.DamName : x.SireName,
+                    x.OffspringCount)).ToList())
         {
             Notes = this.Notes
         };
