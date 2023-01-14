@@ -119,8 +119,6 @@ public class SqliteRatsRepository : IRatsRepository
         return results.Select(x => x.ToResult()).ToList();
     }
 
-    public record RatSearchResult(RatIdentity Id, string? Name, Sex? Sex, DateOnly? DateOfBirth);
-
     public class PersistedRatSearchResult
     {
         public long Id { get; set; }

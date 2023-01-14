@@ -53,7 +53,7 @@ public class Litter
         return LitterAddResult.Success;
     }
 
-    public async Task<LitterAddResult> SetDam(ILittersRepository repository, SqliteRatsRepository.RatSearchResult rat)
+    public async Task<LitterAddResult> SetDam(ILittersRepository repository, RatSearchResult rat)
     {
         if (rat.Sex != Sex.Doe)
         {
@@ -86,7 +86,7 @@ public class Litter
         return LitterAddResult.Success;
     }
     
-    public async Task<LitterAddResult> SetSire(ILittersRepository repository, SqliteRatsRepository.RatSearchResult rat)
+    public async Task<LitterAddResult> SetSire(ILittersRepository repository, RatSearchResult rat)
     {
         if (rat.Sex != Sex.Buck)
         {
@@ -115,7 +115,7 @@ public class Litter
         }
     }
     
-    public async Task AddOffspring(ILittersRepository repository, SqliteRatsRepository.RatSearchResult rat)
+    public async Task AddOffspring(ILittersRepository repository, RatSearchResult rat)
     {
         var result = await repository.AddOffspring(this.Id, rat.Id);
         if (result == AddOffspringResult.Success)

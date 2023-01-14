@@ -35,9 +35,9 @@ public class Rat
         return new Rat(id);
     }
 
-    public SqliteRatsRepository.RatSearchResult ToSearchResult()
+    public RatSearchResult ToSearchResult()
     {
-        return new SqliteRatsRepository.RatSearchResult(this.Id, this.Name, this.Sex, this.DateOfBirth);
+        return new RatSearchResult(this.Id, this.Name, this.Sex, this.DateOfBirth);
     }
 }
 

@@ -8,5 +8,5 @@ public interface IRatsRepository
     Task<Rat?> GetRat(long id);
     Task<List<Rat>> GetAll();
     Task DeleteRat(long id);
-    Task<List<SqliteRatsRepository.RatSearchResult>> SearchRat(string nameSearchTerm);
+    Task<List<RatSearchResult>> SearchRat(string nameSearchTerm);
 }

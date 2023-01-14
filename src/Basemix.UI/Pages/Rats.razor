@@ -1,9 +1,4 @@
 @page "/rats"
-@using Basemix.Rats.Persistence
-@using Basemix.Rats
-@inject SqliteRatsRepository Repository;
-@inject NavigationManager Nav;
-@inject IJSRuntime JsRuntime;
 
 <div class="d-flex justify-content-between">
     <button class="btn btn-secondary" @onclick="GoBack">
@@ -21,7 +16,7 @@
 <p>Click any rat to view the rat's profile.</p>
 
 <div class="input-group mb-3">
-    <input id="ratSearchInput" type="text" class="form-control" @bind="searchTerm" placeholder="Search for a rat here"/>
+    <input id="ratSearchInput" type="text" class="form-control" @bind="SearchTerm" placeholder="Search for a rat here"/>
     <div class="input-group-append">
         <button class="btn btn-primary" @onclick="Search">
             <span class="oi oi-magnifying-glass"></span>
@@ -38,9 +33,9 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var rat in this.rats)
+    @foreach (var rat in RatsList)
     {
-        <tr @onclick="@(() => this.OpenRatProfile(rat.Id))">
+        <tr @onclick="@(() => OpenRatProfile(rat.Id))">
             <th scope="row">@(rat.Name ?? "Unnamed")</th>
             <td>@(rat.Sex.ToString() ?? "-")</td>
             <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
@@ -48,44 +43,3 @@
     }
     </tbody>
 </table>
-
-@code {
-    private string searchTerm;
-
-    List<SqliteRatsRepository.RatSearchResult> rats = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        var allRats = await this.Repository.GetAll();
-        this.rats = allRats.Select(x => x.ToSearchResult()).ToList();
-    }
-
-    private void OpenRatProfile(long ratId)
-    {
-        this.Nav.NavigateTo($"/rats/{ratId}");
-    }
-
-    private async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
-    }
-
-    private async Task CreateRat()
-    {
-        var rat = await Rat.Create(this.Repository);
-        this.Nav.NavigateTo($"/rats/{rat.Id.Value}/edit");
-    }
-
-    private async Task Search()
-    {
-        if (string.IsNullOrEmpty(this.searchTerm))
-        {
-            var allRats = await this.Repository.GetAll();
-            this.rats = allRats.Select(x => x.ToSearchResult()).ToList();
-        }
-        else
-        {
-            this.rats = await this.Repository.SearchRat(this.searchTerm);
-        }
-    }
-}

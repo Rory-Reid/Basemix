@@ -49,10 +49,10 @@ public class MemoryRatsRepository : IRatsRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<SqliteRatsRepository.RatSearchResult>> SearchRat(string nameSearchTerm)
-    {
-        throw new NotImplementedException();
-    }
+    public Task<List<RatSearchResult>> SearchRat(string nameSearchTerm) =>
+        Task.FromResult(this.Rats.Values
+            .Where(r => (r.Name ?? string.Empty).ToLower().Contains(nameSearchTerm.ToLower()))
+            .Select(r => r.ToSearchResult()).ToList());
 
     private static Rat CopyOf(Rat rat, RatIdentity id) =>
         new(id, rat.Name, rat.Sex, rat.DateOfBirth)

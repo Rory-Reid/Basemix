@@ -149,8 +149,8 @@
     public bool ShowRatSearch { get; set; }
     public Sex? RatSearchSex { get; set; }
     public string RatSearchTerm { get; set; }
-    public List<SqliteRatsRepository.RatSearchResult> RatSearchResults { get; set; } = new();
-    public Func<SqliteRatsRepository.RatSearchResult, Task> SetResult { get; set; } = _ => Task.CompletedTask;
+    public List<RatSearchResult> RatSearchResults { get; set; } = new();
+    public Func<RatSearchResult, Task> SetResult { get; set; } = _ => Task.CompletedTask;
 
     public bool HasDam => this.litter.DamId != null;
     public bool HasDamName => !string.IsNullOrEmpty(this.litter.DamName);
