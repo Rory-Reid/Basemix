@@ -1,38 +1,31 @@
 @page "/rats/{Id:long}"
-@using Basemix.Rats.Persistence
 @using Basemix.Rats
-@using Basemix.Litters
-@using Basemix.Litters.Persistence
-@inject SqliteRatsRepository Repository;
-@inject ILittersRepository LittersRepository;
-@inject IJSRuntime JsRuntime;
-@inject NavigationManager Nav;
 
 <div class="d-flex justify-content-between">
     <button class="btn btn-secondary" @onclick="GoBack">
         <span class="oi oi-arrow-left"></span> Back
     </button>
-    <button class="btn btn-primary" @onclick="@(() => this.Nav.NavigateTo($"/rats/{this.Id}/edit"))">
+    <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo($"/rats/{Id}/edit"))">
         <span class="oi oi-pencil"></span> Edit
     </button>
 </div>
 
 <hr/>
 
-<h1>@rat.Name</h1>
+<h1>@Rat.Name</h1>
 
 <dl class="row">
     <dt class="col-sm-2">Date of Birth</dt>
-    <dd class="col-sm-9">@rat.DateOfBirth</dd>
+    <dd class="col-sm-9">@Rat.DateOfBirth</dd>
     
     <dt class="col-sm-2">Sex</dt>
-    <dd class="col-sm-9">@rat.Sex</dd>
+    <dd class="col-sm-9">@Rat.Sex</dd>
     
-    @if (!string.IsNullOrEmpty(rat.Notes))
+    @if (!string.IsNullOrEmpty(Rat.Notes))
     {
         <dt class="col-sm-2">Notes</dt>
         <dd class="col-sm-9">
-            @foreach (var line in rat.Notes.Split("\n"))
+            @foreach (var line in Rat.Notes.Split("\n"))
             {
                 <p>@line</p>
             }
@@ -47,7 +40,7 @@
     <tr>
         <th scope="col">DoB</th>
         <th scope="col">
-            @(rat.Sex switch
+            @(Rat.Sex switch
             {
                 Sex.Buck => "Dam",
                 Sex.Doe => "Sire",
@@ -58,9 +51,9 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var litter in this.rat.Litters)
+    @foreach (var litter in Rat.Litters)
     {
-        <tr @onclick="@(() => this.OpenLitterProfile(litter.Id))">
+        <tr @onclick="@(() => OpenLitterProfile(litter.Id))">
             <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
             <td>@(litter.PairedWith ?? "-")</td>
             <td>@litter.OffspringCount</td>
@@ -72,46 +65,3 @@
 <button class="btn btn-primary" @onclick="NewLitter">
     <span class="oi oi-plus"></span> Create litter
 </button>
-
-@code {
-    private Rat rat;
-
-    [Parameter]
-    public long Id { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var storedRat = await this.Repository.GetRat(Id);
-        if (storedRat == null)
-        {
-            return;
-        }
-
-        this.rat = storedRat;
-    }
-
-    private async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
-    }
-
-    private async Task NewLitter()
-    {
-        var litter = await Litter.Create(this.LittersRepository);
-        if (this.rat.Sex == Sex.Buck)
-        {
-            await litter.SetSire(this.LittersRepository, this.rat);
-        }
-        else if (this.rat.Sex == Sex.Doe)
-        {
-            await litter.SetDam(this.LittersRepository, this.rat);
-        }
-
-        this.Nav.NavigateTo($"/litters/{litter.Id.Value}");
-    }
-    
-    private void OpenLitterProfile(long litterId)
-    {
-        this.Nav.NavigateTo($"/litters/{litterId}");
-    }
-}

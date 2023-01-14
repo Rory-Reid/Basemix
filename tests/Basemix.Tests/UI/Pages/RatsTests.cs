@@ -11,15 +11,13 @@ public class RatsTests : RazorPageTests<Basemix.UI.Pages.Rats>
     private readonly MemoryRatsRepository repository = new();
     private readonly TestNavigationManager nav = new();
     
-    public RatsTests()
-    {
-        this.Page = new Basemix.UI.Pages.Rats
+    protected override Basemix.UI.Pages.Rats CreatePage() =>
+        new()
         {
             Repository = this.repository,
             Nav = this.nav,
             JsRuntime = new NullJsRuntime()
         };
-    }
     
     [Fact]
     public async Task Loads_rats_from_repo_into_rat_list_on_init()
