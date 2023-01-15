@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+using Basemix.Litters;
 using Basemix.Rats;
 using Bogus;
 using Bogus.DataSets;
@@ -24,9 +26,27 @@ public static class FakerExtensions
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        return new(id: id, name: ratName, sex: ratSex, dateOfBirth: faker.Date.PastDateOnly(1))
+        return new Rat(id: id, name: ratName, sex: ratSex, dateOfBirth: faker.Date.PastDateOnly(1))
         {
             Notes = faker.PickRandom(null, faker.Lorem.Paragraphs())
         };
+    }
+
+    public static Litter BlankLitter(this Faker faker, LitterIdentity? id = null) =>
+        faker.Litter(id: id, null, null, 0, 0, 0, 0);
+    
+    public static Litter Litter(this Faker faker, LitterIdentity? id = null,
+        (RatIdentity, string)? dam = null, (RatIdentity, string)? sire = null,
+        float damProbability = 0.5f, float sireProbability = 0.5f,
+        int minimumOffspring = 0, int maximumOffspring = 12)
+    {
+        var hasDam = faker.Random.Bool(damProbability);
+        var hasSire = faker.Random.Bool(sireProbability);
+        return new Litter(
+            identity: id,
+            dam: dam ?? (hasDam ? new(faker.Id(), faker.Name.FirstName(Name.Gender.Female)) : null),
+            sire: sire ?? (hasSire ? new(faker.Id(), faker.Name.FirstName(Name.Gender.Male)) : null),
+            dateOfBirth: faker.Date.PastDateOnly(),
+            offspring: faker.Make(faker.Random.Int(minimumOffspring, maximumOffspring), _ => new Offspring(faker.Id(), faker.Name.FirstName())).ToList());
     }
 }

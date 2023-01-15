@@ -115,7 +115,9 @@ public class MemoryLittersRepository : ILittersRepository
         this.Litters.Remove(id);
         return Task.CompletedTask;
     }
-    
+
+    public void Seed(Litter litter) => this.backplane.Seed(litter);
+
     private List<Offspring> UpdateNames(IEnumerable<Offspring> offspring) =>
         offspring.Select(x => x with {Name = this.backplane.Rats[x.Id].Name}).ToList();
     
