@@ -46,7 +46,8 @@ public class MemoryRatsRepository : IRatsRepository
 
     public Task DeleteRat(long id)
     {
-        throw new NotImplementedException();
+        this.Rats.Remove(id);
+        return Task.CompletedTask;
     }
 
     public Task<List<RatSearchResult>> SearchRat(string nameSearchTerm) =>
