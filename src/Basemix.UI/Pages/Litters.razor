@@ -1,9 +1,5 @@
 @page "/litters"
-@using Basemix.Litters.Persistence
 @using Basemix.Litters
-@inject ILittersRepository Repository;
-@inject NavigationManager Nav;
-@inject IJSRuntime JsRuntime;
 
 <div class="d-flex justify-content-between">
     <button class="btn btn-secondary" @onclick="GoBack">
@@ -30,9 +26,9 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var litter in this.litters)
+    @foreach (var litter in LitterList)
     {
-        <tr @onclick="@(() => this.OpenLitterProfile(litter.Id))">
+        <tr @onclick="@(() => OpenLitterProfile(litter.Id))">
             <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
             <td>@(litter.Dam ?? "-")</td>
             <td>@(litter.Sire ?? "-")</td>
@@ -41,28 +37,3 @@
     }
     </tbody>
 </table>
-
-@code {
-    List<LitterOverview> litters = new();
-    
-    protected override async Task OnInitializedAsync()
-    {
-        this.litters = await this.Repository.GetAll();
-    }
-
-    private void OpenLitterProfile(long litterId)
-    {
-        this.Nav.NavigateTo($"/litters/{litterId}");
-    }
-    
-    private async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
-    }
-
-    private async Task CreateLitter()
-    {
-        var litter = await Litter.Create(this.Repository);
-        this.Nav.NavigateTo($"/litters/{litter.Id.Value}/edit");
-    }
-}

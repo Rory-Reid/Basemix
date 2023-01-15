@@ -24,11 +24,15 @@ public class MemoryLittersRepository : ILittersRepository
             : Task.FromResult((Litter?)null);
     }
 
-    public Task<List<LitterOverview>> GetAll()
-    {
-        // TODO
-        return Task.FromResult(new List<LitterOverview>());
-    }
+    public Task<List<LitterOverview>> GetAll() =>
+        Task.FromResult(this.Litters.Values.Select(x => new LitterOverview
+        {
+            Id = x.Id,
+            DateOfBirth = x.DateOfBirth,
+            Dam = x.DamName,
+            Sire = x.SireName,
+            OffspringCount = x.Offspring.Count
+        }).ToList());
 
     public Task<long> CreateLitter(RatIdentity? damId = null, RatIdentity? sireId = null)
     {
