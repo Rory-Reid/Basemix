@@ -1,13 +1,6 @@
 @page "/litters/{Id:long}/edit"
-@using Basemix.Litters
-@using Basemix.Litters.Persistence
 @using Basemix.Rats
-@using Basemix.Rats.Persistence
 @using Microsoft.AspNetCore.Components
-@inject IJSRuntime JsRuntime;
-@inject ILittersRepository Repository;
-@inject SqliteRatsRepository RatsRepository;
-@inject NavigationManager Nav;
 
 <div class="d-flex justify-content-between">
     <button class="btn btn-secondary" @onclick="GoBack">
@@ -27,7 +20,7 @@
         @if (this.HasDam)
         {
             <div>
-                <a href="/rats/@this.litter.DamId?.Value">@(this.litter.DamName ?? "Unnamed Dam")</a>
+                <a href="/rats/@this.Litter.DamId?.Value">@(this.Litter.DamName ?? "Unnamed Dam")</a>
                 <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Doe))">
                     <span class="oi oi-circle-x"></span> Remove Dam
                 </button>
@@ -53,7 +46,7 @@
         @if (this.HasSire)
         {
             <div>
-                <a href="/rats/@this.litter.SireId?.Value">@(this.litter.SireName ?? "Unnamed Sire")</a>
+                <a href="/rats/@this.Litter.SireId?.Value">@(this.Litter.SireName ?? "Unnamed Sire")</a>
                 <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Buck))">
                     <span class="oi oi-circle-x"></span> Remove Sire
                 </button>
@@ -74,7 +67,7 @@
     
     <dt class="col-sm-2">Date of Birth</dt>
     <dd class="col-sm-9">
-        <input required class="form-control" type="date" id="dateOfBirthInput" @bind="this.litter.DateOfBirth"/>
+        <input required class="form-control" type="date" id="dateOfBirthInput" @bind="this.Litter.DateOfBirth"/>
     </dd>
 </dl>
 
@@ -88,7 +81,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var rat in this.litter.Offspring)
+    @foreach (var rat in this.Litter.Offspring)
     {
         <tr>
             <td>@rat.Name</td>
@@ -167,152 +160,4 @@
         </div>
     </div>
 </div>
-}
-
-@code{
-    private Litter litter;
-    
-    public bool ShowRatSearch { get; set; }
-    public Sex? RatSearchSex { get; set; }
-    public string RatSearchTerm { get; set; }
-    public List<RatSearchResult> RatSearchResults { get; set; } = new();
-    public Func<RatSearchResult, Task> SetResult { get; set; } = _ => Task.CompletedTask;
-
-    public bool HasDam => this.litter.DamId != null;
-    public bool HasDamName => !string.IsNullOrEmpty(this.litter.DamName);
-    public bool HasSire => this.litter.SireId != null;
-    public bool HasSireName => !string.IsNullOrEmpty(this.litter.SireName);
-
-    protected override async Task OnInitializedAsync()
-    {
-        this.litter = (await this.Repository.GetLitter(this.Id))!;
-    }
-    
-    [Parameter]
-    public long Id { get; set; }
-    
-    private async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
-    }
-    
-    private string LitterName()
-    {
-        if (this.HasDamName && this.HasSireName)
-        {
-            return $"{this.litter.SireName} & {this.litter.DamName}'s litter";
-        }
-        
-        if (this.HasDamName)
-        {
-            return $"{this.litter.DamName}'s litter";
-        }
-
-        if (this.HasSireName)
-        {
-            return $"{this.litter.SireName}'s litter";
-        }
-        
-        return "Anonymous litter";
-    }
-
-    private async Task Save()
-    {
-        await this.litter.Save(this.Repository);
-        await this.GoBack();
-    }
-
-    private async Task Delete()
-    {
-        await this.Repository.DeleteLitter(this.litter.Id);
-        this.Nav.NavigateTo("/litters");
-    }
-    
-    private async Task AddParent(Sex sex)
-    {
-        var rat = await Rat.Create(this.RatsRepository);
-        rat.Sex = sex;
-        await rat.Save(this.RatsRepository);
-
-        await (sex switch
-        {
-            Sex.Buck => this.litter.SetSire(this.Repository, rat),
-            Sex.Doe => this.litter.SetDam(this.Repository, rat),
-            _ => throw new ArgumentOutOfRangeException(nameof(sex))
-        });
-        
-        this.Nav.NavigateTo($"rats/{rat.Id.Value}/edit");
-    }
-
-    private async Task RemoveParent(Sex sex)
-    {
-        await (sex switch
-        {
-            Sex.Buck => this.litter.RemoveSire(this.Repository),
-            Sex.Doe => this.litter.RemoveDam(this.Repository),
-            _ => throw new ArgumentOutOfRangeException(nameof(sex))
-        });
-    }
-    
-    private async Task AddOffspring()
-    {
-        var rat = await Rat.Create(this.RatsRepository);
-        if (this.litter.DateOfBirth != null)
-        {
-            rat.DateOfBirth = this.litter.DateOfBirth;
-            await rat.Save(this.RatsRepository);
-        }
-
-        await this.litter.AddOffspring(this.Repository, rat);
-        this.Nav.NavigateTo($"/rats/{rat.Id.Value}/edit");
-    }
-
-    private async Task RemoveOffspring(Offspring rat)
-    {
-        await this.litter.RemoveOffspring(this.Repository, rat.Id);
-    }
-    
-    private async Task Search()
-    {
-        this.RatSearchResults = await this.RatsRepository.SearchRat(this.RatSearchTerm);
-    }
-
-    private void OpenDamSearch()
-    {
-        this.RatSearchResults.Clear();
-        this.RatSearchTerm = string.Empty;
-        this.RatSearchSex = Sex.Doe;
-        this.SetResult = async (rat) =>
-        {
-            await this.litter.SetDam(this.Repository, rat);
-            this.ShowRatSearch = false;
-        };
-        this.ShowRatSearch = true;
-    }
-    
-    private void OpenSireSearch()
-    {
-        this.RatSearchResults.Clear();
-        this.RatSearchTerm = string.Empty;
-        this.RatSearchSex = Sex.Buck;
-        this.SetResult = async (rat) =>
-        {
-            await this.litter.SetSire(this.Repository, rat);
-            this.ShowRatSearch = false;
-        };
-        this.ShowRatSearch = true;
-    }
-    
-    private void OpenOffspringSearch()
-    {
-        this.RatSearchResults.Clear();
-        this.RatSearchTerm = string.Empty;
-        this.RatSearchSex = null;
-        this.SetResult = async (rat) =>
-        {
-            await this.litter.AddOffspring(this.Repository, rat);
-            this.ShowRatSearch = false;
-        };
-        this.ShowRatSearch = true;
-    }
 }
