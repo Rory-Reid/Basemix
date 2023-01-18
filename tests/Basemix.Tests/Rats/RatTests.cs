@@ -75,4 +75,15 @@ public class RatTests
             storedRat => storedRat.Sex.ShouldBe(rat.Sex),
             storedRat => storedRat.Notes.ShouldBe(rat.Notes));
     }
+
+    [Fact]
+    public void Rat_transforms_to_search_result()
+    {
+        var rat = this.faker.Rat();
+        rat.ToSearchResult().ShouldSatisfyAllConditions(
+            result => result.Id.ShouldBe(rat.Id),
+            result => result.Name.ShouldBe(rat.Name),
+            result => result.Sex.ShouldBe(rat.Sex),
+            result => result.DateOfBirth.ShouldBe(rat.DateOfBirth));
+    }
 }

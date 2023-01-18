@@ -20,7 +20,7 @@ public class SqliteRatsRepository : IRatsRepository
             @"INSERT INTO rat DEFAULT VALUES RETURNING id");
     }
     
-    public async Task<long> AddRat(Rat rat)
+    public async Task<long> AddRat(Rat rat) // TODO remove
     {
         using var db = this.getDatabase();
 

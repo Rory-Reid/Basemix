@@ -21,7 +21,7 @@ public class RatRepositoryTests : SqliteIntegration
     }
     
     [Fact]
-    public async Task Can_set_and_get_rat()
+    public async Task Can_add_and_get_rat()
     {
         var rat = this.faker.Rat();
 
@@ -99,6 +99,87 @@ public class RatRepositoryTests : SqliteIntegration
             () => storedRat.date_of_birth!.ShouldBe(rat.DateOfBirth?.ToPersistedDateTime()),
             () => storedRat.sex.ShouldBe(rat.Sex.ToString()),
             () => storedRat.notes.ShouldBe(rat.Notes));
+    }
+
+    [Fact]
+    public async Task Delete_rat_deletes()
+    {
+        var id = await this.repository.CreateRat();
+
+        await this.repository.DeleteRat(id);
+
+        using var db = this.fixture.GetConnection();
+        var rat = await db.QuerySingleOrDefaultAsync<RatRow>(
+            @"SELECT * FROM rat WHERE id=@Id", new {Id = id});
+        
+        rat.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Search_rat_returns_rats_matching_term()
+    {
+        var expectedRat1 = await Rat.Create(this.repository);
+        var expectedRat2 = await Rat.Create(this.repository);
+        var otherRat = await Rat.Create(this.repository);
+
+        expectedRat1.Name = this.faker.Random.Hash();
+        expectedRat2.Name = expectedRat1.Name;
+        otherRat.Name = this.faker.Random.Hash();
+
+        await this.repository.UpdateRat(expectedRat1);
+        await this.repository.UpdateRat(expectedRat2);
+        await this.repository.UpdateRat(otherRat);
+
+        var results = await this.repository.SearchRat(expectedRat1.Name);
+        results.ShouldSatisfyAllConditions(
+            () => results.Count.ShouldBe(2),
+            () => results.ShouldContain(r => r.Id == expectedRat1.Id),
+            () => results.ShouldContain(r => r.Id == expectedRat2.Id));
+    }
+
+    [Fact]
+    public async Task Search_returns_rat_matching_start_of_search_term()
+    {
+        var rat = await Rat.Create(this.repository);
+        rat.Name = this.faker.Random.Hash(40);
+        await this.repository.UpdateRat(rat);
+
+        var results = await this.repository.SearchRat(rat.Name[..10]);
+        results.ShouldHaveSingleItem().Id.ShouldBe(rat.Id);
+    }
+
+    [Fact]
+    public async Task Search_returns_rat_matching_end_of_search_term()
+    {
+        var rat = await Rat.Create(this.repository);
+        rat.Name = this.faker.Random.Hash(40);
+        await this.repository.UpdateRat(rat);
+
+        var results = await this.repository.SearchRat(rat.Name[29..]);
+        results.ShouldHaveSingleItem().Id.ShouldBe(rat.Id);
+    }
+
+    [Fact]
+    public async Task Search_returns_rat_matching_part_of_search_term()
+    {
+        var rat = await Rat.Create(this.repository);
+        rat.Name = this.faker.Random.Hash(40);
+        await this.repository.UpdateRat(rat);
+
+        var results = await this.repository.SearchRat(rat.Name.Substring(10, 10));
+        results.ShouldHaveSingleItem().Id.ShouldBe(rat.Id);
+    }
+
+    [Fact]
+    public async Task Search_is_case_insensitive()
+    {
+        
+        var rat = await Rat.Create(this.repository);
+        rat.Name = this.faker.Random.Hash().ToLower();
+        await this.repository.UpdateRat(rat);
+
+        var results = await this.repository.SearchRat(rat.Name.ToUpper());
+        results.ShouldHaveSingleItem().Id.ShouldBe(rat.Id);
     }
 
     // ReSharper disable InconsistentNaming
