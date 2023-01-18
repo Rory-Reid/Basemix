@@ -1,16 +1,7 @@
 @page "/rats/{Id:long}/edit"
 @using Basemix.Rats
 
-<div class="d-flex justify-content-between">
-    <button class="btn btn-secondary" @onclick="GoBack">
-        <span class="oi oi-arrow-left"></span> Back
-    </button>
-    <button class="btn btn-success" @onclick="SaveAndGoBack">
-        <span class="oi oi-check"></span> Save
-    </button>
-</div>
-
-<hr/>
+<SaveHeader OnSave="SaveAndGoBack"/>
 
 <h1>Editing @RatForm.Name</h1>
 
@@ -62,7 +53,7 @@
     {
         <tr>
             <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
-            <td>@(litter.PairedWith ?? "-")</td>
+            <td>@(litter.PairedWith ?? "Unnamed")</td>
             <td>@litter.OffspringCount</td>
         </tr>
     }
@@ -73,14 +64,4 @@
     <span class="oi oi-plus"></span> Create litter
 </button>
 
-<hr/>
-
-<div class="d-flex justify-content-between">
-    <button class="btn btn-danger" @onclick="DeleteRat">
-        <span class="oi oi-delete"></span> Delete
-    </button>
-    
-    <button class="btn btn-success" @onclick="SaveAndGoBack">
-        <span class="oi oi-check"></span> Save
-    </button>
-</div>
+<SaveDeleteFooter OnSave="SaveAndGoBack" OnDelete="DeleteRat"/>

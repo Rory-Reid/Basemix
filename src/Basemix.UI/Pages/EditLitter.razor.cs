@@ -140,7 +140,7 @@ public partial class EditLitter
     public async Task Save()
     {
         await this.Litter.Save(this.Repository);
-        await this.GoBack();
+        await this.JsRuntime.InvokeAsync<object>("history.back");
     }
 
     public async Task Delete()
@@ -152,10 +152,5 @@ public partial class EditLitter
     public async Task RemoveOffspring(Offspring rat)
     {
         await this.Litter.RemoveOffspring(this.Repository, rat.Id);
-    }
-
-    private async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
     }
 }

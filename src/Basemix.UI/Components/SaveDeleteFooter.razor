@@ -1,0 +1,18 @@
+<div>
+    <hr/>
+    
+    <div class="d-flex justify-content-between">
+        <button class="btn btn-danger" @onclick="OnDelete">
+            <span class="oi oi-delete"></span> Delete
+        </button>
+        
+        <button class="btn btn-success" @onclick="OnSave">
+            <span class="oi oi-check"></span> Save
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnDelete { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnSave { get; set; }
+}

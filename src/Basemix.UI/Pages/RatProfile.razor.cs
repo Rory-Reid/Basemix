@@ -3,7 +3,6 @@ using Basemix.Litters.Persistence;
 using Basemix.Rats;
 using Basemix.Rats.Persistence;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace Basemix.UI.Pages;
 
@@ -11,7 +10,6 @@ public partial class RatProfile
 {
     [Inject] public IRatsRepository Repository { get; set; }
     [Inject] public ILittersRepository LittersRepository { get; set; }
-    [Inject] public IJSRuntime JsRuntime { get; set; }
     [Inject] public NavigationManager Nav { get; set; }
     
     [Parameter] public long Id { get; set; }
@@ -28,12 +26,7 @@ public partial class RatProfile
 
         this.Rat = storedRat;
     }
-
-    public async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
-    }
-
+    
     public async Task NewLitter()
     {
         var litter = await Litter.Create(this.LittersRepository);

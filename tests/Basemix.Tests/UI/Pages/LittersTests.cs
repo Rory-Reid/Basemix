@@ -14,8 +14,7 @@ public class LittersTests : RazorPageTests<Basemix.UI.Pages.Litters>
         new()
         {
             Repository = this.repository,
-            Nav = this.nav,
-            JsRuntime = new NullJsRuntime()
+            Nav = this.nav
         };
 
     [Fact]

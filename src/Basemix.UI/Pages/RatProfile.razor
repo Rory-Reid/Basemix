@@ -1,16 +1,7 @@
 @page "/rats/{Id:long}"
 @using Basemix.Rats
 
-<div class="d-flex justify-content-between">
-    <button class="btn btn-secondary" @onclick="GoBack">
-        <span class="oi oi-arrow-left"></span> Back
-    </button>
-    <button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo($"/rats/{Id}/edit"))">
-        <span class="oi oi-pencil"></span> Edit
-    </button>
-</div>
-
-<hr/>
+<EditHeader OnEdit="@(() => Nav.NavigateTo($"/rats/{Id}/edit"))" />
 
 <h1>@Rat.Name</h1>
 

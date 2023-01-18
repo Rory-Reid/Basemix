@@ -1,0 +1,14 @@
+﻿<div>
+    <div class="d-flex justify-content-between">
+        <BackButton />
+        <button class="btn btn-primary" @onclick="OnCreate">
+            <span class="oi oi-plus"></span> Create
+        </button>
+    </div>
+
+    <hr/>
+</div>
+
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnCreate { get; init; }
+}

@@ -1,0 +1,14 @@
+﻿<div>
+    <div class="d-flex justify-content-between">
+        <BackButton />
+        <button class="btn btn-primary" @onclick="OnEdit">
+            <span class="oi oi-pencil"></span> Edit
+        </button>
+    </div>
+
+    <hr/>
+</div>
+
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnEdit { get; init; }
+}

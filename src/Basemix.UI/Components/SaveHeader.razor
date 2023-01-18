@@ -1,0 +1,13 @@
+<div>
+    <div class="d-flex justify-content-between">
+        <BackButton />
+        <button class="btn btn-success" @onclick="OnSave">
+            <span class="oi oi-check"></span> Save
+        </button>
+    </div>
+    
+    <hr/>
+</div>
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnSave { get; set; }
+}

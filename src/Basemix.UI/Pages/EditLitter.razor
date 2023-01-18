@@ -2,16 +2,7 @@
 @using Basemix.Rats
 @using Microsoft.AspNetCore.Components
 
-<div class="d-flex justify-content-between">
-    <button class="btn btn-secondary" @onclick="GoBack">
-        <span class="oi oi-arrow-left"></span> Back
-    </button>
-    <button class="btn btn-success" @onclick="Save">
-        <span class="oi oi-check"></span> Save
-    </button>
-</div>
-
-<hr/>
+<SaveHeader OnSave="Save" />
 
 <h1>@("Editing " + LitterName())</h1>
 <dl class="row">
@@ -28,15 +19,7 @@
         }
         else
         {
-            <div>
-                <button class="btn btn-primary" @onclick="@(() => this.AddParent(Sex.Doe))">
-                    <span class="oi oi-plus"></span>
-                </button>
-                
-                <button class="btn btn-primary" @onclick="OpenDamSearch">
-                    <span class="oi oi-magnifying-glass"></span>
-                </button>
-            </div>
+            <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Doe))" OnSearch="OpenDamSearch" />
         }
     </dd>
     
@@ -54,14 +37,7 @@
         }
         else
         {
-            <div>
-                <button class="btn btn-primary" @onclick="@(() => this.AddParent(Sex.Doe))">
-                    <span class="oi oi-plus"></span>
-                </button>
-                <button class="btn btn-primary" @onclick="OpenSireSearch">
-                    <span class="oi oi-magnifying-glass"></span>
-                </button>
-            </div>
+            <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Buck))" OnSearch="OpenSireSearch" />
         }
     </dd>
     
@@ -95,25 +71,9 @@
     </tbody>
 </table>
 
-<button class="btn btn-primary" @onclick="AddOffspring">
-    <span class="oi oi-plus"></span>
-</button>
+<AddOrSearchButtons OnAdd="AddOffspring" OnSearch="OpenOffspringSearch" />
 
-<button class="btn btn-primary" @onclick="OpenOffspringSearch">
-    <span class="oi oi-magnifying-glass"></span>
-</button>
-
-<hr/>
-
-<div class="d-flex justify-content-between">
-    <button class="btn btn-danger" @onclick="Delete">
-        <span class="oi oi-delete"></span> Delete
-    </button>
-    
-    <button class="btn btn-success" @onclick="Save">
-        <span class="oi oi-check"></span> Save
-    </button>
-</div>
+<EditFooter OnDelete="Delete" OnSave="Save"/>
 
 @if (ShowRatSearch)
 {

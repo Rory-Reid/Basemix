@@ -33,11 +33,6 @@ public partial class EditRat
         };
     }
 
-    private async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
-    }
-
     private bool CanAddLitter() =>
         !string.IsNullOrEmpty(this.RatForm.Name) &&
         !string.IsNullOrEmpty(this.RatForm.Sex);
@@ -67,7 +62,7 @@ public partial class EditRat
     public async Task SaveAndGoBack()
     {
         await this.SaveRat();
-        await this.GoBack();
+        await this.JsRuntime.InvokeAsync<object>("history.back");
     }
 
     public async Task DeleteRat()

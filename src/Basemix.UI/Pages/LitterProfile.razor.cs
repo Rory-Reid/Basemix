@@ -32,12 +32,6 @@ public partial class LitterProfile
     protected override async Task OnInitializedAsync()
     {
         var storedLitter = (await this.Repository.GetLitter(this.Id));
-        if (storedLitter == null)
-        {
-            await this.GoBack();
-            return;
-        }
-
         this.Litter = storedLitter;
     }
     
@@ -140,10 +134,5 @@ public partial class LitterProfile
     public async Task Search()
     {
         this.RatSearchResults = await this.RatsRepository.SearchRat(this.RatSearchTerm);
-    }
-    
-    private async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
     }
 }

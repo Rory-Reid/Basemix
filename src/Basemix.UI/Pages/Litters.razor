@@ -1,16 +1,6 @@
 @page "/litters"
-@using Basemix.Litters
 
-<div class="d-flex justify-content-between">
-    <button class="btn btn-secondary" @onclick="GoBack">
-        <span class="oi oi-arrow-left"></span> Back
-    </button>
-    <button class="btn btn-primary" @onclick="CreateLitter">
-        <span class="oi oi-plus"></span> Create
-    </button>
-</div>
-
-<hr/>
+<CreateHeader OnCreate="CreateLitter"/>
 
 <h1>Litters</h1>
 

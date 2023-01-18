@@ -1,7 +1,6 @@
 using Basemix.Rats;
 using Basemix.Rats.Persistence;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace Basemix.UI.Pages;
 
@@ -9,7 +8,6 @@ public partial class Rats
 {
     [Inject] public IRatsRepository Repository { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
-    [Inject] public IJSRuntime JsRuntime { get; set; } = null!;
     
     public List<RatSearchResult> RatsList { get; private set; } = new();
 
@@ -24,11 +22,6 @@ public partial class Rats
     public void OpenRatProfile(long ratId)
     {
         this.Nav.NavigateTo($"/rats/{ratId}");
-    }
-
-    public async Task GoBack()
-    {
-        await this.JsRuntime.InvokeAsync<object>("history.back");
     }
 
     public async Task CreateRat()

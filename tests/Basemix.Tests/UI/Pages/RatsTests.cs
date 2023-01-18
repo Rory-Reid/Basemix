@@ -15,8 +15,7 @@ public class RatsTests : RazorPageTests<Basemix.UI.Pages.Rats>
         new()
         {
             Repository = this.repository,
-            Nav = this.nav,
-            JsRuntime = new NullJsRuntime()
+            Nav = this.nav
         };
     
     [Fact]
