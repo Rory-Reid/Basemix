@@ -1,0 +1,13 @@
+@using Basemix.Pedigrees
+<div>
+    <strong style="color: #d63384">
+        @(Value?.Name ?? FallbackName ?? "Unknown")
+    </strong>
+    <br/>
+    @(Value?.Variety ?? "Unknown Variety")
+</div>
+
+@code {
+    [Parameter] public string? FallbackName { get; set; }
+    [Parameter] public Node? Value { get; set; }
+}

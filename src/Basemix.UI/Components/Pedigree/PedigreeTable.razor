@@ -1,0 +1,152 @@
+@using Basemix.Pedigrees
+
+<h3>Pedigree</h3>
+
+<table class="table table-bordered" style="width: 100%">
+    <tbody>
+    <tr id="r1">
+        <td class="pedigree-cell" rowspan="16">
+            <div>
+                <strong>
+                    @(Rat.Name ?? "Unnamed Rat")
+                </strong>
+                <br/>
+                @(Rat.Variety ?? "Unknown variety")
+            </div>
+        </td>
+        <td id="S1" class="pedigree-cell" rowspan="8">
+            <SireNode Value="Rat.Sire" FallbackName="@Sire"/>
+        </td>
+        <td id="SS2" class="pedigree-cell" rowspan="4">
+            <SireNode Value="Rat.Sire?.Sire" FallbackName="@Grandsire" /> 
+        </td>
+        <td id="SSS3" class="pedigree-cell" rowspan="2">
+            <SireNode Value="Rat.Sire?.Sire?.Sire" FallbackName="@GreatGrandsire"/>
+        </td>
+        <td id="SSSS4" class="pedigree-cell">
+            <SireNode Value="Rat.Sire?.Sire?.Sire?.Sire" FallbackName="@GreatGreatGrandsire"/>
+        </td>
+    </tr>
+    <tr id="r2">
+        <td id="SSSD4" class="pedigree-cell">
+            <DamNode Value="Rat.Sire?.Sire?.Sire?.Dam" FallbackName="@GreatGreatGranddam"/>
+        </td>
+    </tr>
+    <tr id="r3">
+        <td id="SSD3" class="pedigree-cell" rowspan="2">
+            <DamNode Value="Rat.Sire?.Sire?.Dam" FallbackName="@GreatGranddam"/>
+        </td>
+        <td id="SSDS4" class="pedigree-cell">
+            <SireNode Value="Rat.Sire?.Sire?.Dam?.Sire" FallbackName="@GreatGreatGrandsire"/>
+        </td>
+    </tr>
+    <tr id="r4">
+        <td id="SSDD4" class="pedigree-cell">
+            <DamNode Value="Rat.Sire?.Sire?.Dam?.Dam" FallbackName="@GreatGreatGranddam" />
+        </td>
+    </tr>
+    <tr id="r5">
+        <td id="SD2" class="pedigree-cell" rowspan="4">
+            <DamNode Value="Rat.Sire?.Dam" FallbackName="@Granddam"/>
+        </td>
+        <td id="SDS3" class="pedigree-cell" rowspan="2">
+            <SireNode Value="Rat.Sire?.Dam?.Sire" FallbackName="@GreatGrandsire"/>
+        </td>
+        <td id="SDSS4" class="pedigree-cell">
+            <SireNode Value="Rat.Sire?.Dam?.Sire?.Sire" FallbackName="@GreatGreatGrandsire"/>
+        </td>
+    </tr>
+    <tr id="r6">
+        <td id="SDSD4" class="pedigree-cell">
+            <DamNode Value="Rat.Sire?.Dam?.Sire?.Dam" FallbackName="@GreatGreatGranddam" />
+        </td>
+    </tr>
+    <tr id="r7">
+        <td id="SDD3" class="pedigree-cell" rowspan="2">
+            <DamNode Value="Rat.Sire?.Dam?.Dam" FallbackName="@GreatGranddam"/>
+        </td>
+        <td id="SDDS4" class="pedigree-cell">
+            <SireNode Value="Rat.Sire?.Dam?.Dam?.Sire" FallbackName="@GreatGreatGrandsire"/>
+        </td>
+    </tr>
+    <tr id="r8">
+        <td id="SDDD4" class="pedigree-cell">
+            <DamNode Value="Rat.Sire?.Dam?.Dam?.Dam" FallbackName="@GreatGreatGranddam"/>
+        </td>
+    </tr>
+    <tr id="r9">
+        <td id="D1" class="pedigree-cell" rowspan="8">
+            <DamNode Value="Rat.Dam" FallbackName="@Dam"/>
+        </td>
+        <td id="DS2" class="pedigree-cell" rowspan="4">
+            <SireNode Value="Rat.Dam?.Sire" FallbackName="@Grandsire"/>
+        </td>
+        <td id="DSS3" class="pedigree-cell" rowspan="2">
+            <SireNode Value="Rat.Dam?.Sire?.Sire" FallbackName="@GreatGrandsire"/>
+        </td>
+        <td id="DSSS4" class="pedigree-cell">
+            <SireNode Value="Rat.Dam?.Sire?.Sire?.Sire" FallbackName="@GreatGreatGrandsire"/>
+        </td>
+    </tr>
+    <tr id="r10">
+        <td id="DSSD4" class="pedigree-cell">
+            <DamNode Value="Rat.Dam?.Sire?.Sire?.Dam" FallbackName="@GreatGreatGranddam"/>
+        </td>
+    </tr>
+    <tr id="r11">
+        <td id="DSD3" class="pedigree-cell" rowspan="2">
+            <DamNode Value="Rat.Dam?.Sire?.Dam" FallbackName="@GreatGranddam"/>
+        </td>
+        <td id="DSDS4" class="pedigree-cell">
+            <SireNode Value="Rat.Dam?.Sire?.Dam?.Sire" FallbackName="@GreatGreatGrandsire"/>
+        </td>
+    </tr>
+    <tr id="r12">
+        <td id="DSDD4" class="pedigree-cell">
+            <DamNode Value="Rat.Dam?.Sire?.Dam?.Dam" FallbackName="@GreatGreatGranddam"/>
+        </td>
+    </tr>
+    <tr id="r13">
+        <td id="DD2" class="pedigree-cell" rowspan="4">
+            <DamNode Value="Rat.Dam?.Dam" FallbackName="@Granddam"/>
+        </td>
+        <td id="DDS3" class="pedigree-cell" rowspan="2">
+            <SireNode Value="Rat.Dam?.Dam?.Sire" FallbackName="@GreatGrandsire"/>
+        </td>
+        <td id="DDSS4" class="pedigree-cell">
+            <SireNode Value="Rat.Dam?.Dam?.Sire?.Sire" FallbackName="@GreatGreatGrandsire"/>
+        </td>
+    </tr>
+    <tr id="r14">
+        <td id="DDSD4" class="pedigree-cell">
+            <DamNode Value="Rat.Dam?.Dam?.Sire?.Dam" FallbackName="@GreatGreatGranddam"/>
+        </td>
+    </tr>
+    <tr id="r15">
+        <td id="DDD3" class="pedigree-cell" rowspan="2">
+            <DamNode Value="Rat.Dam?.Dam?.Dam" FallbackName="@GreatGranddam"/>
+        </td>
+        <td id="DDDS4" class="pedigree-cell">
+            <SireNode Value="Rat.Dam?.Dam?.Dam?.Sire" FallbackName="@GreatGreatGrandsire"/>
+        </td>
+    </tr>
+    <tr id="r16">
+        <td id="DDDD4" class="pedigree-cell">
+            <DamNode Value="Rat.Dam?.Dam?.Dam?.Dam" FallbackName="@GreatGreatGranddam"/>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+@code
+{
+    public const string Sire = "Unknown Sire";
+    public const string Grandsire = "Unknown Grandsire";
+    public const string GreatGrandsire = "Unknown Great grandsire";
+    public const string GreatGreatGrandsire = "Unknown Great great grandsire";
+    public const string Dam = "Unknown Dam";
+    public const string Granddam = "Unknown Granddam";
+    public const string GreatGranddam = "Unknown Great granddam";
+    public const string GreatGreatGranddam = "Unknown Great great granddam";
+    [Parameter] public Node Rat { get; set; } = new();
+}
