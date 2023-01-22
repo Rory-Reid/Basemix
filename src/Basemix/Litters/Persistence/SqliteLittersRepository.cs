@@ -27,10 +27,8 @@ public class SqliteLittersRepository : ILittersRepository
             LEFT JOIN rat sire on sire.id=sire_id
             WHERE litter.id=@Id;
 
-            SELECT rat.id, rat.name
-            FROM litter_kin
-            LEFT JOIN rat on litter_kin.offspring_id = rat.id
-            WHERE litter_kin.litter_id=@Id",
+            SELECT offspring.id, offspring.name
+            FROM rat offspring WHERE offspring.litter_id=@Id",
             new { Id = id });
 
         var litter = await reader.ReadSingleOrDefaultAsync<LitterReadModel?>();
@@ -54,7 +52,7 @@ public class SqliteLittersRepository : ILittersRepository
                 litter.date_of_birth,
                 sire.name AS sire,
                 dam.name AS dam,
-                (SELECT COUNT(offspring_id) FROM litter_kin WHERE litter_id=litter.id) AS offspring_count
+                (SELECT COUNT(id) FROM rat WHERE rat.litter_id=litter.id) AS offspring_count
             FROM litter
             LEFT JOIN rat sire on sire.id=litter.sire_id
             LEFT JOIN rat dam on dam.id=litter.dam_id
@@ -94,10 +92,16 @@ public class SqliteLittersRepository : ILittersRepository
 
         try
         {
-            await db.ExecuteAsync(
-                @"INSERT INTO litter_kin (litter_id, offspring_id) VALUES (@LitterId, @OffspringId)
-                ON CONFLICT DO NOTHING",
+            var rowsAffected = await db.ExecuteAsync(
+                @"UPDATE rat
+                SET litter_id=@LitterId
+                WHERE id=@OffspringId",
                 new {LitterId = id.Value, OffspringId = ratId.Value});
+            
+            if (rowsAffected == 0)
+            {
+                return AddOffspringResult.NonExistantRatOrLitter;
+            }
         }
         catch (SqliteException e)
         {
@@ -115,9 +119,11 @@ public class SqliteLittersRepository : ILittersRepository
     public async Task<RemoveOffspringResult> RemoveOffspring(LitterIdentity id, RatIdentity ratId)
     {
         using var db = this.getDatabase();
-        
+
         var rowsAffected = await db.ExecuteAsync(
-            @"DELETE FROM litter_kin WHERE litter_id=@LitterId AND offspring_id=@OffspringId",
+            @"UPDATE rat
+            SET litter_id=NULL
+            WHERE id=@OffspringId AND litter_id=@LitterId",
             new {LitterId = id.Value, OffspringId = ratId.Value});
 
         return rowsAffected != 0
@@ -125,10 +131,16 @@ public class SqliteLittersRepository : ILittersRepository
             : RemoveOffspringResult.NothingToRemove;
     }
     
-    public Task DeleteLitter(LitterIdentity id)
+    public async Task DeleteLitter(LitterIdentity id)
     {
         using var db = this.getDatabase();
-        return db.ExecuteAsync("DELETE FROM litter WHERE id=@Id", new {Id = id.Value});
+        db.Open();
+        using var transaction = db.BeginTransaction();
+        
+        await db.ExecuteAsync("UPDATE rat SET litter_id=NULL WHERE litter_id=@Id", new {Id = id.Value}, transaction);
+        await db.ExecuteAsync("DELETE FROM litter WHERE id=@Id", new {Id = id.Value}, transaction);
+        
+        transaction.Commit();
     }
 }
 

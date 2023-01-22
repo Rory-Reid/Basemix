@@ -130,10 +130,10 @@ public class LittersRepositoryTests : SqliteIntegration
         result.ShouldBe(AddOffspringResult.Success);
         
         using var db = this.fixture.GetConnection();
-        var litterKin = await db.QuerySingleAsync<LitterKinRow>(
-            @"SELECT * FROM litter_kin WHERE litter_id=@Id", new {Id=id});
+        var offspringId = await db.QuerySingleAsync<long>(
+            @"SELECT id FROM rat WHERE litter_id=@Id", new {Id=id});
         
-        litterKin.offspring_id.ShouldBe(ratId);
+        offspringId.ShouldBe(ratId);
     }
     
     [Fact]
@@ -148,8 +148,8 @@ public class LittersRepositoryTests : SqliteIntegration
         await this.repository.AddOffspring(id, ratId);
 
         using var db = this.fixture.GetConnection();
-        var litterKin = await db.QueryAsync<LitterKinRow>(
-            @"SELECT * FROM litter_kin WHERE litter_id=@Id", new {Id=id});
+        var litterKin = await db.QueryAsync<long>(
+            @"SELECT id FROM rat WHERE litter_id=@Id", new {Id=id});
         
         litterKin.ShouldHaveSingleItem();
     }
@@ -188,8 +188,8 @@ public class LittersRepositoryTests : SqliteIntegration
         result.ShouldBe(RemoveOffspringResult.Success);
         
         using var db = this.fixture.GetConnection();
-        var litterKin = await db.QueryAsync<LitterKinRow>(
-            @"SELECT * FROM litter_kin WHERE litter_id=@Id", new {Id=id});
+        var litterKin = await db.QueryAsync<long>(
+            @"SELECT * FROM rat WHERE litter_id=@Id", new {Id=id});
         
         litterKin.ShouldBeEmpty();
     }
@@ -204,8 +204,8 @@ public class LittersRepositoryTests : SqliteIntegration
         result.ShouldBe(RemoveOffspringResult.NothingToRemove);
         
         using var db = this.fixture.GetConnection();
-        var litterKin = await db.QueryAsync<LitterKinRow>(
-            @"SELECT * FROM litter_kin WHERE litter_id=@Id", new {Id=id});
+        var litterKin = await db.QueryAsync<long>(
+            @"SELECT * FROM rat WHERE litter_id=@Id", new {Id=id});
         
         litterKin.ShouldBeEmpty();
     }
@@ -222,8 +222,8 @@ public class LittersRepositoryTests : SqliteIntegration
         using var db = this.fixture.GetConnection();
         var litter = await db.QuerySingleOrDefaultAsync<LitterRow>(
             @"SELECT * FROM litter WHERE id=@Id", new {Id = id});
-        var litterKin = await db.QueryAsync<LitterKinRow>(
-            @"SELECT * FROM litter_kin WHERE litter_id=@Id", new {Id = id});
+        var litterKin = await db.QueryAsync<long>(
+            @"SELECT * FROM rat WHERE litter_id=@Id", new {Id = id});
         
         litter.ShouldBeNull();
         litterKin.ShouldBeEmpty();
@@ -271,6 +271,5 @@ public class LittersRepositoryTests : SqliteIntegration
     
     // ReSharper disable InconsistentNaming
     private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth);
-    private record LitterKinRow(long litter_id, long offspring_id);
     // ReSharper restore InconsistentNaming
 }

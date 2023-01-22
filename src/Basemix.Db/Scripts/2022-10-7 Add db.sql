@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS rat
     date_of_birth     INTEGER NULL,
   --   genotype          TEXT    NULL,
     
-    notes             TEXT    NULL
+    notes             TEXT    NULL,
+    litter_id         INTEGER NULL,
+    CONSTRAINT fk_litter FOREIGN KEY (litter_id) REFERENCES litter(id)
   --   birth_notes       TEXT    NULL,
   --   birth_weight      INTEGER NULL,
   --   type_score                NULL     CHECK (type_score IN ('Excellent', 'Good', 'Average', 'Poor')),
@@ -40,14 +42,14 @@ CREATE TABLE IF NOT EXISTS litter
     CONSTRAINT fk_sire FOREIGN KEY (sire_id) REFERENCES rat(id)
 );
 
-CREATE TABLE IF NOT EXISTS litter_kin
-(
-    litter_id    INTEGER NOT NULL,
-    offspring_id INTEGER NOT NULL,
-    CONSTRAINT fk_litter    FOREIGN KEY (litter_id)    REFERENCES litter(id) ON DELETE CASCADE,
-    CONSTRAINT fk_offspring FOREIGN KEY (offspring_id) REFERENCES rat(id)    ON DELETE CASCADE,
-    UNIQUE (litter_id, offspring_id)
-);
+-- CREATE TABLE IF NOT EXISTS litter_kin
+-- (
+--     litter_id    INTEGER NOT NULL,
+--     offspring_id INTEGER NOT NULL,
+--     CONSTRAINT fk_litter    FOREIGN KEY (litter_id)    REFERENCES litter(id) ON DELETE CASCADE,
+--     CONSTRAINT fk_offspring FOREIGN KEY (offspring_id) REFERENCES rat(id)    ON DELETE CASCADE,
+--     UNIQUE (litter_id, offspring_id)
+-- );
 
 CREATE VIRTUAL TABLE IF NOT EXISTS rat_search USING fts5
 (

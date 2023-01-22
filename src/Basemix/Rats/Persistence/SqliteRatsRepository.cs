@@ -61,7 +61,7 @@ public class SqliteRatsRepository : IRatsRepository
                 litter.date_of_birth,
                 dam.name as dam_name,
                 sire.name as sire_name,
-                (SELECT COUNT(offspring_id) FROM litter_kin WHERE litter_id=litter.id) AS offspring_count
+                (SELECT COUNT(id) FROM rat WHERE litter_id=litter.id) AS offspring_count
             FROM litter
             LEFT JOIN rat dam on dam.id=dam_id
             LEFT JOIN rat sire on sire.id=sire_id
