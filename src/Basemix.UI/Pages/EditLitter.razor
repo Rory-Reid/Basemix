@@ -73,7 +73,7 @@
 
 <AddOrSearchButtons OnAdd="AddOffspring" OnSearch="OpenOffspringSearch" />
 
-<EditFooter OnDelete="Delete" OnSave="Save"/>
+<SaveDeleteFooter OnDelete="Delete" OnSave="Save"/>
 
 @if (ShowRatSearch)
 {
@@ -83,7 +83,7 @@
             <div class="modal-header">
                 <h3 class="modal-title">Find a rat</h3>
                 <button type="button" class="btn btn-close"
-                        @onclick="@(() => this.ShowRatSearch = false)">
+                        @onclick="@(() => ShowRatSearch = false)">
                 </button>
             </div>
             
@@ -106,9 +106,9 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (var rat in this.RatSearchResults)
+                    @foreach (var rat in RatSearchResults)
                     {
-                        <tr @onclick="@(() => this.SetResult(rat))">
+                        <tr @onclick="@(() => SetResult(rat))">
                             <th scope="row">@(rat.Name ?? "Unnamed")</th>
                             <td>@(rat.Sex.ToString() ?? "-")</td>
                             <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
