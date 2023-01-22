@@ -262,7 +262,7 @@ public class LittersRepositoryTests : SqliteIntegration
 
         var litter = await this.repository.GetLitter(id);
         
-        litter.Offspring.ShouldBeEquivalentTo(new List<Offspring>
+        litter.ShouldNotBeNull().Offspring.ShouldBeEquivalentTo(new List<Offspring>
         {
             new(rat1Id, rat1.Name),
             new(rat2Id, rat2.Name)

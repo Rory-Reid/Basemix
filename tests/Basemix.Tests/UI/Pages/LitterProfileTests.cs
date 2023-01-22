@@ -11,9 +11,9 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
 {
     private readonly Faker faker = new();
     private readonly MemoryPersistenceBackplane backplane = new();
-    private TestNavigationManager nav = new();
-    private MemoryLittersRepository littersRepository;
-    private MemoryRatsRepository ratsRepository;
+    private readonly TestNavigationManager nav = new();
+    private MemoryLittersRepository littersRepository = null!;
+    private MemoryRatsRepository ratsRepository = null!;
 
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override LitterProfile CreatePage()

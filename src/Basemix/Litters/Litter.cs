@@ -10,8 +10,8 @@ public class Litter
     private readonly List<Offspring> offspring;
 
     public Litter(LitterIdentity? identity = null,
-        (RatIdentity Id, string Name)? dam = null,
-        (RatIdentity Id, string Name)? sire = null,
+        (RatIdentity Id, string? Name)? dam = null,
+        (RatIdentity Id, string? Name)? sire = null,
         DateOnly? dateOfBirth = null,
         List<Offspring>? offspring = null)
     {
@@ -176,7 +176,7 @@ public class Litter
     }
 }
 
-public record Offspring(RatIdentity Id, string Name);
+public record Offspring(RatIdentity Id, string? Name);
 
 public enum LitterAddResult
 {

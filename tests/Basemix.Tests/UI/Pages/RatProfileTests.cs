@@ -11,8 +11,8 @@ public class RatProfileTests : RazorPageTests<RatProfile>
 {
     private readonly Faker faker = new();
     private readonly TestNavigationManager nav = new();
-    private MemoryRatsRepository repository;
-    private MemoryLittersRepository littersRepository;
+    private MemoryRatsRepository repository = null!;
+    private MemoryLittersRepository littersRepository = null!;
 
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override RatProfile CreatePage()
@@ -73,7 +73,7 @@ public class RatProfileTests : RazorPageTests<RatProfile>
     }
 
     [Fact]
-    public async Task Open_litter_profile_navigates_to_litter()
+    public void Open_litter_profile_navigates_to_litter()
     {
         var litterId = this.faker.Id();
         

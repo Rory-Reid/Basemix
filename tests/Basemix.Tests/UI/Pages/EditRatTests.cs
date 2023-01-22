@@ -9,11 +9,11 @@ namespace Basemix.Tests.UI.Pages;
 
 public class EditRatTests : RazorPageTests<EditRat>
 {
-    private Faker faker = new();
-    private MemoryPersistenceBackplane backplane = new();
-    private TestNavigationManager nav = new();
-    private MemoryRatsRepository ratsRepository;
-    private MemoryLittersRepository littersRepository;
+    private readonly Faker faker = new();
+    private readonly MemoryPersistenceBackplane backplane = new();
+    private readonly TestNavigationManager nav = new();
+    private MemoryRatsRepository ratsRepository = null!;
+    private MemoryLittersRepository littersRepository = null!;
     
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override EditRat CreatePage()

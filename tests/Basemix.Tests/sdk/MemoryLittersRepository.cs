@@ -25,9 +25,8 @@ public class MemoryLittersRepository : ILittersRepository
     }
 
     public Task<List<LitterOverview>> GetAll() =>
-        Task.FromResult(this.Litters.Values.Select(x => new LitterOverview
+        Task.FromResult(this.Litters.Values.Select(x => new LitterOverview(x.Id)
         {
-            Id = x.Id,
             DateOfBirth = x.DateOfBirth,
             Dam = x.DamName,
             Sire = x.SireName,
@@ -38,8 +37,8 @@ public class MemoryLittersRepository : ILittersRepository
     {
         var id = this.NextId();
 
-        (RatIdentity Id, string Name)? dam = null;
-        (RatIdentity Id, string Name)? sire = null;
+        (RatIdentity Id, string? Name)? dam = null;
+        (RatIdentity Id, string? Name)? sire = null;
         
         if (damId != null)
         {

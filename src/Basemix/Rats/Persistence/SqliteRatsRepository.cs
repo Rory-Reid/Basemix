@@ -122,7 +122,7 @@ public class SqliteRatsRepository : IRatsRepository
     public class PersistedRatSearchResult
     {
         public long Id { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public string? Sex { get; set; }
         public long? DateOfBirth { get; set; }
 

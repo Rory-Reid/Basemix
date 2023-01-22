@@ -11,9 +11,8 @@ public class PersistedLitterOverview
     public int OffspringCount { get; init; }
 
     public LitterOverview ToModelledOverview() =>
-        new()
+        new(this.Id)
         {
-            Id = this.Id,
             DateOfBirth = this.DateOfBirth?.ToDateOnly(),
             Dam = this.Dam,
             Sire = this.Sire,

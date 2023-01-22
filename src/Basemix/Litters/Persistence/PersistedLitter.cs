@@ -53,7 +53,7 @@ public class LitterReadModel
 public class LitterOffspringReadModel
 {
     public long Id { get; set; }
-    public string Name { get; set; }
+    public string? Name { get; set; }
     
     public Offspring ToModelledOffspring() => new Offspring(this.Id, this.Name);
 }

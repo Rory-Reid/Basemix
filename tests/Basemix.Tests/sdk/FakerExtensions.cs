@@ -36,7 +36,7 @@ public static class FakerExtensions
         faker.Litter(id: id, null, null, 0, 0, 0, 0);
     
     public static Litter Litter(this Faker faker, LitterIdentity? id = null,
-        (RatIdentity, string)? dam = null, (RatIdentity, string)? sire = null,
+        (RatIdentity, string?)? dam = null, (RatIdentity, string?)? sire = null,
         float damProbability = 0.5f, float sireProbability = 0.5f,
         int minimumOffspring = 0, int maximumOffspring = 12)
     {
