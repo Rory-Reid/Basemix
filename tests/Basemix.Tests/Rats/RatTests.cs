@@ -29,14 +29,16 @@ public class RatTests
         var id = new RatIdentity(this.faker.Id());
         var name = this.faker.Person.FirstName;
         var sex = this.faker.PickNonDefault<Sex>();
+        var variety = this.faker.Variety();
         var dob = this.faker.Date.RecentDateOnly();
         
-        var rat = new Rat(id, name, sex, dob);
+        var rat = new Rat(id, name, sex, variety, dob);
         
         rat.ShouldSatisfyAllConditions(
             () => rat.Id.ShouldBe(id),
             () => rat.Name.ShouldBe(name),
             () => rat.Sex.ShouldBe(sex),
+            () => rat.Variety.ShouldBe(variety),
             () => rat.DateOfBirth.ShouldBe(dob),
             () => rat.Notes.ShouldBeNull());
     }

@@ -9,12 +9,14 @@ public class Rat
     public Rat(RatIdentity? id = null,
         string? name = null,
         Sex? sex = null,
+        string? variety = null,
         DateOnly? dateOfBirth = null,
         List<RatLitter>? litters = null)
     {
         this.Id = id ?? RatIdentity.Anonymous;
         this.Name = name;
         this.Sex = sex;
+        this.Variety = variety;
         this.DateOfBirth = dateOfBirth;
         this.Litters = litters ?? new();
     }
@@ -22,6 +24,7 @@ public class Rat
     public RatIdentity Id { get; }
     public string? Name { get; set; }
     public Sex? Sex { get; set; }
+    public string? Variety { get; set; }
     public DateOnly? DateOfBirth { get; set; }
     public string? Notes { get; set; }
 

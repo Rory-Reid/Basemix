@@ -82,6 +82,7 @@ public class RatRepositoryTests : SqliteIntegration
         var rat = new Rat(id,
             this.faker.Person.FirstName,
             this.faker.PickNonDefault<Sex>(),
+            this.faker.Variety(),
             this.faker.Date.PastDateOnly())
         {
             Notes = this.faker.Lorem.Paragraphs()
@@ -98,6 +99,7 @@ public class RatRepositoryTests : SqliteIntegration
             () => storedRat.name.ShouldBe(rat.Name),
             () => storedRat.date_of_birth!.ShouldBe(rat.DateOfBirth?.ToPersistedDateTime()),
             () => storedRat.sex.ShouldBe(rat.Sex.ToString()),
+            () => storedRat.variety.ShouldBe(rat.Variety),
             () => storedRat.notes.ShouldBe(rat.Notes));
     }
 
@@ -173,7 +175,6 @@ public class RatRepositoryTests : SqliteIntegration
     [Fact]
     public async Task Search_is_case_insensitive()
     {
-        
         var rat = await Rat.Create(this.repository);
         rat.Name = this.faker.Random.Hash().ToLower();
         await this.repository.UpdateRat(rat);
@@ -183,6 +184,6 @@ public class RatRepositoryTests : SqliteIntegration
     }
 
     // ReSharper disable InconsistentNaming
-    private record RatRow(long id, string? name, string? sex, long? date_of_birth, string? notes);
+    private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes);
     // ReSharper restore InconsistentNaming
 }

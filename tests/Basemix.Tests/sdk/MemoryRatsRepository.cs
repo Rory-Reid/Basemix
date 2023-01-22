@@ -56,7 +56,7 @@ public class MemoryRatsRepository : IRatsRepository
             .Select(r => r.ToSearchResult()).ToList());
 
     private static Rat CopyOf(Rat rat, RatIdentity id) =>
-        new(id, rat.Name, rat.Sex, rat.DateOfBirth)
+        new(id, rat.Name, rat.Sex, rat.Variety, rat.DateOfBirth)
         {
             Notes = rat.Notes
         };

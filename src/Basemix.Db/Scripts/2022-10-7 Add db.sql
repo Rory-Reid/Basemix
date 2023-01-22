@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS rat
     name              TEXT    NULL,
       
     sex               TEXT    NULL CHECK (sex IN ('Doe', 'Buck')),
+    variety           TEXT    NULL,
     date_of_birth     INTEGER NULL,
   --   genotype          TEXT    NULL,
-  --   variety           TEXT    NULL,
     
     notes             TEXT    NULL
   --   birth_notes       TEXT    NULL,

@@ -10,6 +10,7 @@ public record PersistedRat
         this.Id = rat.Id.IsAnonymous ? null : rat.Id;
         this.Name = rat.Name;
         this.Sex = rat.Sex?.ToString();
+        this.Variety = rat.Variety;
         this.DateOfBirth = rat.DateOfBirth?.ToPersistedDateTime();
         this.Notes = rat.Notes;
     }
@@ -32,7 +33,7 @@ public record PersistedRat
         var id = this.Id.HasValue ? new RatIdentity(this.Id.Value) : RatIdentity.Anonymous;
         Sex? sex = !string.IsNullOrEmpty(this.Sex) ? Enum.Parse<Sex>(this.Sex) : null;
         var dateOfBirth = this.DateOfBirth?.ToDateOnly();
-        return new Rat(id, this.Name, sex, dateOfBirth,
+        return new Rat(id, this.Name, sex, this.Variety, dateOfBirth,
             litters?.Select(x =>
                 new RatLitter(
                     x.Id,

@@ -40,6 +40,7 @@ public class SqliteRatsRepository : IRatsRepository
             SET
                 name=@Name,
                 sex=@Sex,
+                variety=@Variety,
                 date_of_birth=@DateOfBirth,
                 notes=@Notes
             WHERE id=@Id",
@@ -52,7 +53,7 @@ public class SqliteRatsRepository : IRatsRepository
         
         using var reader = await db.QueryMultipleAsync( // TODO simplify the weird dam/sire stuff
             @"SELECT
-                id, name, sex, date_of_birth, notes
+                id, name, sex, variety, date_of_birth, notes
             FROM rat WHERE id=@Id;
 
             SELECT
