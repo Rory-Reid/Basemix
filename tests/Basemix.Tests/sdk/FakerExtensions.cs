@@ -65,10 +65,11 @@ public static class FakerExtensions
     }
 
     public static Litter BlankLitter(this Faker faker, LitterIdentity? id = null) =>
-        faker.Litter(id: id, null, null, 0, 0, 0, 0);
+        faker.Litter(id: id, null, null, null, 0, 0, 0, 0);
 
     public static Litter Litter(this Faker faker, LitterIdentity? id = null,
         (RatIdentity, string?)? dam = null, (RatIdentity, string?)? sire = null,
+        List<Rat>? offspring = null,
         float damProbability = 0.5f, float sireProbability = 0.5f,
         int minimumOffspring = 0, int maximumOffspring = 12)
     {
@@ -79,7 +80,7 @@ public static class FakerExtensions
             dam: dam ?? (hasDam ? new(faker.Id(), faker.Name.FirstName(Name.Gender.Female)) : null),
             sire: sire ?? (hasSire ? new(faker.Id(), faker.Name.FirstName(Name.Gender.Male)) : null),
             dateOfBirth: faker.Date.PastDateOnly(),
-            offspring: faker.Make(faker.Random.Int(minimumOffspring, maximumOffspring),
+            offspring: offspring?.Select(x => new Offspring(x.Id, x.Name)).ToList() ?? faker.Make(faker.Random.Int(minimumOffspring, maximumOffspring),
                 _ => new Offspring(faker.Id(), faker.Name.FirstName())).ToList());
     }
 }

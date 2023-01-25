@@ -25,8 +25,8 @@ public class SqliteRatsRepository : IRatsRepository
         using var db = this.getDatabase();
 
         return await db.ExecuteScalarAsync<long>(
-            @"INSERT INTO rat (name, sex, date_of_birth, notes)
-               VALUES (@Name, @Sex, @DateOfBirth, @Notes)
+            @"INSERT INTO rat (name, sex, variety, date_of_birth, notes)
+               VALUES (@Name, @Sex, @Variety, @DateOfBirth, @Notes)
                RETURNING id",
             new PersistedRat(rat));
     }
