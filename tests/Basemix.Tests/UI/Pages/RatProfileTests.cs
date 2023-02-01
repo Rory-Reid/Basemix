@@ -13,6 +13,7 @@ public class RatProfileTests : RazorPageTests<RatProfile>
     private readonly TestNavigationManager nav = new();
     private MemoryRatsRepository repository = null!;
     private MemoryLittersRepository littersRepository = null!;
+    private MemoryPedigreesRepository pedigreesRepository = null!;
 
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override RatProfile CreatePage()
@@ -20,11 +21,13 @@ public class RatProfileTests : RazorPageTests<RatProfile>
         var backplane = new MemoryPersistenceBackplane();
         this.repository = new MemoryRatsRepository(backplane);
         this.littersRepository = new MemoryLittersRepository(backplane);
+        this.pedigreesRepository = new MemoryPedigreesRepository(backplane);
         return new()
         {
             Id = this.faker.Id(),
             Repository = this.repository,
             LittersRepository = this.littersRepository,
+            PedigreeRepository = this.pedigreesRepository,
             Nav = this.nav
         };
     }

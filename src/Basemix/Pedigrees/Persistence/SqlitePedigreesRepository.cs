@@ -3,7 +3,7 @@ using Dapper;
 
 namespace Basemix.Pedigrees.Persistence;
 
-public class SqlitePedigreeRepository
+public class SqlitePedigreeRepository : IPedigreeRepository
 {
     private readonly GetDatabase getDatabase;
 

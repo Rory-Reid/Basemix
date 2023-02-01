@@ -1,6 +1,5 @@
 @using Basemix.Pedigrees
-
-<h3>Pedigree</h3>
+@using Basemix.Rats
 
 <table class="table table-bordered" style="width: 100%">
     <tbody>
@@ -11,128 +10,128 @@
                     @(Rat.Name ?? "Unnamed Rat")
                 </strong>
                 <br/>
-                @(Rat.Variety ?? "Unknown variety")
+                @(Rat.Variety ?? "")
             </div>
         </td>
         <td id="S1" class="pedigree-cell" rowspan="8">
-            <SireNode Value="Rat.Sire" FallbackName="@Sire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Sire" FallbackName="@Sire" Verbose="Verbose"/>
         </td>
         <td id="SS2" class="pedigree-cell" rowspan="4">
-            <SireNode Value="Rat.Sire?.Sire" FallbackName="@Grandsire" /> 
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Sire?.Sire" FallbackName="@Grandsire" Verbose="Verbose"/> 
         </td>
         <td id="SSS3" class="pedigree-cell" rowspan="2">
-            <SireNode Value="Rat.Sire?.Sire?.Sire" FallbackName="@GreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Sire?.Sire?.Sire" FallbackName="@GreatGrandsire" Verbose="Verbose"/>
         </td>
         <td id="SSSS4" class="pedigree-cell">
-            <SireNode Value="Rat.Sire?.Sire?.Sire?.Sire" FallbackName="@GreatGreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Sire?.Sire?.Sire?.Sire" FallbackName="@GreatGreatGrandsire" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r2">
         <td id="SSSD4" class="pedigree-cell">
-            <DamNode Value="Rat.Sire?.Sire?.Sire?.Dam" FallbackName="@GreatGreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Sire?.Sire?.Sire?.Dam" FallbackName="@GreatGreatGranddam" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r3">
         <td id="SSD3" class="pedigree-cell" rowspan="2">
-            <DamNode Value="Rat.Sire?.Sire?.Dam" FallbackName="@GreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Sire?.Sire?.Dam" FallbackName="@GreatGranddam" Verbose="Verbose"/>
         </td>
         <td id="SSDS4" class="pedigree-cell">
-            <SireNode Value="Rat.Sire?.Sire?.Dam?.Sire" FallbackName="@GreatGreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Sire?.Sire?.Dam?.Sire" FallbackName="@GreatGreatGrandsire" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r4">
         <td id="SSDD4" class="pedigree-cell">
-            <DamNode Value="Rat.Sire?.Sire?.Dam?.Dam" FallbackName="@GreatGreatGranddam" />
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Sire?.Sire?.Dam?.Dam" FallbackName="@GreatGreatGranddam" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r5">
         <td id="SD2" class="pedigree-cell" rowspan="4">
-            <DamNode Value="Rat.Sire?.Dam" FallbackName="@Granddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Sire?.Dam" FallbackName="@Granddam"/>
         </td>
         <td id="SDS3" class="pedigree-cell" rowspan="2">
-            <SireNode Value="Rat.Sire?.Dam?.Sire" FallbackName="@GreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Sire?.Dam?.Sire" FallbackName="@GreatGrandsire" Verbose="Verbose"/>
         </td>
         <td id="SDSS4" class="pedigree-cell">
-            <SireNode Value="Rat.Sire?.Dam?.Sire?.Sire" FallbackName="@GreatGreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Sire?.Dam?.Sire?.Sire" FallbackName="@GreatGreatGrandsire" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r6">
         <td id="SDSD4" class="pedigree-cell">
-            <DamNode Value="Rat.Sire?.Dam?.Sire?.Dam" FallbackName="@GreatGreatGranddam" />
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Sire?.Dam?.Sire?.Dam" FallbackName="@GreatGreatGranddam" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r7">
         <td id="SDD3" class="pedigree-cell" rowspan="2">
-            <DamNode Value="Rat.Sire?.Dam?.Dam" FallbackName="@GreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Sire?.Dam?.Dam" FallbackName="@GreatGranddam" Verbose="Verbose"/>
         </td>
         <td id="SDDS4" class="pedigree-cell">
-            <SireNode Value="Rat.Sire?.Dam?.Dam?.Sire" FallbackName="@GreatGreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Sire?.Dam?.Dam?.Sire" FallbackName="@GreatGreatGrandsire" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r8">
         <td id="SDDD4" class="pedigree-cell">
-            <DamNode Value="Rat.Sire?.Dam?.Dam?.Dam" FallbackName="@GreatGreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Sire?.Dam?.Dam?.Dam" FallbackName="@GreatGreatGranddam" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r9">
         <td id="D1" class="pedigree-cell" rowspan="8">
-            <DamNode Value="Rat.Dam" FallbackName="@Dam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Dam" FallbackName="@Dam" Verbose="Verbose"/>
         </td>
         <td id="DS2" class="pedigree-cell" rowspan="4">
-            <SireNode Value="Rat.Dam?.Sire" FallbackName="@Grandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Dam?.Sire" FallbackName="@Grandsire" Verbose="Verbose"/>
         </td>
         <td id="DSS3" class="pedigree-cell" rowspan="2">
-            <SireNode Value="Rat.Dam?.Sire?.Sire" FallbackName="@GreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Dam?.Sire?.Sire" FallbackName="@GreatGrandsire" Verbose="Verbose"/>
         </td>
         <td id="DSSS4" class="pedigree-cell">
-            <SireNode Value="Rat.Dam?.Sire?.Sire?.Sire" FallbackName="@GreatGreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Dam?.Sire?.Sire?.Sire" FallbackName="@GreatGreatGrandsire" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r10">
         <td id="DSSD4" class="pedigree-cell">
-            <DamNode Value="Rat.Dam?.Sire?.Sire?.Dam" FallbackName="@GreatGreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Dam?.Sire?.Sire?.Dam" FallbackName="@GreatGreatGranddam" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r11">
         <td id="DSD3" class="pedigree-cell" rowspan="2">
-            <DamNode Value="Rat.Dam?.Sire?.Dam" FallbackName="@GreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Dam?.Sire?.Dam" FallbackName="@GreatGranddam" Verbose="Verbose"/>
         </td>
         <td id="DSDS4" class="pedigree-cell">
-            <SireNode Value="Rat.Dam?.Sire?.Dam?.Sire" FallbackName="@GreatGreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Dam?.Sire?.Dam?.Sire" FallbackName="@GreatGreatGrandsire" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r12">
         <td id="DSDD4" class="pedigree-cell">
-            <DamNode Value="Rat.Dam?.Sire?.Dam?.Dam" FallbackName="@GreatGreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Dam?.Sire?.Dam?.Dam" FallbackName="@GreatGreatGranddam" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r13">
         <td id="DD2" class="pedigree-cell" rowspan="4">
-            <DamNode Value="Rat.Dam?.Dam" FallbackName="@Granddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Dam?.Dam" FallbackName="@Granddam" Verbose="Verbose"/>
         </td>
         <td id="DDS3" class="pedigree-cell" rowspan="2">
-            <SireNode Value="Rat.Dam?.Dam?.Sire" FallbackName="@GreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Dam?.Dam?.Sire" FallbackName="@GreatGrandsire" Verbose="Verbose"/>
         </td>
         <td id="DDSS4" class="pedigree-cell">
-            <SireNode Value="Rat.Dam?.Dam?.Sire?.Sire" FallbackName="@GreatGreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Dam?.Dam?.Sire?.Sire" FallbackName="@GreatGreatGrandsire" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r14">
         <td id="DDSD4" class="pedigree-cell">
-            <DamNode Value="Rat.Dam?.Dam?.Sire?.Dam" FallbackName="@GreatGreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Dam?.Dam?.Sire?.Dam" FallbackName="@GreatGreatGranddam" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r15">
         <td id="DDD3" class="pedigree-cell" rowspan="2">
-            <DamNode Value="Rat.Dam?.Dam?.Dam" FallbackName="@GreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Dam?.Dam?.Dam" FallbackName="@GreatGranddam" Verbose="Verbose"/>
         </td>
         <td id="DDDS4" class="pedigree-cell">
-            <SireNode Value="Rat.Dam?.Dam?.Dam?.Sire" FallbackName="@GreatGreatGrandsire"/>
+            <PedigreeNode Sex="Sex.Buck" Value="Rat.Dam?.Dam?.Dam?.Sire" FallbackName="@GreatGreatGrandsire" Verbose="Verbose"/>
         </td>
     </tr>
     <tr id="r16">
         <td id="DDDD4" class="pedigree-cell">
-            <DamNode Value="Rat.Dam?.Dam?.Dam?.Dam" FallbackName="@GreatGreatGranddam"/>
+            <PedigreeNode Sex="Sex.Doe" Value="Rat.Dam?.Dam?.Dam?.Dam" FallbackName="@GreatGreatGranddam" Verbose="Verbose"/>
         </td>
     </tr>
     </tbody>
@@ -149,4 +148,5 @@
     public const string GreatGranddam = "Unknown Great granddam";
     public const string GreatGreatGranddam = "Unknown Great great granddam";
     [Parameter] public Node Rat { get; set; } = new();
+    [Parameter] public bool Verbose { get; set; }
 }

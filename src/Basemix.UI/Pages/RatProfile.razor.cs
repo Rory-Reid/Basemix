@@ -1,5 +1,7 @@
 using Basemix.Litters;
 using Basemix.Litters.Persistence;
+using Basemix.Pedigrees;
+using Basemix.Pedigrees.Persistence;
 using Basemix.Rats;
 using Basemix.Rats.Persistence;
 using Microsoft.AspNetCore.Components;
@@ -10,11 +12,13 @@ public partial class RatProfile
 {
     [Inject] public IRatsRepository Repository { get; set; }
     [Inject] public ILittersRepository LittersRepository { get; set; }
+    [Inject] public IPedigreeRepository PedigreeRepository { get; set; }
     [Inject] public NavigationManager Nav { get; set; }
     
     [Parameter] public long Id { get; set; }
 
     public Rat Rat { get; private set; }
+    public Node Pedigree { get; private set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -25,6 +29,7 @@ public partial class RatProfile
         }
 
         this.Rat = storedRat;
+        this.Pedigree = (await this.PedigreeRepository.GetPedigree(this.Id))!;
     }
     
     public async Task NewLitter()

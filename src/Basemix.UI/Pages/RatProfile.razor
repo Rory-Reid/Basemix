@@ -39,7 +39,7 @@
                 Sex.Buck => "Dam",
                 Sex.Doe => "Sire",
                 _ => "Paired with"
-            })
+                })
         </th>
         <th scope="col"># of rats</th>
     </tr>
@@ -59,3 +59,7 @@
 <button class="btn btn-primary" @onclick="NewLitter">
     <span class="oi oi-plus"></span> Create litter
 </button>
+
+<h2>Pedigree</h2>
+
+<PedigreeTable Rat="Pedigree"/>

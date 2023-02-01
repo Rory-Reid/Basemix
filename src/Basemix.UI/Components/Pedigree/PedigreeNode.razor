@@ -1,0 +1,35 @@
+@using Basemix.Pedigrees
+@using Basemix.Rats
+@inject NavigationManager Nav;
+
+<div @onclick="GoToRat">
+    <strong style="@Style">
+        @(Value?.Name ?? (Verbose ? FallbackName ?? "Unknown" : "-"))
+    </strong>
+    <br/>
+    @(Value?.Variety ?? "")
+</div>
+
+@code {
+    [Parameter] public string? FallbackName { get; set; }
+    [Parameter] public Node? Value { get; set; }
+    [Parameter] public bool Verbose { get; set; }
+    [Parameter] public Sex Sex { get; set; }
+
+    private string Style =>
+        Sex switch
+        {
+            Sex.Buck => "color: #0a53be",
+            Sex.Doe => "color: #d63384",
+            _ => "color: #000000"
+        }; 
+        
+    private void GoToRat()
+    {
+        if (this.Value != null)
+        {
+            // TODO don't forceload and instead rework pages to load data in OnParametersSet
+            this.Nav.NavigateTo($"/rats/{Value.Id?.Value}", true);
+        }
+    }
+}

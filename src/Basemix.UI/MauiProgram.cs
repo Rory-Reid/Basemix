@@ -1,5 +1,6 @@
 ﻿using Basemix.Db;
 using Basemix.Litters.Persistence;
+using Basemix.Pedigrees.Persistence;
 using Basemix.Rats.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
@@ -42,6 +43,7 @@ namespace Basemix.UI
             services.AddSingleton<BreedersRepository>();
             services.AddSingleton<IRatsRepository, SqliteRatsRepository>();
             services.AddSingleton<ILittersRepository, SqliteLittersRepository>();
+            services.AddSingleton<IPedigreeRepository, SqlitePedigreeRepository>();
             
             // UI Nonsense
             services.AddSingleton<JsInteropExports>();

@@ -130,6 +130,7 @@ public class PersistedPedigree
     {
         var pedigree = new Node
         {
+            Id = this.Id,
             Name = this.Name,
             Variety = this.Variety
         };
@@ -138,6 +139,7 @@ public class PersistedPedigree
         {
             pedigree.Dam = new Node
             {
+                Id = this.DamId,
                 Name = this.DamName,
                 Variety = this.DamVariety
             };
@@ -146,6 +148,7 @@ public class PersistedPedigree
             {
                 pedigree.Dam.Dam = new Node
                 {
+                    Id = this.DamDamId,
                     Name = this.DamDamName,
                     Variety = this.DamDamVariety
                 };
@@ -154,6 +157,7 @@ public class PersistedPedigree
                 {
                     pedigree.Dam.Dam.Dam = new Node
                     {
+                        Id = this.DamDamDamId,
                         Name = this.DamDamDamName,
                         Variety = this.DamDamDamVariety
                     };
@@ -162,6 +166,7 @@ public class PersistedPedigree
                     {
                         pedigree.Dam.Dam.Dam.Dam = new Node
                         {
+                            Id = this.DamDamDamDamId,
                             Name = this.DamDamDamDamName,
                             Variety = this.DamDamDamDamVariety
                         };
@@ -171,6 +176,7 @@ public class PersistedPedigree
                     {
                         pedigree.Dam.Dam.Dam.Sire = new Node
                         {
+                            Id = this.DamDamDamSireId,
                             Name = this.DamDamDamSireName,
                             Variety = this.DamDamDamSireVariety
                         };
@@ -181,6 +187,7 @@ public class PersistedPedigree
                 {
                     pedigree.Dam.Dam.Sire = new Node
                     {
+                        Id = this.DamDamSireId,
                         Name = this.DamDamSireName,
                         Variety = this.DamDamSireVariety
                     };
@@ -189,6 +196,7 @@ public class PersistedPedigree
                     {
                         pedigree.Dam.Dam.Sire.Dam = new Node
                         {
+                            Id = this.DamDamSireDamId,
                             Name = this.DamDamSireDamName,
                             Variety = this.DamDamSireDamVariety
                         };
@@ -198,6 +206,7 @@ public class PersistedPedigree
                     {
                         pedigree.Dam.Dam.Sire.Sire = new Node
                         {
+                            Id = this.DamDamSireSireId,
                             Name = this.DamDamSireSireName,
                             Variety = this.DamDamSireSireVariety
                         };
@@ -209,6 +218,7 @@ public class PersistedPedigree
             {
                 pedigree.Dam.Sire = new Node
                 {
+                    Id = this.DamSireId,
                     Name = this.DamSireName,
                     Variety = this.DamSireVariety
                 };
@@ -217,6 +227,7 @@ public class PersistedPedigree
                 {
                     pedigree.Dam.Sire.Dam = new Node
                     {
+                        Id = this.DamSireDamId,
                         Name = this.DamSireDamName,
                         Variety = this.DamSireDamVariety
                     };
@@ -225,6 +236,7 @@ public class PersistedPedigree
                     {
                         pedigree.Dam.Sire.Dam.Dam = new Node
                         {
+                            Id = this.DamSireDamDamId,
                             Name = this.DamSireDamDamName,
                             Variety = this.DamSireDamDamVariety
                         };
@@ -234,6 +246,7 @@ public class PersistedPedigree
                     {
                         pedigree.Dam.Sire.Dam.Sire = new Node
                         {
+                            Id = this.DamSireDamSireId,
                             Name = this.DamSireDamSireName,
                             Variety = this.DamSireDamSireVariety
                         };
@@ -244,6 +257,7 @@ public class PersistedPedigree
                 {
                     pedigree.Dam.Sire.Sire = new Node
                     {
+                        Id = this.DamSireSireId,
                         Name = this.DamSireSireName,
                         Variety = this.DamSireSireVariety
                     };
@@ -252,6 +266,7 @@ public class PersistedPedigree
                     {
                         pedigree.Dam.Sire.Sire.Dam = new Node
                         {
+                            Id = this.DamSireSireDamId,
                             Name = this.DamSireSireDamName,
                             Variety = this.DamSireSireDamVariety
                         };
@@ -261,6 +276,7 @@ public class PersistedPedigree
                     {
                         pedigree.Dam.Sire.Sire.Sire = new Node
                         {
+                            Id = this.DamSireSireSireId,
                             Name = this.DamSireSireSireName,
                             Variety = this.DamSireSireSireVariety
                         };
@@ -273,6 +289,7 @@ public class PersistedPedigree
         {
             pedigree.Sire = new Node
             {
+                Id = this.SireId,
                 Name = this.SireName,
                 Variety = this.SireVariety
             };
@@ -281,6 +298,7 @@ public class PersistedPedigree
             {
                 pedigree.Sire.Dam = new Node
                 {
+                    Id = this.SireDamId,
                     Name = this.SireDamName,
                     Variety = this.SireDamVariety
                 };
@@ -289,6 +307,7 @@ public class PersistedPedigree
                 {
                     pedigree.Sire.Dam.Dam = new Node
                     {
+                        Id = this.SireDamDamId,
                         Name = this.SireDamDamName,
                         Variety = this.SireDamDamVariety
                     };
@@ -297,6 +316,7 @@ public class PersistedPedigree
                     {
                         pedigree.Sire.Dam.Dam.Dam = new Node
                         {
+                            Id = this.SireDamDamDamId,
                             Name = this.SireDamDamDamName,
                             Variety = this.SireDamDamDamVariety
                         };
@@ -306,6 +326,7 @@ public class PersistedPedigree
                     {
                         pedigree.Sire.Dam.Dam.Sire = new Node
                         {
+                            Id = this.SireDamDamSireId,
                             Name = this.SireDamDamSireName,
                             Variety = this.SireDamDamSireVariety
                         };
@@ -316,6 +337,7 @@ public class PersistedPedigree
                 {
                     pedigree.Sire.Dam.Sire = new Node
                     {
+                        Id = this.SireDamSireId,
                         Name = this.SireDamSireName,
                         Variety = this.SireDamSireVariety
                     };
@@ -324,6 +346,7 @@ public class PersistedPedigree
                     {
                         pedigree.Sire.Dam.Sire.Dam = new Node
                         {
+                            Id = this.SireDamSireDamId,
                             Name = this.SireDamSireDamName,
                             Variety = this.SireDamSireDamVariety
                         };
@@ -333,6 +356,7 @@ public class PersistedPedigree
                     {
                         pedigree.Sire.Dam.Sire.Sire = new Node
                         {
+                            Id = this.SireDamSireSireId,
                             Name = this.SireDamSireSireName,
                             Variety = this.SireDamSireSireVariety
                         };
@@ -344,6 +368,7 @@ public class PersistedPedigree
             {
                 pedigree.Sire.Sire = new Node
                 {
+                    Id = this.SireSireId,
                     Name = this.SireSireName,
                     Variety = this.SireSireVariety
                 };
@@ -352,6 +377,7 @@ public class PersistedPedigree
                 {
                     pedigree.Sire.Sire.Dam = new Node
                     {
+                        Id = this.SireSireDamId,
                         Name = this.SireSireDamName,
                         Variety = this.SireSireDamVariety
                     };
@@ -360,6 +386,7 @@ public class PersistedPedigree
                     {
                         pedigree.Sire.Sire.Dam.Dam = new Node
                         {
+                            Id = this.SireSireDamDamId,
                             Name = this.SireSireDamDamName,
                             Variety = this.SireSireDamDamVariety
                         };
@@ -369,6 +396,7 @@ public class PersistedPedigree
                     {
                         pedigree.Sire.Sire.Dam.Sire = new Node
                         {
+                            Id = this.SireSireDamSireId,
                             Name = this.SireSireDamSireName,
                             Variety = this.SireSireDamSireVariety
                         };
@@ -379,6 +407,7 @@ public class PersistedPedigree
                 {
                     pedigree.Sire.Sire.Sire = new Node
                     {
+                        Id = this.SireSireSireId,
                         Name = this.SireSireSireName,
                         Variety = this.SireSireSireVariety
                     };
@@ -387,6 +416,7 @@ public class PersistedPedigree
                     {
                         pedigree.Sire.Sire.Sire.Dam = new Node
                         {
+                            Id = this.SireSireSireDamId,
                             Name = this.SireSireSireDamName,
                             Variety = this.SireSireSireDamVariety
                         };
@@ -396,6 +426,7 @@ public class PersistedPedigree
                     {
                         pedigree.Sire.Sire.Sire.Sire = new Node
                         {
+                            Id = this.SireSireSireSireId,
                             Name = this.SireSireSireSireName,
                             Variety = this.SireSireSireSireVariety
                         };
