@@ -28,8 +28,7 @@
     {
         if (this.Value != null)
         {
-            // TODO don't forceload and instead rework pages to load data in OnParametersSet
-            this.Nav.NavigateTo($"/rats/{Value.Id?.Value}", true);
+            this.Nav.NavigateTo($"/rats/{Value.Id?.Value}");
         }
     }
 }

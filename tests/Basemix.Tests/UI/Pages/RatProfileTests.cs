@@ -33,12 +33,12 @@ public class RatProfileTests : RazorPageTests<RatProfile>
     }
 
     [Fact]
-    public async Task Loads_rat_from_repository_on_initialisation()
+    public async Task Loads_rat_from_repository_on_parameters_set()
     {
         var rat = this.faker.Rat(id: this.Page.Id);
         this.repository.Rats[this.Page.Id] = rat;
 
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.Rat.ShouldBe(rat);
     }
@@ -48,7 +48,7 @@ public class RatProfileTests : RazorPageTests<RatProfile>
     {
         var rat = this.faker.Rat(id: this.Page.Id, sex: Sex.Doe);
         this.repository.Rats[this.Page.Id] = rat;
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         await this.Page.NewLitter();
         
@@ -64,7 +64,7 @@ public class RatProfileTests : RazorPageTests<RatProfile>
     {
         var rat = this.faker.Rat(id: this.Page.Id, sex: Sex.Buck);
         this.repository.Rats[this.Page.Id] = rat;
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         await this.Page.NewLitter();
         

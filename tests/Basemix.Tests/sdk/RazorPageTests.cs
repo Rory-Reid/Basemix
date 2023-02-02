@@ -4,15 +4,15 @@ namespace Basemix.Tests.sdk;
 
 public abstract class RazorPageTests<T> : IAsyncLifetime where T : ComponentBase, new()
 {
-    protected RazorPageTests()
-    {
-        // ReSharper disable once VirtualMemberCallInConstructor
-        this.Page = this.CreatePage();
-    }
-    
-    protected T Page { get; }
+    protected T Page { get; private set; }
     protected abstract T CreatePage();
 
-    public Task InitializeAsync() => RazorEngine.InvokeOnInitializedAsync(this.Page);
+    public async Task InitializeAsync()
+    {
+        // https://learn.microsoft.com/en-us/aspnet/core/blazor/components/lifecycle?view=aspnetcore-6.0
+        this.Page = this.CreatePage();
+        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+    }
     public Task DisposeAsync() => Task.CompletedTask;
 }

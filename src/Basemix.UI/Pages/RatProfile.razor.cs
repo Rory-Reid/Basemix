@@ -20,7 +20,7 @@ public partial class RatProfile
     public Rat Rat { get; private set; }
     public Node Pedigree { get; private set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         var storedRat = await this.Repository.GetRat(this.Id);
         if (storedRat == null)

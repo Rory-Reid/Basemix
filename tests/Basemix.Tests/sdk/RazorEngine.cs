@@ -10,4 +10,10 @@ public static class RazorEngine
             .GetType()
             .GetMethod("OnInitializedAsync" , BindingFlags.NonPublic | BindingFlags.Instance)!
             .Invoke(page, null)!;
+
+    public static Task InvokeOnParametersSetAsync<T>(T page) where T : ComponentBase =>
+        (Task) page
+            .GetType()
+            .GetMethod("OnParametersSetAsync", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .Invoke(page, null)!;
 }
