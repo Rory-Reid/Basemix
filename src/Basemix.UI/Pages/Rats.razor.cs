@@ -13,7 +13,7 @@ public partial class Rats
 
     public string? SearchTerm { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         var allRats = await this.Repository.GetAll();
         this.RatsList = allRats.Select(x => x.ToSearchResult()).ToList();

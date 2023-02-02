@@ -36,12 +36,12 @@ public class EditRatTests : RazorPageTests<EditRat>
     }
 
     [Fact]
-    public async Task Loads_rat_into_form_on_initialisation()
+    public async Task Loads_rat_into_form_on_parameters_set()
     {
         var rat = this.faker.Rat(id: this.Page.Id);
         this.ratsRepository.Rats[rat.Id] = rat;
 
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.ShouldSatisfyAllConditions(
             page => page.Rat.ShouldBe(rat),
@@ -70,7 +70,7 @@ public class EditRatTests : RazorPageTests<EditRat>
     {
         var rat = this.faker.Rat(id: this.Page.Id);
         this.ratsRepository.Rats[rat.Id] = rat;
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         var newSex = this.faker.PickNonDefault<Sex>();
         this.Page.RatForm.Name = this.faker.Lorem.Word();
@@ -94,7 +94,7 @@ public class EditRatTests : RazorPageTests<EditRat>
     {
         var rat = this.faker.Rat(id: this.Page.Id);
         this.ratsRepository.Rats[rat.Id] = rat;
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         if (nameMissing)
         {
@@ -121,7 +121,7 @@ public class EditRatTests : RazorPageTests<EditRat>
     {
         var rat = this.faker.Rat(id: this.Page.Id);
         this.ratsRepository.Rats[rat.Id] = rat;
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         var newSex = this.faker.PickNonDefault<Sex>();
         this.Page.RatForm.Name = this.faker.Lorem.Word();
@@ -143,7 +143,7 @@ public class EditRatTests : RazorPageTests<EditRat>
     {
         var rat = this.faker.Rat(id: this.Page.Id);
         this.ratsRepository.Rats[rat.Id] = rat;
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.RatForm.Sex = Sex.Doe.ToString();
         await this.Page.NewLitter();
@@ -161,7 +161,7 @@ public class EditRatTests : RazorPageTests<EditRat>
     {
         var rat = this.faker.Rat(id: this.Page.Id);
         this.ratsRepository.Rats[rat.Id] = rat;
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.RatForm.Sex = Sex.Buck.ToString();
         await this.Page.NewLitter();
@@ -178,7 +178,7 @@ public class EditRatTests : RazorPageTests<EditRat>
     {
         var rat = this.faker.Rat(id: this.Page.Id);
         this.ratsRepository.Rats[rat.Id] = rat;
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         await this.Page.DeleteRat();
         

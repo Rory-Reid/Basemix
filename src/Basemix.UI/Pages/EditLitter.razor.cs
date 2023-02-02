@@ -29,7 +29,7 @@ public partial class EditLitter
     public bool HasSire => this.Litter.SireId != null;
     public bool HasSireName => !string.IsNullOrEmpty(this.Litter.SireName);
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         this.Litter = (await this.Repository.GetLitter(this.Id))!;
     }

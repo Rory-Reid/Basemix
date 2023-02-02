@@ -11,7 +11,7 @@ public partial class Litters
     
     public List<LitterOverview> LitterList { get; private set; } = new();
     
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         this.LitterList = await this.Repository.GetAll();
     }

@@ -18,11 +18,11 @@ public class LittersTests : RazorPageTests<Basemix.UI.Pages.Litters>
         };
 
     [Fact]
-    public async Task Loads_litters_from_repo_on_initialisation()
+    public async Task Loads_litters_from_repo_on_parameters_set()
     {
         this.faker.Make(100, () => this.repository.CreateLitter());
 
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.LitterList.Count.ShouldBe(100);
     }

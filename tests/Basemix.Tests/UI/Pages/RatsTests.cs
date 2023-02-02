@@ -19,12 +19,12 @@ public class RatsTests : RazorPageTests<Basemix.UI.Pages.Rats>
         };
     
     [Fact]
-    public async Task Loads_rats_from_repo_into_rat_list_on_init()
+    public async Task Loads_rats_from_repo_into_rat_list_on_parameters_set()
     {
         var rat = await Rat.Create(this.repository);
         var otherRat = await Rat.Create(this.repository);
         
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.RatsList.ShouldBeEquivalentTo(new List<RatSearchResult> {rat.ToSearchResult(), otherRat.ToSearchResult()});
     }

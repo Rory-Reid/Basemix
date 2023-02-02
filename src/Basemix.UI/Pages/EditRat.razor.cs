@@ -21,7 +21,7 @@ public partial class EditRat
     
     public bool DisableCreateLitter => !this.CanAddLitter();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         this.Rat = (await this.Repository.GetRat(Id))!;
         this.RatForm = new()

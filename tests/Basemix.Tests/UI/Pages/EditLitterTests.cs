@@ -33,12 +33,12 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     }
 
     [Fact]
-    public async Task Loads_rat_litter_on_initialisation()
+    public async Task Loads_rat_litter_on_parameters_set()
     {
         var litter = this.faker.Litter(id: this.Page.Id);
         this.littersRepository.Seed(litter);
 
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.Litter.ShouldBeEquivalentTo(litter);
     }
@@ -48,7 +48,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         var litter = this.faker.Litter(id: this.Page.Id, damProbability: 0);
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.ShouldSatisfyAllConditions(
             page => page.HasDam.ShouldBeFalse(),
@@ -60,7 +60,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         var litter = this.faker.Litter(id: this.Page.Id, dam: new(this.faker.Id(), null));
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.ShouldSatisfyAllConditions(
             page => page.HasDam.ShouldBeTrue(),
@@ -72,7 +72,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         var litter = this.faker.Litter(id: this.Page.Id, dam: new(this.faker.Id(), this.faker.Name.FirstName()));
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.ShouldSatisfyAllConditions(
             page => page.HasDam.ShouldBeTrue(),
@@ -84,7 +84,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         var litter = this.faker.Litter(id: this.Page.Id, sireProbability: 0);
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.ShouldSatisfyAllConditions(
             page => page.HasSire.ShouldBeFalse(),
@@ -96,7 +96,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         var litter = this.faker.Litter(id: this.Page.Id, sire: new(this.faker.Id(), null));
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.ShouldSatisfyAllConditions(
             page => page.HasSire.ShouldBeTrue(),
@@ -108,7 +108,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         var litter = this.faker.Litter(id: this.Page.Id, sire: new(this.faker.Id(), this.faker.Name.FirstName()));
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.ShouldSatisfyAllConditions(
             page => page.HasSire.ShouldBeTrue(),
@@ -126,7 +126,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
             dam: new(this.faker.Id(), damName),
             sire: new(this.faker.Id(), sireName));
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.LitterName().ShouldBe(expectedLitterName);
     }
@@ -135,7 +135,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     public async Task Add_parent_with_doe_creates_linked_dam_and_navigates_to_edit()
     {
         this.littersRepository.Seed(this.faker.BlankLitter(id: this.Page.Id));
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         await this.Page.AddParent(sex: Sex.Doe);
 
@@ -148,7 +148,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     public async Task Add_parent_with_buck_creates_linked_sire_and_navigates_to_edit()
     {
         this.littersRepository.Seed(this.faker.BlankLitter(id: this.Page.Id));
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         await this.Page.AddParent(sex: Sex.Buck);
 
@@ -161,7 +161,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     public async Task Add_offspring_creates_linked_rat_and_navigates_to_edit()
     {
         this.littersRepository.Seed(this.faker.BlankLitter(id: this.Page.Id));
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         await this.Page.AddOffspring();
 
@@ -176,7 +176,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         var newLitter = this.faker.BlankLitter(id: this.Page.Id);
         newLitter.DateOfBirth = this.faker.Date.PastDateOnly();
         this.littersRepository.Seed(newLitter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         await this.Page.AddOffspring();
 
@@ -266,7 +266,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         var doe = this.faker.Rat(id: this.faker.Id(), sex: Sex.Doe);
         this.backplane.Seed(doe); // TODO replace with ratrepository.Seed
         this.littersRepository.Seed(this.faker.BlankLitter(this.Page.Id));
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.OpenDamSearch();
         this.Page.RatSearchTerm = doe.Name!;
@@ -308,7 +308,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         var buck = this.faker.Rat(id: this.faker.Id(), sex: Sex.Buck);
         this.backplane.Seed(buck); // TODO replace with ratrepository.Seed
         this.littersRepository.Seed(this.faker.BlankLitter(this.Page.Id));
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.OpenSireSearch();
         this.Page.RatSearchTerm = buck.Name!;
@@ -349,7 +349,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         var rat = this.faker.Rat(id: this.faker.Id());
         this.backplane.Seed(rat); // TODO replace with ratrepository.Seed
         this.littersRepository.Seed(this.faker.BlankLitter(this.Page.Id));
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.OpenOffspringSearch();
         this.Page.RatSearchTerm = rat.Name!;
@@ -367,7 +367,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         var litter = this.faker.BlankLitter(id: this.Page.Id);
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         var dob = this.faker.Date.PastDateOnly();
         this.Page.Litter.DateOfBirth = dob;
@@ -381,7 +381,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         var litter = this.faker.BlankLitter(id: this.Page.Id);
         this.littersRepository.Seed(litter);
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         litter.DateOfBirth = this.faker.Date.PastDateOnly();
         await this.Page.Delete();
@@ -399,7 +399,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         this.backplane.Seed(rat); // TODO replace with ratrepo seed
         await litter.AddOffspring(this.littersRepository, rat);
         
-        await RazorEngine.InvokeOnInitializedAsync(this.Page);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         this.Page.Litter.Offspring.Count.ShouldBe(1);
 
         await this.Page.RemoveOffspring(new Offspring(rat.Id, rat.Name));
