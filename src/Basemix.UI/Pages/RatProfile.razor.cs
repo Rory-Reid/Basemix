@@ -10,10 +10,10 @@ namespace Basemix.UI.Pages;
 
 public partial class RatProfile
 {
-    [Inject] public IRatsRepository Repository { get; set; }
-    [Inject] public ILittersRepository LittersRepository { get; set; }
-    [Inject] public IPedigreeRepository PedigreeRepository { get; set; }
-    [Inject] public NavigationManager Nav { get; set; }
+    [Inject] public IRatsRepository Repository { get; set; } = null!;
+    [Inject] public ILittersRepository LittersRepository { get; set; } = null!;
+    [Inject] public IPedigreeRepository PedigreeRepository { get; set; } = null!;
+    [Inject] public NavigationManager Nav { get; set; } = null!;
     
     [Parameter] public long Id { get; set; }
 

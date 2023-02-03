@@ -26,8 +26,7 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
             Id = this.faker.Id(),
             Repository = this.littersRepository,
             RatsRepository = this.ratsRepository,
-            Nav = this.nav,
-            JsRuntime = new NullJsRuntime()
+            Nav = this.nav
         };
     }
 

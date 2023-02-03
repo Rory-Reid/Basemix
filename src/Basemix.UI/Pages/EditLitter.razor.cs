@@ -9,10 +9,10 @@ namespace Basemix.UI.Pages;
 
 public partial class EditLitter
 {
-    [Inject] public ILittersRepository Repository { get; set; }
-    [Inject] public IRatsRepository RatsRepository { get; set; }
-    [Inject] public NavigationManager Nav { get; set; }
-    [Inject] public IJSRuntime JsRuntime { get; set; }
+    [Inject] public ILittersRepository Repository { get; set; } = null!;
+    [Inject] public IRatsRepository RatsRepository { get; set; } = null!;
+    [Inject] public NavigationManager Nav { get; set; } = null!;
+    [Inject] public IJSRuntime JsRuntime { get; set; } = null!;
 
     [Parameter] public long Id { get; set; }
     

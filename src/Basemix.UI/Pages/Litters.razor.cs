@@ -6,8 +6,8 @@ namespace Basemix.UI.Pages;
 
 public partial class Litters
 {
-    [Inject] public ILittersRepository Repository { get; set; }
-    [Inject] public NavigationManager Nav { get; set; }
+    [Inject] public ILittersRepository Repository { get; set; } = null!;
+    [Inject] public NavigationManager Nav { get; set; } = null!;
     
     public List<LitterOverview> LitterList { get; private set; } = new();
     

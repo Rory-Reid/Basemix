@@ -4,7 +4,7 @@ namespace Basemix.Tests.sdk;
 
 public abstract class RazorPageTests<T> : IAsyncLifetime where T : ComponentBase, new()
 {
-    protected T Page { get; private set; }
+    protected T Page { get; private set; } = null!;
     protected abstract T CreatePage();
 
     public async Task InitializeAsync()
@@ -14,5 +14,6 @@ public abstract class RazorPageTests<T> : IAsyncLifetime where T : ComponentBase
         await RazorEngine.InvokeOnInitializedAsync(this.Page);
         await RazorEngine.InvokeOnParametersSetAsync(this.Page);
     }
+    
     public Task DisposeAsync() => Task.CompletedTask;
 }

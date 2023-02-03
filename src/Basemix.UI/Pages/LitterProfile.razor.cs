@@ -9,10 +9,9 @@ namespace Basemix.UI.Pages;
 
 public partial class LitterProfile
 {
-    [Inject] public ILittersRepository Repository { get; set; }
-    [Inject] public IRatsRepository RatsRepository { get; set; }
-    [Inject] public NavigationManager Nav { get; set; }
-    [Inject] public IJSRuntime JsRuntime { get; set; }
+    [Inject] public ILittersRepository Repository { get; set; } = null!;
+    [Inject] public IRatsRepository RatsRepository { get; set; } = null!;
+    [Inject] public NavigationManager Nav { get; set; } = null!;
     
     [Parameter] public long Id { get; set; }
     
@@ -20,7 +19,7 @@ public partial class LitterProfile
     
     public bool ShowRatSearch { get; set; }
     public Sex? RatSearchSex { get; set; }
-    public string RatSearchTerm { get; set; }
+    public string RatSearchTerm { get; set; } = string.Empty;
     public List<RatSearchResult> RatSearchResults { get; set; } = new();
     public Func<RatSearchResult, Task> SetResult { get; set; } = _ => Task.CompletedTask;
 
