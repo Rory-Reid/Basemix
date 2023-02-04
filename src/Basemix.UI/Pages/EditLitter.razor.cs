@@ -16,11 +16,12 @@ public partial class EditLitter
 
     [Parameter] public long Id { get; set; }
     
-    public Litter Litter { get; set; }
+    public bool LitterLoaded { get; private set; }
+    public Litter Litter { get; set; } = null!;
     
     public bool ShowRatSearch { get; set; }
     public Sex? RatSearchSex { get; set; }
-    public string RatSearchTerm { get; set; }
+    public string RatSearchTerm { get; set; } = string.Empty;
     public List<RatSearchResult> RatSearchResults { get; set; } = new();
     public Func<RatSearchResult, Task> SetResult { get; set; } = _ => Task.CompletedTask;
 
@@ -31,7 +32,14 @@ public partial class EditLitter
 
     protected override async Task OnParametersSetAsync()
     {
-        this.Litter = (await this.Repository.GetLitter(this.Id))!;
+        var litter = await this.Repository.GetLitter(this.Id);
+        if (litter == null)
+        {
+            return;
+        }
+
+        this.LitterLoaded = true;
+        this.Litter = litter;
     }
     
     public string LitterName()

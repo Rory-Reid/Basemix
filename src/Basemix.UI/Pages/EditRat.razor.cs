@@ -15,15 +15,23 @@ public partial class EditRat
     [Inject] public NavigationManager Nav { get; set; } = null!;
 
     [Parameter] public long Id { get; set; }
-    
-    public Rat Rat { get; private set; }
-    public RatForm RatForm { get; private set; }
+
+    public bool RatLoaded { get; private set; }
+    public Rat Rat { get; private set; } = null!;
+    public RatForm RatForm { get; private set; } = new();
     
     public bool DisableCreateLitter => !this.CanAddLitter();
 
     protected override async Task OnParametersSetAsync()
     {
-        this.Rat = (await this.Repository.GetRat(Id))!;
+        var rat = await this.Repository.GetRat(this.Id);
+        if (rat == null)
+        {
+            return;
+        }
+
+        this.RatLoaded = true;
+        this.Rat = rat;
         this.RatForm = new()
         {
             Name = this.Rat.Name,

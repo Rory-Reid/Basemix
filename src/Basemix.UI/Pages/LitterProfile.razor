@@ -1,103 +1,112 @@
 @page "/litters/{Id:long}"
 @using Basemix.Rats
 
-<EditHeader OnEdit="@(() => Nav.NavigateTo($"/litters/{Id}/edit"))" />
+@if (!LitterLoaded)
+{
+    <BackButton />
+    <hr />
+    <NoLitter />
+}
+else
+{
+    <EditHeader OnEdit="@(() => Nav.NavigateTo($"/litters/{Id}/edit"))"/>
 
-<h1>@(LitterName())</h1>
+    <h1>@(LitterName())</h1>
 
-<dl class="row">
-    <dt class="col-sm-2">Dam</dt>
-    <dd class="col-sm-9">
-        @if (HasDam)
-        {
-            <a href="/rats/@Litter.DamId?.Value">@(Litter.DamName ?? "Unnamed Dam")</a>
-        }
-        else
-        {
-            <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Doe))" OnSearch="OpenDamSearch"/>
-        }
-    </dd>
-    
-    
-    <dt class="col-sm-2">Sire</dt>
-    <dd class="col-sm-9">
-        @if (HasSire)
-        {
-            <a href="/rats/@Litter.SireId?.Value">@(Litter.SireName ?? "Unnamed Sire")</a>
-        }
-        else
-        {
-            <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Buck))" OnSearch="OpenSireSearch" />
-        }
-    </dd>
-    
-    <dt class="col-sm-2">Date of Birth</dt>
-    <dd class="col-sm-9">@(Litter.DateOfBirth?.ToString() ?? "-")</dd>
-</dl>
+    <dl class="row">
+        <dt class="col-sm-2">Dam</dt>
+        <dd class="col-sm-9">
+            @if (HasDam)
+            {
+                <a href="/rats/@Litter.DamId?.Value">@(Litter.DamName ?? "Unnamed Dam")</a>
+            }
+            else
+            {
+                <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Doe))" OnSearch="OpenDamSearch"/>
+            }
+        </dd>
 
-<h2>Offspring</h2>
 
-<table class="table table-hover">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var rat in Litter.Offspring)
-    {
-        <tr @onclick="@(() => OpenRatProfile(rat.Id))">
-            <td>@(rat.Name ?? "Unnamed")</td>
+        <dt class="col-sm-2">Sire</dt>
+        <dd class="col-sm-9">
+            @if (HasSire)
+            {
+                <a href="/rats/@Litter.SireId?.Value">@(Litter.SireName ?? "Unnamed Sire")</a>
+            }
+            else
+            {
+                <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Buck))" OnSearch="OpenSireSearch"/>
+            }
+        </dd>
+
+        <dt class="col-sm-2">Date of Birth</dt>
+        <dd class="col-sm-9">@(Litter.DateOfBirth?.ToString() ?? "-")</dd>
+    </dl>
+
+    <h2>Offspring</h2>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th scope="col">Name</th>
         </tr>
-    }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        @foreach (var rat in Litter.Offspring)
+        {
+            <tr @onclick="@(() => OpenRatProfile(rat.Id))">
+                <td>@(rat.Name ?? "Unnamed")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
 
-<AddOrSearchButtons OnAdd="AddOffspring" OnSearch="OpenOffspringSearch" />
+    <AddOrSearchButtons OnAdd="AddOffspring" OnSearch="OpenOffspringSearch"/>
+}
 
 @if (ShowRatSearch)
 {
-<div class="modal" tabindex="-1" style="display:block" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Find a rat</h3>
-                <button type="button" class="btn btn-close"
-                        @onclick="@(() => ShowRatSearch = false)">
-                </button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="input-group mb-3">
-                    <input id="ratSearchInput" type="text" class="form-control" @bind="RatSearchTerm" placeholder="Search for a rat here"/>
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" @onclick="Search">
-                            <span class="oi oi-magnifying-glass"></span>
-                        </button>
-                    </div>
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Find a rat</h3>
+                    <button type="button" class="btn btn-close"
+                            @onclick="@(() => ShowRatSearch = false)">
+                    </button>
                 </div>
-                
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Sex</th>
-                        <th scope="col">DoB</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var rat in RatSearchResults)
-                    {
-                        <tr @onclick="@(() => SetResult(rat))">
-                            <th scope="row">@(rat.Name ?? "Unnamed")</th>
-                            <td>@(rat.Sex.ToString() ?? "-")</td>
-                            <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
+
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input id="ratSearchInput" type="text" class="form-control" @bind="RatSearchTerm" placeholder="Search for a rat here"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" @onclick="Search">
+                                <span class="oi oi-magnifying-glass"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Sex</th>
+                            <th scope="col">DoB</th>
                         </tr>
-                    }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                        @foreach (var rat in RatSearchResults)
+                        {
+                            <tr @onclick="@(() => SetResult(rat))">
+                                <th scope="row">@(rat.Name ?? "Unnamed")</th>
+                                <td>@(rat.Sex.ToString() ?? "-")</td>
+                                <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
 }

@@ -2,78 +2,87 @@
 @using Basemix.Rats
 @using Microsoft.AspNetCore.Components
 
-<SaveHeader OnSave="Save" />
+@if (!LitterLoaded)
+{
+    <BackButton />
+    <hr />
+    <NoLitter />
+}
+else
+{
+    <SaveHeader OnSave="Save" />
 
-<h1>@("Editing " + LitterName())</h1>
-<dl class="row">
-    <dt class="col-sm-2">Dam</dt>
-    <dd class="col-sm-9">
-        @if (this.HasDam)
-        {
-            <div>
-                <a href="/rats/@this.Litter.DamId?.Value">@(this.Litter.DamName ?? "Unnamed Dam")</a>
-                <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Doe))">
-                    <span class="oi oi-circle-x"></span> Remove Dam
-                </button>
-            </div>
-        }
-        else
-        {
-            <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Doe))" OnSearch="OpenDamSearch" />
-        }
-    </dd>
-    
-    
-    <dt class="col-sm-2">Sire</dt>
-    <dd class="col-sm-9">
-        @if (this.HasSire)
-        {
-            <div>
-                <a href="/rats/@this.Litter.SireId?.Value">@(this.Litter.SireName ?? "Unnamed Sire")</a>
-                <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Buck))">
-                    <span class="oi oi-circle-x"></span> Remove Sire
-                </button>
-            </div>
-        }
-        else
-        {
-            <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Buck))" OnSearch="OpenSireSearch" />
-        }
-    </dd>
-    
-    <dt class="col-sm-2">Date of Birth</dt>
-    <dd class="col-sm-9">
-        <input required class="form-control" type="date" id="dateOfBirthInput" @bind="this.Litter.DateOfBirth"/>
-    </dd>
-</dl>
+    <h1>@("Editing " + LitterName())</h1>
+    <dl class="row">
+        <dt class="col-sm-2">Dam</dt>
+        <dd class="col-sm-9">
+            @if (this.HasDam)
+            {
+                <div>
+                    <a href="/rats/@this.Litter.DamId?.Value">@(this.Litter.DamName ?? "Unnamed Dam")</a>
+                    <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Doe))">
+                        <span class="oi oi-circle-x"></span> Remove Dam
+                    </button>
+                </div>
+            }
+            else
+            {
+                <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Doe))" OnSearch="OpenDamSearch" />
+            }
+        </dd>
+        
+        
+        <dt class="col-sm-2">Sire</dt>
+        <dd class="col-sm-9">
+            @if (this.HasSire)
+            {
+                <div>
+                    <a href="/rats/@this.Litter.SireId?.Value">@(this.Litter.SireName ?? "Unnamed Sire")</a>
+                    <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Buck))">
+                        <span class="oi oi-circle-x"></span> Remove Sire
+                    </button>
+                </div>
+            }
+            else
+            {
+                <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Buck))" OnSearch="OpenSireSearch" />
+            }
+        </dd>
+        
+        <dt class="col-sm-2">Date of Birth</dt>
+        <dd class="col-sm-9">
+            <input required class="form-control" type="date" id="dateOfBirthInput" @bind="this.Litter.DateOfBirth"/>
+        </dd>
+    </dl>
 
-<h2>Offspring</h2>
+    <h2>Offspring</h2>
 
-<table class="table">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col"></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var rat in this.Litter.Offspring)
-    {
+    <table class="table">
+        <thead>
         <tr>
-            <td>@rat.Name</td>
-            <td>
-                <button class="btn btn-danger" @onclick="(() => this.RemoveOffspring(rat))">
-                    <span class="oi oi-circle-x"></span> Remove from litter
-                </button>
-            </td>
+            <th scope="col">Name</th>
+            <th scope="col"></th>
         </tr>
-    }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        @foreach (var rat in this.Litter.Offspring)
+        {
+            <tr>
+                <td>@rat.Name</td>
+                <td>
+                    <button class="btn btn-danger" @onclick="(() => this.RemoveOffspring(rat))">
+                        <span class="oi oi-circle-x"></span> Remove from litter
+                    </button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
 
-<AddOrSearchButtons OnAdd="AddOffspring" OnSearch="OpenOffspringSearch" />
+    <AddOrSearchButtons OnAdd="AddOffspring" OnSearch="OpenOffspringSearch" />
 
-<SaveDeleteFooter OnDelete="Delete" OnSave="Save"/>
+    <SaveDeleteFooter OnDelete="Delete" OnSave="Save"/>
+}
 
 @if (ShowRatSearch)
 {

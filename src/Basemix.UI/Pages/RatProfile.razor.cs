@@ -17,19 +17,30 @@ public partial class RatProfile
     
     [Parameter] public long Id { get; set; }
 
-    public Rat Rat { get; private set; }
-    public Node Pedigree { get; private set; }
+    public bool RatLoaded { get; private set; }
+    public bool PedigreeLoaded { get; private set; }
+    public Rat Rat { get; private set; } = null!;
+    public Node Pedigree { get; private set; } = null!;
 
     protected override async Task OnParametersSetAsync()
     {
-        var storedRat = await this.Repository.GetRat(this.Id);
-        if (storedRat == null)
+        var rat = await this.Repository.GetRat(this.Id);
+        if (rat == null)
         {
             return;
         }
 
-        this.Rat = storedRat;
-        this.Pedigree = (await this.PedigreeRepository.GetPedigree(this.Id))!;
+        this.RatLoaded = true;
+        this.Rat = rat;
+        
+        var pedigree = await this.PedigreeRepository.GetPedigree(this.Id);
+        if (pedigree == null)
+        {
+            return;
+        }
+
+        this.PedigreeLoaded = true;
+        this.Pedigree = pedigree;
     }
     
     public async Task NewLitter()

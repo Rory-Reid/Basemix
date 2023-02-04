@@ -15,7 +15,8 @@ public partial class LitterProfile
     
     [Parameter] public long Id { get; set; }
     
-    public Litter Litter { get; private set; }
+    public bool LitterLoaded { get; private set; }
+    public Litter Litter { get; private set; } = null!;
     
     public bool ShowRatSearch { get; set; }
     public Sex? RatSearchSex { get; set; }
@@ -30,7 +31,13 @@ public partial class LitterProfile
 
     protected override async Task OnParametersSetAsync()
     {
-        var storedLitter = (await this.Repository.GetLitter(this.Id));
+        var storedLitter = await this.Repository.GetLitter(this.Id);
+        if (storedLitter == null)
+        {
+            return;
+        }
+
+        this.LitterLoaded = true;
         this.Litter = storedLitter;
     }
     

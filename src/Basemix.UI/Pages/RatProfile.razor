@@ -1,65 +1,82 @@
 @page "/rats/{Id:long}"
 @using Basemix.Rats
 
-<EditHeader OnEdit="@(() => Nav.NavigateTo($"/rats/{Id}/edit"))" />
 
-<h1>@Rat.Name</h1>
+@if (!RatLoaded)
+{
+    <BackButton />
+    <hr />
+    <NoRat/>
+}
+else
+{
+    <EditHeader OnEdit="@(() => Nav.NavigateTo($"/rats/{Id}/edit"))"/>
 
-<dl class="row">
-    <dt class="col-sm-2">Date of Birth</dt>
-    <dd class="col-sm-9">@Rat.DateOfBirth</dd>
-    
-    <dt class="col-sm-2">Sex</dt>
-    <dd class="col-sm-9">@Rat.Sex</dd>
-    
-    <dt class="col-sm-2">Variety</dt>
-    <dd class="col-sm-9">@Rat.Variety</dd>
-    
-    @if (!string.IsNullOrEmpty(Rat.Notes))
-    {
-        <dt class="col-sm-2">Notes</dt>
-        <dd class="col-sm-9">
-            @foreach (var line in Rat.Notes.Split("\n"))
-            {
-                <p>@line</p>
-            }
-        </dd>
-    }
-</dl>
+    <h1>@Rat.Name</h1>
 
-<h2>Litters</h2>
+    <dl class="row">
+        <dt class="col-sm-2">Date of Birth</dt>
+        <dd class="col-sm-9">@Rat.DateOfBirth</dd>
 
-<table class="table table-hover">
-    <thead>
-    <tr>
-        <th scope="col">DoB</th>
-        <th scope="col">
-            @(Rat.Sex switch
-            {
-                Sex.Buck => "Dam",
-                Sex.Doe => "Sire",
-                _ => "Paired with"
-                })
-        </th>
-        <th scope="col"># of rats</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var litter in Rat.Litters)
-    {
-        <tr @onclick="@(() => OpenLitterProfile(litter.Id))">
-            <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
-            <td>@(litter.PairedWith ?? "-")</td>
-            <td>@litter.OffspringCount</td>
+        <dt class="col-sm-2">Sex</dt>
+        <dd class="col-sm-9">@Rat.Sex</dd>
+
+        <dt class="col-sm-2">Variety</dt>
+        <dd class="col-sm-9">@Rat.Variety</dd>
+
+        @if (!string.IsNullOrEmpty(Rat.Notes))
+        {
+            <dt class="col-sm-2">Notes</dt>
+            <dd class="col-sm-9">
+                @foreach (var line in Rat.Notes.Split("\n"))
+                {
+                    <p>@line</p>
+                }
+            </dd>
+        }
+    </dl>
+
+    <h2>Litters</h2>
+
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th scope="col">DoB</th>
+            <th scope="col">
+                @(Rat.Sex switch
+                {
+                    Sex.Buck => "Dam",
+                    Sex.Doe => "Sire",
+                    _ => "Paired with"
+                    })
+            </th>
+            <th scope="col"># of rats</th>
         </tr>
+        </thead>
+        <tbody>
+        @foreach (var litter in Rat.Litters)
+        {
+            <tr @onclick="@(() => OpenLitterProfile(litter.Id))">
+                <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
+                <td>@(litter.PairedWith ?? "-")</td>
+                <td>@litter.OffspringCount</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <button class="btn btn-primary" @onclick="NewLitter">
+        <span class="oi oi-plus"></span> Create litter
+    </button>
+
+    <h2>Pedigree</h2>
+
+    @if (!PedigreeLoaded)
+    {
+        <NoPedigree/>
     }
-    </tbody>
-</table>
-
-<button class="btn btn-primary" @onclick="NewLitter">
-    <span class="oi oi-plus"></span> Create litter
-</button>
-
-<h2>Pedigree</h2>
-
-<PedigreeTable Rat="Pedigree"/>
+    else
+    {
+        <PedigreeTable Rat="Pedigree"/>
+    }
+}
