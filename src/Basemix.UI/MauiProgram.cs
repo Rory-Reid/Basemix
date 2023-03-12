@@ -4,6 +4,7 @@ using Basemix.Pedigrees.Persistence;
 using Basemix.Rats.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui;
 
 namespace Basemix.UI
 {
@@ -14,17 +15,15 @@ namespace Basemix.UI
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                });
+                .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); })
+                .UseMauiCommunityToolkit();
 
             builder.Services.AddMauiBlazorWebView();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
             builder.Services.AddBasemix();
-            
+
             return builder.Build();
         }
 
@@ -44,7 +43,7 @@ namespace Basemix.UI
             services.AddSingleton<IRatsRepository, SqliteRatsRepository>();
             services.AddSingleton<ILittersRepository, SqliteLittersRepository>();
             services.AddSingleton<IPedigreeRepository, SqlitePedigreeRepository>();
-            
+
             // UI Nonsense
             services.AddSingleton<JsInteropExports>();
             services.AddSingleton<HistoryBack>(s => s.GetRequiredService<JsInteropExports>().HistoryBack);

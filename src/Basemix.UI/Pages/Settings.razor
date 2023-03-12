@@ -1,8 +1,10 @@
 @page "/settings"
 @using Basemix.Db
 @using System.IO
+@using CommunityToolkit.Maui.Storage
 @inject GetDatabasePath GetDatabasePath;
 @inject Migrator Migrator;
+@implements IDisposable;
 
 <h1>Settings</h1>
 
@@ -11,13 +13,18 @@
     <br />
     @dbPath
 </p>
+
+<button class="btn btn-primary" @onclick="ExportDb">Export database</button>
+
 <hr />
+
 <h2>Danger zone</h2>
 
 <p>
     The buttons and options in this section will perform irreversible changes to your data. Please make sure you've
     backed up your database, or at the very least have made peace with whatever will happen as a result of these actions.
 </p>
+
 
 <input type="checkbox" @bind="dangerZoneEnabled" id="dangerCheckbox"/>
 <label for="dangerCheckbox">I know what I'm doing</label>
@@ -34,6 +41,8 @@
 
 @code
 {
+    private CancellationTokenSource cts = new();
+    
     private bool dangerZoneEnabled = false;
     private string dbPath = "ERROR";
     private bool dbDeleted = false;
@@ -53,5 +62,17 @@
         File.Delete(dbPath);
         this.Migrator.Start();
         this.dbDeleted = true;
+    }
+
+    public async Task ExportDb()
+    {
+        await using var file = new FileStream(dbPath, FileMode.Open);
+        await FileSaver.Default.SaveAsync("basemix.sqlite3", file, cts.Token);
+    }
+
+    public void Dispose()
+    {
+        cts.Cancel();
+        cts.Dispose();
     }
 }
