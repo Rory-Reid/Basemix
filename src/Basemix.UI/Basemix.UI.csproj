@@ -52,7 +52,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Basemix.Db\Basemix.Db.csproj" />
-      <ProjectReference Include="..\Basemix\Basemix.csproj" />
+      <ProjectReference Include="..\Basemix.Lib\Basemix.Lib.csproj" />
     </ItemGroup>
 
     <ItemGroup>

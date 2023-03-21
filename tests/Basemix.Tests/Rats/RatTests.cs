@@ -1,4 +1,4 @@
-using Basemix.Rats;
+using Basemix.Lib.Rats;
 using Basemix.Tests.sdk;
 using Bogus;
 using Shouldly;

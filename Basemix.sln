@@ -5,7 +5,7 @@ VisualStudioVersion = 17.3.32922.545
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{2A271A9C-C1CC-4DD2-B133-10BB7FA295DE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Basemix", "src\Basemix\Basemix.csproj", "{B322EF60-12D3-41C5-8E4F-C16299A9B127}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Basemix.Lib", "src\Basemix.Lib\Basemix.Lib.csproj", "{B322EF60-12D3-41C5-8E4F-C16299A9B127}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Basemix.Db", "src\Basemix.Db\Basemix.Db.csproj", "{BD3573B8-8A25-446A-AFC0-558AC4553D86}"
 EndProject

@@ -1,7 +1,7 @@
-using Basemix.Litters;
-using Basemix.Litters.Persistence;
-using Basemix.Persistence;
-using Basemix.Rats;
+using Basemix.Lib.Litters;
+using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Persistence;
+using Basemix.Lib.Rats;
 using Basemix.Tests.sdk;
 using Bogus;
 using Dapper;

@@ -1,7 +1,6 @@
-using System.Runtime.CompilerServices;
-using Basemix.Litters;
-using Basemix.Litters.Persistence;
-using Basemix.Rats;
+using Basemix.Lib.Litters;
+using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Rats;
 
 namespace Basemix.Tests.sdk;
 

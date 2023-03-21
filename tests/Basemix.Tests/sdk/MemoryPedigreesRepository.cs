@@ -1,6 +1,6 @@
-using Basemix.Pedigrees;
-using Basemix.Pedigrees.Persistence;
-using Basemix.Rats;
+using Basemix.Lib.Pedigrees;
+using Basemix.Lib.Pedigrees.Persistence;
+using Basemix.Lib.Rats;
 
 namespace Basemix.Tests.sdk;
 

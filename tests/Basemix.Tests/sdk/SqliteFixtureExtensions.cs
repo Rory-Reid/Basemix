@@ -1,4 +1,4 @@
-using Basemix.Rats;
+using Basemix.Lib.Rats;
 
 namespace Basemix.Tests.sdk;
 

@@ -1,4 +1,4 @@
-using Basemix.Persistence;
+using Basemix.Lib.Persistence;
 using Shouldly;
 
 namespace Basemix.Tests.Persistence;

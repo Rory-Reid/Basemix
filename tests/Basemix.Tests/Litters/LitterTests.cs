@@ -1,5 +1,5 @@
-using Basemix.Litters;
-using Basemix.Rats;
+using Basemix.Lib.Litters;
+using Basemix.Lib.Rats;
 using Basemix.Tests.sdk;
 using Bogus;
 using Shouldly;

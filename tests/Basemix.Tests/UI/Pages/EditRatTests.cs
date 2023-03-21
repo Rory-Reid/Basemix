@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Basemix.Rats;
+using Basemix.Lib.Rats;
 using Basemix.Tests.sdk;
 using Basemix.UI.Pages;
 using Bogus;

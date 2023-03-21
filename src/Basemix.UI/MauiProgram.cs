@@ -1,7 +1,8 @@
 ﻿using Basemix.Db;
-using Basemix.Litters.Persistence;
-using Basemix.Pedigrees.Persistence;
-using Basemix.Rats.Persistence;
+using Basemix.Lib;
+using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Pedigrees.Persistence;
+using Basemix.Lib.Rats.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;

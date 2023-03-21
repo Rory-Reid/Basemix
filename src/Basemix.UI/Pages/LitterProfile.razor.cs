@@ -1,9 +1,8 @@
-using Basemix.Litters;
-using Basemix.Litters.Persistence;
-using Basemix.Rats;
-using Basemix.Rats.Persistence;
+using Basemix.Lib.Litters;
+using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Rats;
+using Basemix.Lib.Rats.Persistence;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 
 namespace Basemix.UI.Pages;
 

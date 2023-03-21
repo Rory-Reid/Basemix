@@ -1,5 +1,5 @@
-using Basemix.Rats;
-using Basemix.Rats.Persistence;
+using Basemix.Lib.Rats;
+using Basemix.Lib.Rats.Persistence;
 using Microsoft.AspNetCore.Components;
 
 namespace Basemix.UI.Pages;

@@ -1,6 +1,6 @@
-using Basemix.Persistence;
-using Basemix.Rats;
-using Basemix.Rats.Persistence;
+using Basemix.Lib.Persistence;
+using Basemix.Lib.Rats;
+using Basemix.Lib.Rats.Persistence;
 using Basemix.Tests.sdk;
 using Bogus;
 using Dapper;

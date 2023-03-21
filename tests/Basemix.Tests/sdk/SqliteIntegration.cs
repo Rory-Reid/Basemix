@@ -1,7 +1,8 @@
 using System.Data;
 using System.Runtime.CompilerServices;
 using Basemix.Db;
-using Basemix.Rats.Persistence;
+using Basemix.Lib;
+using Basemix.Lib.Rats.Persistence;
 using Bogus;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging.Abstractions;

@@ -1,5 +1,5 @@
-using Basemix.Litters;
-using Basemix.Litters.Persistence;
+using Basemix.Lib.Litters;
+using Basemix.Lib.Litters.Persistence;
 using Microsoft.AspNetCore.Components;
 
 namespace Basemix.UI.Pages;

@@ -1,8 +1,7 @@
-using Basemix.Litters;
-using Basemix.Litters.Persistence;
-using Basemix.Pedigrees;
-using Basemix.Pedigrees.Persistence;
-using Basemix.Rats;
+using Basemix.Lib.Litters;
+using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Pedigrees.Persistence;
+using Basemix.Lib.Rats;
 using Basemix.Tests.sdk;
 using Bogus;
 using Shouldly;
