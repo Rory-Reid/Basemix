@@ -17,4 +17,17 @@ As new versions are released, only the `<ApplicationDisplayVersion>` and `<Ident
 
 ## Android
 
-Todo
+First amend the following files:
+
+- Basemix.UI.csproj - The `<ApplicationDisplayVersion>` needs to be a 3-part version number. However, windows needs 4-part, so use that.
+- Basemix.UI.csproj - The `<ApplicationVersion>` needs to be unique every publish. Increment it.
+
+The following parameters need to be set in the csproj (or more sensibly passed into the build command using secrets). Note that the csproj has some amendments in it to set some up, and others exist in `build.sh`:
+
+- `AndroidKeyStore` - If we should use the key store. Not sensitive. Should be `true`
+- `AndroidSigningKeyAlias` - Alias for the signing key. Not sensitive. Specific to the key used. Set to `key` by default in this app.
+- `AndroidSigningKeyPass` - Should be the key password. Sensitive.
+- `AndroidSigningStorePass` - Should be the signing store password. Sensitive.
+- `AndroidSigningKeyStore` - Path to the store. Not sensitive. Environmental dependent.
+
+As new versions are released, only the `<ApplicationDisplayVersion>` and `<ApplicationVersion>` should require amendment.
