@@ -25,7 +25,6 @@ public class Migrator
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
                 .WithVariablesDisabled()
                 .LogTo(new LoggerAdapter(this.logger))
-                .JournalTo(new NullJournal())
                 .Build();
 
         var result = upgrader.PerformUpgrade();

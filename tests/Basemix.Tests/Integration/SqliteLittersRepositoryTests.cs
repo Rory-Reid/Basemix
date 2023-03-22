@@ -264,6 +264,6 @@ public class LittersRepositoryTests : SqliteIntegration
     }
     
     // ReSharper disable InconsistentNaming
-    private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth);
+    private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth, long? date_of_pairing);
     // ReSharper restore InconsistentNaming
 }
