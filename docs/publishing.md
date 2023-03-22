@@ -10,8 +10,8 @@ The `build.sh` file contains preformatted commands with variable references in f
 
 First amend the following files:
 
-- Basemix.UI.csproj - The `<ApplicationDisplayVersion>` needs to be the full 4-part version string. You cannot change the last digit, so in the format `w.x.y.z` only `z` cannot be changed.
-- Basemix.UI/Platforms/Windows/Package.appxmanifest - The Identity needs to be setup with the correct Name, Publisher and Version number (matching the display version in the csproj) and the `<Properties>` node needs to have suitable display names for the application and publisher.
+- Basemix.csproj - The `<ApplicationDisplayVersion>` needs to be the full 4-part version string. You cannot change the last digit, so in the format `w.x.y.z` only `z` cannot be changed.
+- Basemix/Platforms/Windows/Package.appxmanifest - The Identity needs to be setup with the correct Name, Publisher and Version number (matching the display version in the csproj) and the `<Properties>` node needs to have suitable display names for the application and publisher.
 
 As new versions are released, only the `<ApplicationDisplayVersion>` and `<Identity Version="">` should require amendment.
 
@@ -19,8 +19,8 @@ As new versions are released, only the `<ApplicationDisplayVersion>` and `<Ident
 
 First amend the following files:
 
-- Basemix.UI.csproj - The `<ApplicationDisplayVersion>` needs to be a 3-part version number. However, windows needs 4-part, so use that.
-- Basemix.UI.csproj - The `<ApplicationVersion>` needs to be unique every publish. Increment it.
+- Basemix.csproj - The `<ApplicationDisplayVersion>` needs to be a 3-part version number. However, windows needs 4-part, so use that.
+- Basemix.csproj - The `<ApplicationVersion>` needs to be unique every publish. Increment it.
 
 The following parameters need to be set in the csproj (or more sensibly passed into the build command using secrets). Note that the csproj has some amendments in it to set some up, and others exist in `build.sh`:
 

@@ -26,7 +26,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\src\Basemix.Db\Basemix.Db.csproj" />
-      <ProjectReference Include="..\..\src\Basemix.UI\Basemix.UI.csproj" />
+      <ProjectReference Include="..\..\src\Basemix\Basemix.csproj" />
       <ProjectReference Include="..\..\src\Basemix.Lib\Basemix.Lib.csproj" />
     </ItemGroup>
 

@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C019600F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Basemix.Tests", "tests\Basemix.Tests\Basemix.Tests.csproj", "{312D2424-CFA5-4423-8DE1-BD34D7E2C708}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basemix.UI", "src\Basemix.UI\Basemix.UI.csproj", "{3ABE4A56-13D5-46D3-9823-55187547E1E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Basemix", "src\Basemix\Basemix.csproj", "{3ABE4A56-13D5-46D3-9823-55187547E1E0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Other Files", "Other Files", "{544FFAA5-5891-4783-A3D0-0F0C97159C2D}"
 	ProjectSection(SolutionItems) = preProject

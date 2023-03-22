@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Rats;
+using Basemix.Pages;
 using Basemix.Tests.sdk;
-using Basemix.UI.Pages;
 using Bogus;
 using Shouldly;
 

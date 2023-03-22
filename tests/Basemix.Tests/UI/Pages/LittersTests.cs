@@ -4,13 +4,13 @@ using Shouldly;
 
 namespace Basemix.Tests.UI.Pages;
 
-public class LittersTests : RazorPageTests<Basemix.UI.Pages.Litters>
+public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
 {
     private readonly Faker faker = new();
     private readonly MemoryLittersRepository repository = new();
     private readonly TestNavigationManager nav = new();
 
-    protected override Basemix.UI.Pages.Litters CreatePage() =>
+    protected override Basemix.Pages.Litters CreatePage() =>
         new()
         {
             Repository = this.repository,

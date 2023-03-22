@@ -5,13 +5,13 @@ using Shouldly;
 
 namespace Basemix.Tests.UI.Pages;
 
-public class RatsTests : RazorPageTests<Basemix.UI.Pages.Rats>
+public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
 {
     private readonly Faker faker = new();
     private readonly MemoryRatsRepository repository = new();
     private readonly TestNavigationManager nav = new();
     
-    protected override Basemix.UI.Pages.Rats CreatePage() =>
+    protected override Basemix.Pages.Rats CreatePage() =>
         new()
         {
             Repository = this.repository,
