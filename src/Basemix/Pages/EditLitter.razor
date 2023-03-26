@@ -19,7 +19,7 @@ else
             @if (this.HasDam)
             {
                 <div>
-                    <a href="/rats/@this.Litter.DamId?.Value">@(this.Litter.DamName ?? "Unnamed Dam")</a>
+                    <a href="/rats/@this.Litter.DamId?.Value/edit">@(this.Litter.DamName ?? "Unnamed Dam")</a>
                     <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Doe))">
                         <span class="oi oi-circle-x"></span> Remove Dam
                     </button>
@@ -37,7 +37,7 @@ else
             @if (this.HasSire)
             {
                 <div>
-                    <a href="/rats/@this.Litter.SireId?.Value">@(this.Litter.SireName ?? "Unnamed Sire")</a>
+                    <a href="/rats/@this.Litter.SireId?.Value/edit">@(this.Litter.SireName ?? "Unnamed Sire")</a>
                     <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Buck))">
                         <span class="oi oi-circle-x"></span> Remove Sire
                     </button>
