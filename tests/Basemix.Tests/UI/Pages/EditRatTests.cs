@@ -185,4 +185,15 @@ public class EditRatTests : RazorPageTests<EditRat>
         this.ratsRepository.Rats.ShouldNotContainKey(rat.Id);
         this.nav.CurrentUri.ShouldBe("/rats");
     }
+    
+    
+    [Fact]
+    public void Edit_litter_navigates_to_litter_edit()
+    {
+        var id = this.faker.Id();
+        
+        this.Page.EditLitter(id);
+        
+        this.nav.CurrentUri.ShouldBe($"/litters/{id}/edit");
+    }
 }

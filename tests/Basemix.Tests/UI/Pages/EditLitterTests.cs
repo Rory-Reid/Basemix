@@ -407,4 +407,14 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         this.Page.Litter.Offspring.ShouldBeEmpty();
         this.littersRepository.Litters[this.Page.Id].Offspring.ShouldBeEmpty();
     }
+
+    [Fact]
+    public void Edit_offspring_navigates_to_rat_edit()
+    {
+        var id = this.faker.Id();
+        
+        this.Page.EditOffspring(id);
+        
+        this.nav.CurrentUri.ShouldBe($"/rats/{id}/edit");
+    }
 }

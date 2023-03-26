@@ -68,6 +68,11 @@ public partial class EditRat
         this.Nav.NavigateTo($"/litters/{litter.Id.Value}/edit");
     }
 
+    public void EditLitter(long litterId)
+    {
+        this.Nav.NavigateTo($"/litters/{litterId}/edit");
+    }
+
     public async Task SaveAndGoBack()
     {
         await this.SaveRat();

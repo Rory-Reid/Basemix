@@ -65,7 +65,7 @@ else
         <tbody>
         @foreach (var litter in Rat.Litters)
         {
-            <tr>
+            <tr onclick="@(() => this.EditLitter(litter.Id))">
                 <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
                 <td>@(litter.PairedWith ?? "Unnamed")</td>
                 <td>@litter.OffspringCount</td>

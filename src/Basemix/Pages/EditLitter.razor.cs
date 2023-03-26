@@ -100,6 +100,11 @@ public partial class EditLitter
         await this.Litter.AddOffspring(this.Repository, rat);
         this.Nav.NavigateTo($"/rats/{rat.Id.Value}/edit");
     }
+
+    public void EditOffspring(long ratId)
+    {
+        this.Nav.NavigateTo($"/rats/{ratId}/edit");
+    }
     
     public async Task Search()
     {
