@@ -21,7 +21,7 @@ public class Migrator
     {
         var upgrader =
             DeployChanges.To
-                .SQLiteDatabase($"Data Source={databaseName}")
+                .SQLiteDatabase($"Data Source={databaseName};Pooling=false")
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
                 .WithVariablesDisabled()
                 .LogTo(new LoggerAdapter(this.logger))

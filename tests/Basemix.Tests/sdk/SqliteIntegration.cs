@@ -25,7 +25,7 @@ public class SqliteFixture
 {
     public string Database => "test-db.sqlite";
 
-    public IDbConnection GetConnection() => new SqliteConnection($"Data Source={this.Database}");
+    public IDbConnection GetConnection() => new SqliteConnection($"Data Source={this.Database};Pooling=false");
 
     public SqliteFixture()
     {
