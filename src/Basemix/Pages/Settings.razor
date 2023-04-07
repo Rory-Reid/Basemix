@@ -68,7 +68,14 @@
     public async Task ExportDb()
     {
         await using var file = new FileStream(dbPath, FileMode.Open);
-        await FileSaver.Default.SaveAsync("basemix.sqlite3", file, cts.Token);
+        try
+        {
+            await FileSaver.Default.SaveAsync("basemix.sqlite3", file, cts.Token);
+        }
+        catch (FileSaveException e) when (e.Message is "Path doesn't exist.")
+        {
+            // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
+        }
     }
 
     public void Dispose()
