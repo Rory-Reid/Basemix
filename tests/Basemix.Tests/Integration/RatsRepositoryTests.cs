@@ -85,22 +85,22 @@ public class RatRepositoryTests : SqliteIntegration
             this.faker.Variety(),
             this.faker.Date.PastDateOnly())
         {
-            Notes = this.faker.Lorem.Paragraphs()
+            Notes = this.faker.Lorem.Paragraphs(),
+            DateOfDeath = this.faker.Date.RecentDateOnly()
         };
 
         await this.repository.UpdateRat(rat);
+
+        var storedRat = await this.repository.GetRat(rat.Id);
         
-        using var db = this.fixture.GetConnection();
-        var storedRat = await db.QuerySingleAsync<RatRow>(
-            @"SELECT * FROM rat WHERE id=@Id", new {Id = id});
-        
-        storedRat.ShouldSatisfyAllConditions(
-            () => storedRat.id.ShouldBe(id),
-            () => storedRat.name.ShouldBe(rat.Name),
-            () => storedRat.date_of_birth!.ShouldBe(rat.DateOfBirth?.ToPersistedDateTime()),
-            () => storedRat.sex.ShouldBe(rat.Sex.ToString()),
-            () => storedRat.variety.ShouldBe(rat.Variety),
-            () => storedRat.notes.ShouldBe(rat.Notes));
+        storedRat.ShouldNotBeNull().ShouldSatisfyAllConditions(
+            () => storedRat.Id.ShouldBe(rat.Id),
+            () => storedRat.Name.ShouldBe(rat.Name),
+            () => storedRat.DateOfBirth.ShouldBe(rat.DateOfBirth),
+            () => storedRat.Sex.ShouldBe(rat.Sex),
+            () => storedRat.Variety.ShouldBe(rat.Variety),
+            () => storedRat.Notes.ShouldBe(rat.Notes),
+            () => storedRat.DateOfDeath.ShouldBe(rat.DateOfDeath));
     }
 
     [Fact]
@@ -185,6 +185,6 @@ public class RatRepositoryTests : SqliteIntegration
 
     // ReSharper disable InconsistentNaming
     private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes,
-        long? litter_id);
+        long? litter_id, long? date_of_death, string? death_reason);
     // ReSharper restore InconsistentNaming
 }

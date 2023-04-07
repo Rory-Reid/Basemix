@@ -42,7 +42,8 @@ public class SqliteRatsRepository : IRatsRepository
                 sex=@Sex,
                 variety=@Variety,
                 date_of_birth=@DateOfBirth,
-                notes=@Notes
+                notes=@Notes,
+                date_of_death=@DateOfDeath
             WHERE id=@Id",
             new PersistedRat(rat));
     }
@@ -53,7 +54,7 @@ public class SqliteRatsRepository : IRatsRepository
         
         using var reader = await db.QueryMultipleAsync( // TODO simplify the weird dam/sire stuff
             @"SELECT
-                id, name, sex, variety, date_of_birth, notes
+                id, name, sex, variety, date_of_birth, notes, date_of_death
             FROM rat WHERE id=@Id;
 
             SELECT
@@ -75,7 +76,7 @@ public class SqliteRatsRepository : IRatsRepository
         }
         
         var litters = await reader.ReadAsync<PersistedRatLitter>();
-        return rat?.ToModelledRat(litters.ToList());
+        return rat.ToModelledRat(litters.ToList());
     }
 
     public async Task<List<Rat>> GetAll()

@@ -13,18 +13,15 @@ public record PersistedRat
         this.Variety = rat.Variety;
         this.DateOfBirth = rat.DateOfBirth?.ToPersistedDateTime();
         this.Notes = rat.Notes;
+        this.DateOfDeath = rat.DateOfDeath?.ToPersistedDateTime();
     }
     
     public long? Id { get; init; }
     public string? Name { get; init; }
     public string? Sex { get; init; }
     public long? DateOfBirth { get; init; }
-    public string? Genotype { get; init; }
     public string? Variety { get; init; }
     public string? Notes { get; init; }
-    public string? BirthNotes { get; init; }
-    public string? TypeScore { get; init; }
-    public string? TemperamentScore { get; init; }
     public long? DateOfDeath { get; init; }
     public string? DeathReason { get; init; }
 
@@ -41,7 +38,8 @@ public record PersistedRat
                     sex == Lib.Rats.Sex.Buck ? x.DamName : x.SireName,
                     x.OffspringCount)).ToList())
         {
-            Notes = this.Notes
+            Notes = this.Notes,
+            DateOfDeath = this.DateOfDeath?.ToDateOnly()
         };
     }
 }

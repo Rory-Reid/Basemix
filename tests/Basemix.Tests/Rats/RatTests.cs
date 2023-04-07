@@ -88,4 +88,35 @@ public class RatTests
             result => result.Sex.ShouldBe(rat.Sex),
             result => result.DateOfBirth.ShouldBe(rat.DateOfBirth));
     }
+
+    [Fact]
+    public void Rat_age_is_null_if_date_of_birth_not_set()
+    {
+        var rat = this.faker.Rat();
+        rat.DateOfBirth = null;
+        
+        rat.Age(() => DateOnly.MinValue).ShouldBeNull();
+    }
+
+    [Fact]
+    public void Rat_age_is_calculated_to_date_if_date_of_birth_set()
+    {
+        var rat = this.faker.Rat();
+        var today = rat.DateOfBirth!.Value.AddYears(1).AddMonths(2).AddDays(3);
+
+        var dateOfBirth = rat.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue);
+        var todayDateTime = today.ToDateTime(TimeOnly.MinValue);
+        rat.Age(() => today).ShouldBe(todayDateTime - dateOfBirth);
+    }
+
+    [Fact]
+    public void Rat_age_is_calculated_to_date_of_death_if_set()
+    {
+        var rat = this.faker.Rat();
+        rat.DateOfDeath = rat.DateOfBirth!.Value.AddYears(1).AddMonths(2).AddDays(3);
+
+        var dateOfBirth = rat.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue);
+        var dateOfDeath = rat.DateOfDeath.Value.ToDateTime(TimeOnly.MinValue);
+        rat.Age(() => DateOnly.MaxValue).ShouldBe(dateOfDeath - dateOfBirth);
+    }
 }

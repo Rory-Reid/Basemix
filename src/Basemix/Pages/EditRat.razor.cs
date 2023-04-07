@@ -38,7 +38,8 @@ public partial class EditRat
             DateOfBirth = this.Rat.DateOfBirth,
             Sex = this.Rat.Sex?.ToString(),
             Variety = this.Rat.Variety,
-            Notes = this.Rat.Notes
+            Notes = this.Rat.Notes,
+            DateOfDeath = this.Rat.DateOfDeath
         };
     }
 
@@ -94,6 +95,7 @@ public partial class EditRat
         this.Rat.Variety = this.RatForm.Variety;
         this.Rat.DateOfBirth = this.RatForm.DateOfBirth;
         this.Rat.Notes = this.RatForm.Notes;
+        this.Rat.DateOfDeath = this.RatForm.DateOfDeath;
 
         await this.Rat.Save(this.Repository);
     }
@@ -103,6 +105,7 @@ public class RatForm
 {
     public string? Name { get; set; }
     public DateOnly? DateOfBirth { get; set; }
+    public DateOnly? DateOfDeath { get; set; }
     public string? Sex { get; set; }
     public string? Variety { get; set; }
     public string? Notes { get; set; }

@@ -1,0 +1,2 @@
+ALTER TABLE rat ADD COLUMN date_of_death INTEGER NULL;
+ALTER TABLE rat ADD COLUMN death_reason TEXT NULL;

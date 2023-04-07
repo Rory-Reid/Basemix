@@ -26,10 +26,22 @@ public class Rat
     public Sex? Sex { get; set; }
     public string? Variety { get; set; }
     public DateOnly? DateOfBirth { get; set; }
+    public DateOnly? DateOfDeath { get; set; }
     public string? Notes { get; set; }
 
     public List<RatLitter> Litters { get; }
 
+    public TimeSpan? Age(NowDateOnly now)
+    {
+        if (this.DateOfBirth == null)
+        {
+            return null;
+        }
+
+        var maxAge = this.DateOfDeath ?? now();
+        return new TimeSpan(maxAge.DayNumber - this.DateOfBirth.Value.DayNumber, 0, 0, 0);
+    }
+    
     public Task Save(IRatsRepository repository) => repository.UpdateRat(this);
     
     public static async Task<Rat> Create(IRatsRepository repository)

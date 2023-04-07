@@ -40,6 +40,7 @@ namespace Basemix
             services.AddSingleton<GetDatabasePath>(() => dbPath);
             services.AddSingleton(s => new Migrator(dbPath, s.GetRequiredService<ILogger<Migrator>>()));
             services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath}"));
+            services.AddSingleton<DateSpanToString>(Delegates.HumaniseDateSpan);
             services.AddSingleton<BreedersRepository>();
             services.AddSingleton<IRatsRepository, SqliteRatsRepository>();
             services.AddSingleton<ILittersRepository, SqliteLittersRepository>();

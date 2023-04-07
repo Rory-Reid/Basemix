@@ -1,3 +1,4 @@
+using Basemix.Lib;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
 using Basemix.Lib.Pedigrees;
@@ -14,6 +15,7 @@ public partial class RatProfile
     [Inject] public ILittersRepository LittersRepository { get; set; } = null!;
     [Inject] public IPedigreeRepository PedigreeRepository { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
+    [Inject] public DateSpanToString DateSpanToString { get; set; } = null!;
     
     [Parameter] public long Id { get; set; }
 
@@ -21,6 +23,20 @@ public partial class RatProfile
     public bool PedigreeLoaded { get; private set; }
     public Rat Rat { get; private set; } = null!;
     public Node Pedigree { get; private set; } = null!;
+
+    public string? RatAge
+    {
+        get
+        {
+            if (this.Rat.DateOfBirth == null)
+            {
+                return null;
+            }
+            
+            var ageTo = this.Rat.DateOfDeath ?? DateOnly.FromDateTime(DateTime.Now);
+            return this.DateSpanToString(this.Rat.DateOfBirth.Value, ageTo);
+        }
+    }
 
     protected override async Task OnParametersSetAsync()
     {

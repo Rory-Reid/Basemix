@@ -1,7 +1,6 @@
 @page "/rats/{Id:long}"
 @using Basemix.Lib.Rats
 
-
 @if (!RatLoaded)
 {
     <BackButton />
@@ -17,6 +16,18 @@ else
     <dl class="row">
         <dt class="col-sm-2">Date of Birth</dt>
         <dd class="col-sm-9">@Rat.DateOfBirth</dd>
+        
+        @if (Rat.DateOfBirth.HasValue)
+        {
+            <dt class="col-sm-2">Age</dt>
+            <dd class="col-sm-9">@RatAge</dd>
+        }
+        
+        @if (Rat.DateOfDeath.HasValue)
+        {
+            <dt class="col-sm-2">Date of Death</dt>
+            <dd class="col-sm-9">@Rat.DateOfDeath</dd>
+        }
 
         <dt class="col-sm-2">Sex</dt>
         <dd class="col-sm-9">@Rat.Sex</dd>
