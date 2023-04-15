@@ -14,13 +14,28 @@ else
     <h1>@Rat.Name</h1>
 
     <dl class="row">
-        <dt class="col-sm-2">Date of Birth</dt>
-        <dd class="col-sm-9">@Rat.DateOfBirth</dd>
-        
         @if (Rat.DateOfBirth.HasValue)
         {
-            <dt class="col-sm-2">Age</dt>
-            <dd class="col-sm-9">@RatAge</dd>
+            <dt class="col-sm-2">Date of Birth</dt>
+            <dd class="col-sm-9">@Rat.DateOfBirth</dd>
+
+            @if (!RatTooOld)
+            {
+                <dt class="col-sm-2">Age</dt>
+                @if (RatIsSenior)
+                {
+                    <dd class="col-sm-9">@RatAge <span class="oi oi-question-mark"></span><br /><sub>Age will not be calculated after 4 years unless date of death is set</sub></dd>
+                }
+                else
+                {
+                    <dd class="col-sm-9">@RatAge</dd>
+                }
+            }
+        }
+        
+        @if (RatIsSenior)
+        {
+            
         }
         
         @if (Rat.DateOfDeath.HasValue)
