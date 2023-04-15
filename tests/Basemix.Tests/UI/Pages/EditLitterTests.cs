@@ -185,6 +185,24 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         this.ratsRepository.Rats[offspring.Id].DateOfBirth.ShouldBe(newLitter.DateOfBirth);
     }
 
+    /// <summary>
+    /// We need to save the litter's current date of birth since we automatically set this on the offspring.
+    /// If we don't do this, things could go out of sync. This occurs easily if navigating without saving.
+    /// </summary>
+    [Fact]
+    public async Task Add_offspring_saves_edited_date_of_birth_on_litter()
+    {
+        this.littersRepository.Seed(this.faker.BlankLitter(id: this.Page.Id));
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        var newDob = this.faker.Date.PastDateOnly();
+        this.Page.Litter.DateOfBirth = newDob;
+        await this.Page.AddOffspring();
+
+        var litter = this.littersRepository.Litters[this.Page.Id];
+        litter.DateOfBirth.ShouldBe(newDob);
+    }
+
     [Fact]
     public void Open_dam_search_clears_existing_search_props_and_shows_search()
     {

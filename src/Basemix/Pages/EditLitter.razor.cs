@@ -90,6 +90,7 @@ public partial class EditLitter
     
     public async Task AddOffspring()
     {
+        await this.Litter.Save(this.Repository);
         var rat = await Rat.Create(this.RatsRepository);
         if (this.Litter.DateOfBirth != null)
         {
