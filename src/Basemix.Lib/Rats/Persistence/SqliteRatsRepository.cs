@@ -84,7 +84,7 @@ public class SqliteRatsRepository : IRatsRepository
         using var db = this.getDatabase();
 
         var rat = await db.QueryAsync<PersistedRat>(
-            @"SELECT
+            @$"SELECT
                 id, name, sex, date_of_birth, notes
             FROM rat
             ORDER BY date_of_birth DESC");
@@ -103,22 +103,44 @@ public class SqliteRatsRepository : IRatsRepository
             new {Id = id});
     }
     
-    public async Task<List<RatSearchResult>> SearchRat(string nameSearchTerm)
+    public async Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null)
     {
         using var db = this.getDatabase();
+        var nameLike = nameSearchTerm == null ? string.Empty : $"%{nameSearchTerm}%";
 
         var results = await db.QueryAsync<PersistedRatSearchResult>(
-            @"SELECT
+            @$"SELECT
                rat.id,
                rat.name,
                rat.sex,
                rat.date_of_birth
-            FROM rat_search
-            JOIN rat ON rat.id=rat_search.id
-            WHERE rat_search.name LIKE @NameSearchTerm",
-            new {NameSearchTerm = $"%{nameSearchTerm}%"});
+            FROM rat
+            JOIN rat_search ON rat.id=rat_search.id
+            {Filters(nameSearchTerm, deceased)}
+            ORDER BY rat.date_of_birth DESC",
+            new {NameSearchTerm = nameLike});
 
         return results.Select(x => x.ToResult()).ToList();
+    }
+
+    private static string Filters(string? nameSearchTerm, bool? deceased)
+    {
+        var filters = new List<string>();
+        if (nameSearchTerm is not null)
+        {
+            filters.Add("(rat_search.name LIKE @NameSearchTerm)");
+        }
+
+        if (deceased is true)
+        {
+            filters.Add("(rat.date_of_death IS NOT NULL)");
+        }
+        else if (deceased is false)
+        {
+            filters.Add("(rat.date_of_death IS NULL)");
+        }
+
+        return filters.Any() ? $"WHERE {string.Join(" AND ", filters)}" : string.Empty;
     }
 
     public class PersistedRatSearchResult

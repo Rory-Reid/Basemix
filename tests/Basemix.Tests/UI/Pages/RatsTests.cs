@@ -74,4 +74,36 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
             .ShouldHaveSingleItem()
             .ShouldBeEquivalentTo(matchingRat.ToSearchResult());
     }
+
+    [Fact]
+    public void Hide_deceased_true_by_default() => this.Page.HideDeceased.ShouldBeTrue();
+
+    [Fact]
+    public async Task Search_with_hide_deceased_true_hides_deceased_rats()
+    {
+        var matchingRat = this.faker.Rat();
+        var matchingRatId = this.faker.Id();
+        
+        this.repository.Rats[matchingRatId] = matchingRat;
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat(dateOfDeath: this.faker.Date.RecentDateOnly());
+
+        this.Page.HideDeceased = true;
+        await this.Page.Search();
+        
+        this.Page.RatsList
+            .ShouldHaveSingleItem()
+            .ShouldBeEquivalentTo(matchingRat.ToSearchResult());
+    }
+    
+    [Fact]
+    public async Task Search_with_hide_deceased_false_includes_deceased_rats()
+    {
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat();
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat(dateOfDeath: this.faker.Date.RecentDateOnly());
+
+        this.Page.HideDeceased = false;
+        await this.Page.Search();
+        
+        this.Page.RatsList.Count.ShouldBe(2);
+    }
 }

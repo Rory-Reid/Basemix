@@ -8,13 +8,13 @@ using Shouldly;
 
 namespace Basemix.Tests.Integration;
 
-public class RatRepositoryTests : SqliteIntegration
+public class SqliteRatRepositoryTests : SqliteIntegration
 {
     private readonly Faker faker = new();
     private readonly SqliteFixture fixture;
     private readonly SqliteRatsRepository repository;
 
-    public RatRepositoryTests(SqliteFixture fixture) : base(fixture)
+    public SqliteRatRepositoryTests(SqliteFixture fixture) : base(fixture)
     {
         this.fixture = fixture;
         this.repository = new SqliteRatsRepository(fixture.GetConnection);
@@ -182,7 +182,65 @@ public class RatRepositoryTests : SqliteIntegration
         var results = await this.repository.SearchRat(rat.Name.ToUpper());
         results.ShouldHaveSingleItem().Id.ShouldBe(rat.Id);
     }
+    
+    [Fact]
+    public async Task Search_deceased_only_returns_deceased_rats()
+    {
+        var expectedRat = await Rat.Create(this.repository);
+        var otherRat = await Rat.Create(this.repository);
 
+        expectedRat.DateOfDeath = this.faker.Date.RecentDateOnly();
+        otherRat.DateOfDeath = null;
+
+        await this.repository.UpdateRat(expectedRat);
+        await this.repository.UpdateRat(otherRat);
+
+        var results = await this.repository.SearchRat(deceased: true);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(rat => rat.Id == expectedRat.Id),
+            () => results.ShouldNotContain(rat => rat.Id == otherRat.Id));
+
+    }
+
+    [Fact]
+    public async Task Search_deceased_false_only_returns_rats_without_date_of_death()
+    {
+        var expectedRat = await Rat.Create(this.repository);
+        var otherRat = await Rat.Create(this.repository);
+
+        expectedRat.DateOfDeath = null;
+        otherRat.DateOfDeath = this.faker.Date.RecentDateOnly();
+
+        await this.repository.UpdateRat(expectedRat);
+        await this.repository.UpdateRat(otherRat);
+
+        var results = await this.repository.SearchRat(deceased: false);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(rat => rat.Id == expectedRat.Id),
+            () => results.ShouldNotContain(rat => rat.Id == otherRat.Id));
+    }
+
+    [Fact]
+    public async Task Search_deceased_null_returns_rats_with_or_without_date_of_death()
+    {
+        var expectedRat = await Rat.Create(this.repository);
+        var otherRat = await Rat.Create(this.repository);
+
+        expectedRat.DateOfDeath = null;
+        otherRat.DateOfDeath = this.faker.Date.RecentDateOnly();
+
+        await this.repository.UpdateRat(expectedRat);
+        await this.repository.UpdateRat(otherRat);
+
+        var results = await this.repository.SearchRat(deceased: null);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(rat => rat.Id == expectedRat.Id),
+            () => results.ShouldContain(rat => rat.Id == otherRat.Id));
+    }
+    
     // ReSharper disable InconsistentNaming
     private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes,
         long? litter_id, long? date_of_death, string? death_reason);

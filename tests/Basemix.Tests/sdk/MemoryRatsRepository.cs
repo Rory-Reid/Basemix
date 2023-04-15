@@ -50,10 +50,26 @@ public class MemoryRatsRepository : IRatsRepository
         return Task.CompletedTask;
     }
 
-    public Task<List<RatSearchResult>> SearchRat(string nameSearchTerm) =>
-        Task.FromResult(this.Rats.Values
-            .Where(r => (r.Name ?? string.Empty).ToLower().Contains(nameSearchTerm.ToLower()))
-            .Select(r => r.ToSearchResult()).ToList());
+    public Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null)
+    {
+        var results = this.Rats.Values.AsEnumerable();
+
+        if (!string.IsNullOrEmpty(nameSearchTerm))
+        {
+            results = results.Where(r => (r.Name ?? string.Empty).ToLower().Contains(nameSearchTerm.ToLower()));
+        }
+
+        if (deceased is true)
+        {
+            results = results.Where(r => r.DateOfDeath.HasValue);
+        }
+        else if (deceased is false)
+        {
+            results = results.Where(r => !r.DateOfDeath.HasValue);
+        }
+
+        return Task.FromResult(results.Select(r => r.ToSearchResult()).ToList());
+    }
 
     private static Rat CopyOf(Rat rat, RatIdentity id) =>
         new(id, rat.Name, rat.Sex, rat.Variety, rat.DateOfBirth)

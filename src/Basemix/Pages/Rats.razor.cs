@@ -13,10 +13,11 @@ public partial class Rats
 
     public string? SearchTerm { get; set; }
 
+    public bool HideDeceased { get; set; } = true;
+
     protected override async Task OnParametersSetAsync()
     {
-        var allRats = await this.Repository.GetAll();
-        this.RatsList = allRats.Select(x => x.ToSearchResult()).ToList();
+        await this.Search();
     }
 
     public void OpenRatProfile(long ratId)
@@ -32,14 +33,8 @@ public partial class Rats
 
     public async Task Search()
     {
-        if (string.IsNullOrEmpty(this.SearchTerm))
-        {
-            var allRats = await this.Repository.GetAll();
-            this.RatsList = allRats.Select(x => x.ToSearchResult()).ToList();
-        }
-        else
-        {
-            this.RatsList = await this.Repository.SearchRat(this.SearchTerm);
-        }
+        this.RatsList = await this.Repository.SearchRat(
+            this.SearchTerm,
+            this.HideDeceased ? false : null);
     }
 }
