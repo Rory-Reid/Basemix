@@ -47,7 +47,7 @@ public static class FakerExtensions
         faker.PickRandom(Varieties);
 
     public static Rat Rat(this Faker faker, RatIdentity? id = null, string? name = null, Sex? sex = null,
-        DateOnly? dateOfBirth = null, DateOnly? dateOfDeath = null, bool? owned = null)
+        DateOnly? dateOfBirth = null, DateOnly? dateOfDeath = null, bool? owned = true)
     {
         var ratSex = sex ?? faker.PickNonDefault<Sex>();
         var ratName = name ?? ratSex switch
