@@ -86,7 +86,8 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             this.faker.Date.PastDateOnly())
         {
             Notes = this.faker.Lorem.Paragraphs(),
-            DateOfDeath = this.faker.Date.RecentDateOnly()
+            DateOfDeath = this.faker.Date.RecentDateOnly(),
+            Owned = this.faker.Random.Bool()
         };
 
         await this.repository.UpdateRat(rat);
@@ -100,7 +101,8 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             () => storedRat.Sex.ShouldBe(rat.Sex),
             () => storedRat.Variety.ShouldBe(rat.Variety),
             () => storedRat.Notes.ShouldBe(rat.Notes),
-            () => storedRat.DateOfDeath.ShouldBe(rat.DateOfDeath));
+            () => storedRat.DateOfDeath.ShouldBe(rat.DateOfDeath),
+            () => storedRat.Owned.ShouldBe(rat.Owned));
     }
 
     [Fact]
@@ -241,8 +243,66 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             () => results.ShouldContain(rat => rat.Id == otherRat.Id));
     }
     
+    [Fact]
+    public async Task Search_owned_only_returns_owned_rats()
+    {
+        var expectedRat = await Rat.Create(this.repository);
+        var otherRat = await Rat.Create(this.repository);
+
+        expectedRat.Owned = true;
+        otherRat.Owned = false;
+
+        await this.repository.UpdateRat(expectedRat);
+        await this.repository.UpdateRat(otherRat);
+
+        var results = await this.repository.SearchRat(owned: true);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(rat => rat.Id == expectedRat.Id),
+            () => results.ShouldNotContain(rat => rat.Id == otherRat.Id));
+
+    }
+    
+    [Fact]
+    public async Task Search_owned_false_only_returns_unowned_rats()
+    {
+        var expectedRat = await Rat.Create(this.repository);
+        var otherRat = await Rat.Create(this.repository);
+
+        expectedRat.Owned = false;
+        otherRat.Owned = true;
+
+        await this.repository.UpdateRat(expectedRat);
+        await this.repository.UpdateRat(otherRat);
+
+        var results = await this.repository.SearchRat(owned: false);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(rat => rat.Id == expectedRat.Id),
+            () => results.ShouldNotContain(rat => rat.Id == otherRat.Id));
+    }
+    
+    [Fact]
+    public async Task Search_owned_null_returns_owned_and_unowned_rats()
+    {
+        var expectedRat = await Rat.Create(this.repository);
+        var otherRat = await Rat.Create(this.repository);
+
+        expectedRat.Owned = false;
+        otherRat.Owned = true;
+
+        await this.repository.UpdateRat(expectedRat);
+        await this.repository.UpdateRat(otherRat);
+
+        var results = await this.repository.SearchRat(owned: null);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(rat => rat.Id == expectedRat.Id),
+            () => results.ShouldContain(rat => rat.Id == otherRat.Id));
+    }
+    
     // ReSharper disable InconsistentNaming
     private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes,
-        long? litter_id, long? date_of_death, string? death_reason);
+        long? litter_id, long? date_of_death, string? death_reason, long owned);
     // ReSharper restore InconsistentNaming
 }

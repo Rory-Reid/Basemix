@@ -14,6 +14,7 @@ public record PersistedRat
         this.DateOfBirth = rat.DateOfBirth?.ToPersistedDateTime();
         this.Notes = rat.Notes;
         this.DateOfDeath = rat.DateOfDeath?.ToPersistedDateTime();
+        this.Owned = rat.Owned;
     }
     
     public long? Id { get; init; }
@@ -24,6 +25,7 @@ public record PersistedRat
     public string? Notes { get; init; }
     public long? DateOfDeath { get; init; }
     public string? DeathReason { get; init; }
+    public bool Owned { get; init; }
 
     public Rat ToModelledRat(List<PersistedRatLitter>? litters = null)
     {
@@ -39,7 +41,8 @@ public record PersistedRat
                     x.OffspringCount)).ToList())
         {
             Notes = this.Notes,
-            DateOfDeath = this.DateOfDeath?.ToDateOnly()
+            DateOfDeath = this.DateOfDeath?.ToDateOnly(),
+            Owned = this.Owned
         };
     }
 }

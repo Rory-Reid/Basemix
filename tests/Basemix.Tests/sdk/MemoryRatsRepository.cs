@@ -17,7 +17,7 @@ public class MemoryRatsRepository : IRatsRepository
 
     public Task<long> CreateRat()
     {
-        var rat = new Rat(this.NextId());
+        var rat = new Rat(this.NextId()) { Owned = true };
         this.Rats.Add(rat.Id, rat);
         return Task.FromResult(rat.Id.Value);
     }
@@ -50,7 +50,7 @@ public class MemoryRatsRepository : IRatsRepository
         return Task.CompletedTask;
     }
 
-    public Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null)
+    public Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null, bool? owned = null)
     {
         var results = this.Rats.Values.AsEnumerable();
 
@@ -59,14 +59,19 @@ public class MemoryRatsRepository : IRatsRepository
             results = results.Where(r => (r.Name ?? string.Empty).ToLower().Contains(nameSearchTerm.ToLower()));
         }
 
-        if (deceased is true)
+        results = deceased switch
         {
-            results = results.Where(r => r.DateOfDeath.HasValue);
-        }
-        else if (deceased is false)
+            true => results.Where(r => r.DateOfDeath.HasValue),
+            false => results.Where(r => !r.DateOfDeath.HasValue),
+            _ => results
+        };
+
+        results = owned switch
         {
-            results = results.Where(r => !r.DateOfDeath.HasValue);
-        }
+            true => results.Where(r => r.Owned),
+            false => results.Where(r => !r.Owned),
+            _ => results
+        };
 
         return Task.FromResult(results.Select(r => r.ToSearchResult()).ToList());
     }

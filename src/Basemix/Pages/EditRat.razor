@@ -4,9 +4,9 @@
 
 @if (!RatLoaded)
 {
-    <BackButton />
-    <hr />
-    <NoRat />
+    <BackButton/>
+    <hr/>
+    <NoRat/>
 }
 else
 {
@@ -19,31 +19,36 @@ else
         <dd class="col-sm-9">
             <input required class="form-control" @bind="RatForm.Name"/>
         </dd>
-        
+
+        <dt class="col-sm-2">Owned</dt>
+        <dd class="col-sm-9">
+            <input required type="checkbox" @bind="RatForm.Owned"/>
+        </dd>
+
         <dt class="col-sm-2">Date of Birth</dt>
         <dd class="col-sm-9">
             <input required class="form-control" type="date" id="dateOfBirthInput" @bind="RatForm.DateOfBirth"/>
         </dd>
-        
+
         <dt class="col-sm-2">Date of Death</dt>
         <dd class="col-sm-9">
-            <input required class="form-control" type="date" id="dateOfBirthInput" @bind="RatForm.DateOfDeath"/>
+            <input class="form-control" type="date" id="dateOfDeathInput" @bind="RatForm.DateOfDeath"/>
         </dd>
-        
+
         <dt class="col-sm-2">Sex</dt>
         <dd class="col-sm-9">
-            <select required id="sexInput" @bind="RatForm.Sex">
+            <select id="sexInput" @bind="RatForm.Sex">
                 <option value="">-</option>
                 <option value="Buck">Buck</option>
                 <option value="Doe">Doe</option>
             </select>
         </dd>
-        
+
         <dt class="col-sm-2">Variety</dt>
         <dd class="col-sm-9">
             <input class="form-control" @bind="RatForm.Variety"/>
         </dd>
-        
+
         <dt class="col-sm-2">Notes</dt>
         <dd class="col-sm-9">
             <textarea style="box-sizing: border-box;width: 100%" wrap="hard" id="notesInput" rows="5" @bind="RatForm.Notes"></textarea>
@@ -62,7 +67,7 @@ else
                     Sex.Buck => "Dam",
                     Sex.Doe => "Sire",
                     _ => "Paired with"
-                })
+                    })
             </th>
             <th scope="col"># of rats</th>
         </tr>

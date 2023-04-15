@@ -43,7 +43,8 @@ public class SqliteRatsRepository : IRatsRepository
                 variety=@Variety,
                 date_of_birth=@DateOfBirth,
                 notes=@Notes,
-                date_of_death=@DateOfDeath
+                date_of_death=@DateOfDeath,
+                owned=@Owned
             WHERE id=@Id",
             new PersistedRat(rat));
     }
@@ -54,7 +55,7 @@ public class SqliteRatsRepository : IRatsRepository
         
         using var reader = await db.QueryMultipleAsync( // TODO simplify the weird dam/sire stuff
             @"SELECT
-                id, name, sex, variety, date_of_birth, notes, date_of_death
+                id, name, sex, variety, date_of_birth, notes, date_of_death, owned
             FROM rat WHERE id=@Id;
 
             SELECT
@@ -103,7 +104,7 @@ public class SqliteRatsRepository : IRatsRepository
             new {Id = id});
     }
     
-    public async Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null)
+    public async Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null, bool? owned = null)
     {
         using var db = this.getDatabase();
         var nameLike = nameSearchTerm == null ? string.Empty : $"%{nameSearchTerm}%";
@@ -116,14 +117,14 @@ public class SqliteRatsRepository : IRatsRepository
                rat.date_of_birth
             FROM rat
             JOIN rat_search ON rat.id=rat_search.id
-            {Filters(nameSearchTerm, deceased)}
+            {Filters(nameSearchTerm, deceased, owned)}
             ORDER BY rat.date_of_birth DESC",
             new {NameSearchTerm = nameLike});
 
         return results.Select(x => x.ToResult()).ToList();
     }
 
-    private static string Filters(string? nameSearchTerm, bool? deceased)
+    private static string Filters(string? nameSearchTerm, bool? deceased, bool? owned)
     {
         var filters = new List<string>();
         if (nameSearchTerm is not null)
@@ -138,6 +139,15 @@ public class SqliteRatsRepository : IRatsRepository
         else if (deceased is false)
         {
             filters.Add("(rat.date_of_death IS NULL)");
+        }
+
+        if (owned is true)
+        {
+            filters.Add("(rat.owned IS TRUE)");
+        }
+        else if (owned is false)
+        {
+            filters.Add("(rat.owned IS FALSE)");
         }
 
         return filters.Any() ? $"WHERE {string.Join(" AND ", filters)}" : string.Empty;

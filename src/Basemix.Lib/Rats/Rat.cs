@@ -22,13 +22,14 @@ public class Rat
     }
     
     public RatIdentity Id { get; }
+    public bool Owned { get; set; }
     public string? Name { get; set; }
     public Sex? Sex { get; set; }
     public string? Variety { get; set; }
     public DateOnly? DateOfBirth { get; set; }
     public DateOnly? DateOfDeath { get; set; }
     public string? Notes { get; set; }
-
+    
     public List<RatLitter> Litters { get; }
 
     public TimeSpan? Age(NowDateOnly now)
@@ -47,7 +48,10 @@ public class Rat
     public static async Task<Rat> Create(IRatsRepository repository)
     {
         var id = await repository.CreateRat();
-        return new Rat(id);
+        return new Rat(id)
+        {
+            Owned = true
+        };
     }
 
     public RatSearchResult ToSearchResult()

@@ -106,4 +106,36 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
         
         this.Page.RatsList.Count.ShouldBe(2);
     }
+
+    [Fact]
+    public void OwnedOnly_true_by_default() => this.Page.OwnedOnly.ShouldBeTrue();
+    
+    [Fact]
+    public async Task Search_with_owned_only_true_only_returns_owned_rats()
+    {
+        var matchingRat = this.faker.Rat(owned: true);
+        var matchingRatId = this.faker.Id();
+        
+        this.repository.Rats[matchingRatId] = matchingRat;
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: false);
+
+        this.Page.OwnedOnly = true;
+        await this.Page.Search();
+        
+        this.Page.RatsList
+            .ShouldHaveSingleItem()
+            .ShouldBeEquivalentTo(matchingRat.ToSearchResult());
+    }
+    
+    [Fact]
+    public async Task Search_with_owned_only_false_includes_unowned_rats()
+    {
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: true);
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: false);
+
+        this.Page.OwnedOnly = false;
+        await this.Page.Search();
+        
+        this.Page.RatsList.Count.ShouldBe(2);
+    }
 }

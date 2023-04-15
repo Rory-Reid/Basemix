@@ -39,7 +39,8 @@ public partial class EditRat
             Sex = this.Rat.Sex?.ToString(),
             Variety = this.Rat.Variety,
             Notes = this.Rat.Notes,
-            DateOfDeath = this.Rat.DateOfDeath
+            DateOfDeath = this.Rat.DateOfDeath,
+            Owned = this.Rat.Owned
         };
     }
 
@@ -96,6 +97,7 @@ public partial class EditRat
         this.Rat.DateOfBirth = this.RatForm.DateOfBirth;
         this.Rat.Notes = this.RatForm.Notes;
         this.Rat.DateOfDeath = this.RatForm.DateOfDeath;
+        this.Rat.Owned = this.RatForm.Owned;
 
         await this.Rat.Save(this.Repository);
     }
@@ -109,4 +111,5 @@ public class RatForm
     public string? Sex { get; set; }
     public string? Variety { get; set; }
     public string? Notes { get; set; }
+    public bool Owned { get; set; } = true;
 }
