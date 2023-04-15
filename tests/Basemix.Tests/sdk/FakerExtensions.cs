@@ -12,8 +12,8 @@ public static class FakerExtensions
 {
     public static long Id(this Faker faker) => faker.Random.Long(1);
 
-    public static T PickNonDefault<T>(this Faker faker) where T : struct, Enum =>
-        faker.PickRandom(Enum.GetValues<T>().Except(new[] {default(T)}));
+    public static T PickNonDefault<T>(this Faker faker, params T[] except) where T : struct, Enum =>
+        faker.PickRandom(Enum.GetValues<T>().Except(new[] {default(T)}.Concat(except)));
 
     private static string[] Varieties =
     {

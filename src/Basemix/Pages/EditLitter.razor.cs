@@ -109,7 +109,7 @@ public partial class EditLitter
     
     public async Task Search()
     {
-        this.RatSearchResults = await this.RatsRepository.SearchRat(this.RatSearchTerm);
+        this.RatSearchResults = await this.RatsRepository.SearchRat(this.RatSearchTerm, sex: this.RatSearchSex);
     }
 
     public void OpenDamSearch()

@@ -112,7 +112,7 @@ public partial class LitterProfile
     {
         this.RatSearchResults.Clear();
         this.RatSearchTerm = string.Empty;
-        this.RatSearchSex = Sex.Buck; // TODO implement
+        this.RatSearchSex = Sex.Buck;
         this.SetResult = async (rat) =>
         {
             await this.Litter.SetSire(this.Repository, rat);
@@ -126,7 +126,7 @@ public partial class LitterProfile
     {
         this.RatSearchResults.Clear();
         this.RatSearchTerm = string.Empty;
-        this.RatSearchSex = null; // TODO implement
+        this.RatSearchSex = null;
         this.SetResult = async (rat) =>
         {
             await this.Litter.AddOffspring(this.Repository, rat);
@@ -138,6 +138,6 @@ public partial class LitterProfile
     
     public async Task Search()
     {
-        this.RatSearchResults = await this.RatsRepository.SearchRat(this.RatSearchTerm);
+        this.RatSearchResults = await this.RatsRepository.SearchRat(this.RatSearchTerm, sex: this.RatSearchSex);
     }
 }

@@ -300,6 +300,48 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             () => results.ShouldContain(rat => rat.Id == expectedRat.Id),
             () => results.ShouldContain(rat => rat.Id == otherRat.Id));
     }
+
+    [Theory]
+    [InlineData(Sex.Buck)]
+    [InlineData(Sex.Doe)]
+    public async Task Search_sex_returns_matching_sex(Sex sex)
+    {
+        var expectedRat = await Rat.Create(this.repository);
+        var otherRat = await Rat.Create(this.repository);
+
+        expectedRat.Sex = sex;
+        otherRat.Sex = this.faker.PickRandom(this.faker.PickNonDefault(except: sex), (Sex?)null);
+
+        await this.repository.UpdateRat(expectedRat);
+        await this.repository.UpdateRat(otherRat);
+
+        var results = await this.repository.SearchRat(sex: sex);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(rat => rat.Id == expectedRat.Id),
+            () => results.ShouldNotContain(rat => rat.Id == otherRat.Id));
+    }
+
+    [Fact]
+    public async Task Search_sex_null_returns_matching_sex()
+    {
+        var buck = await Rat.Create(this.repository);
+        var doe = await Rat.Create(this.repository);
+        var unset = await Rat.Create(this.repository);
+
+        buck.Sex = Sex.Buck;
+        doe.Sex = Sex.Doe;
+
+        await this.repository.UpdateRat(buck);
+        await this.repository.UpdateRat(doe);
+
+        var results = await this.repository.SearchRat(sex: null);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(rat => rat.Id == buck.Id),
+            () => results.ShouldContain(rat => rat.Id == doe.Id),
+            () => results.ShouldContain(rat => rat.Id == unset.Id));
+    }
     
     // ReSharper disable InconsistentNaming
     private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes,

@@ -104,7 +104,7 @@ public class SqliteRatsRepository : IRatsRepository
             new {Id = id});
     }
     
-    public async Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null, bool? owned = null)
+    public async Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null, bool? owned = null, Sex? sex = null)
     {
         using var db = this.getDatabase();
         var nameLike = nameSearchTerm == null ? string.Empty : $"%{nameSearchTerm}%";
@@ -117,14 +117,14 @@ public class SqliteRatsRepository : IRatsRepository
                rat.date_of_birth
             FROM rat
             JOIN rat_search ON rat.id=rat_search.id
-            {Filters(nameSearchTerm, deceased, owned)}
+            {Filters(nameSearchTerm, deceased, owned, sex)}
             ORDER BY rat.date_of_birth DESC",
-            new {NameSearchTerm = nameLike});
+            new {NameSearchTerm = nameLike, Sex = sex.ToString()});
 
         return results.Select(x => x.ToResult()).ToList();
     }
 
-    private static string Filters(string? nameSearchTerm, bool? deceased, bool? owned)
+    private static string Filters(string? nameSearchTerm, bool? deceased, bool? owned, Sex? sex)
     {
         var filters = new List<string>();
         if (nameSearchTerm is not null)
@@ -148,6 +148,11 @@ public class SqliteRatsRepository : IRatsRepository
         else if (owned is false)
         {
             filters.Add("(rat.owned IS FALSE)");
+        }
+
+        if (sex is Sex.Buck or Sex.Doe)
+        {
+            filters.Add("(rat.sex = @Sex)");
         }
 
         return filters.Any() ? $"WHERE {string.Join(" AND ", filters)}" : string.Empty;

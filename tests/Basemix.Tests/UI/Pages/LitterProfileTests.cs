@@ -209,7 +209,7 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
             page => page.RatSearchResults.ShouldBeEmpty(),
             page => page.ShowRatSearch.ShouldBeTrue());
     }
-
+    
     [Fact]
     public void Open_sire_search_clears_existing_search_props_and_shows_search()
     {
@@ -249,9 +249,11 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
     {
         var doe = this.faker.Rat(id: this.faker.Id(), sex: Sex.Doe);
         var otherDoe = this.faker.Rat(id: this.faker.Id(), sex: Sex.Doe);
-        // TODO add buck with same name once sex filter exists
+        var buckMatchingName = this.faker.Rat(id: this.faker.Id(), sex: Sex.Buck, name: doe.Name);
+        
         this.backplane.Seed(doe); // TODO replace with ratrepository.Seed
         this.backplane.Seed(otherDoe); // TODO replace with ratrepository.Seed
+        this.backplane.Seed(buckMatchingName); // TODO replace with ratrepository.Seed
         this.littersRepository.Seed(this.faker.BlankLitter(this.Page.Id));
         
         this.Page.OpenDamSearch();
@@ -291,9 +293,11 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
     {
         var buck = this.faker.Rat(id: this.faker.Id(), sex: Sex.Buck);
         var otherBuck = this.faker.Rat(id: this.faker.Id(), sex: Sex.Buck);
-        // TODO add doe with same name once sex filter exists
+        var doeMatchingName = this.faker.Rat(id: this.faker.Id(), sex: Sex.Doe, name: buck.Name);
+
         this.backplane.Seed(buck); // TODO replace with ratrepository.Seed
         this.backplane.Seed(otherBuck); // TODO replace with ratrepository.Seed
+        this.backplane.Seed(doeMatchingName); // TODO replace with ratrepository.Seed
         this.littersRepository.Seed(this.faker.BlankLitter(this.Page.Id));
         
         this.Page.OpenSireSearch();
@@ -329,26 +333,32 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
     }
     
     [Fact]
-    public async Task Can_search_for_offspring()
+    public async Task Can_search_for_offspring_of_either_sex()
     {
-        var rat = this.faker.Rat(id: this.faker.Id());
+        var doeMatch = this.faker.Rat(id: this.faker.Id(), sex: Sex.Doe);
+        var buckMatch = this.faker.Rat(id: this.faker.Id(), sex: Sex.Buck, name: doeMatch.Name);
         var otherRat = this.faker.Rat(id: this.faker.Id());
-        this.backplane.Seed(rat); // TODO replace with ratrepository.Seed
+        
+        this.backplane.Seed(doeMatch); // TODO replace with ratrepository.Seed
+        this.backplane.Seed(buckMatch); // TODO replace with ratrepository.Seed
         this.backplane.Seed(otherRat); // TODO replace with ratrepository.Seed
         this.littersRepository.Seed(this.faker.BlankLitter(this.Page.Id));
         
         this.Page.OpenOffspringSearch();
-        this.Page.RatSearchTerm = rat.Name!;
+        this.Page.RatSearchTerm = doeMatch.Name!;
 
         await this.Page.Search();
         
-        this.Page.RatSearchResults
-            .ShouldHaveSingleItem()
-            .ShouldSatisfyAllConditions(
-                result => result.Id.ShouldBe(rat.Id),
-                result => result.Name.ShouldBe(rat.Name),
-                result => result.Sex.ShouldBe(rat.Sex),
-                result => result.DateOfBirth.ShouldBe(rat.DateOfBirth));
+        this.Page.RatSearchResults.ShouldSatisfyAllConditions(
+            results => results.Count.ShouldBe(2),
+            results => results.Single(r => r.Id == doeMatch.Id).ShouldSatisfyAllConditions(
+                doe => doe.Name.ShouldBe(doeMatch.Name),
+                doe => doe.Sex.ShouldBe(doeMatch.Sex),
+                doe => doe.DateOfBirth.ShouldBe(doeMatch.DateOfBirth)),
+            results => results.Single(r => r.Id == buckMatch.Id).ShouldSatisfyAllConditions(
+                buck => buck.Name.ShouldBe(buckMatch.Name),
+                buck => buck.Sex.ShouldBe(buckMatch.Sex),
+                buck => buck.DateOfBirth.ShouldBe(buckMatch.DateOfBirth)));
     }
 
     [Fact]

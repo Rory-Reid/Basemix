@@ -50,7 +50,8 @@ public class MemoryRatsRepository : IRatsRepository
         return Task.CompletedTask;
     }
 
-    public Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null, bool? owned = null)
+    public Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null,
+        bool? owned = null, Sex? sex = null)
     {
         var results = this.Rats.Values.AsEnumerable();
 
@@ -70,6 +71,13 @@ public class MemoryRatsRepository : IRatsRepository
         {
             true => results.Where(r => r.Owned),
             false => results.Where(r => !r.Owned),
+            _ => results
+        };
+
+        results = sex switch
+        {
+            Sex.Doe => results.Where(r => r.Sex == Sex.Doe),
+            Sex.Buck => results.Where(r => r.Sex == Sex.Buck),
             _ => results
         };
 
