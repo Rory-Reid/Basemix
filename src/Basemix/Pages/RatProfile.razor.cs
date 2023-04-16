@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Basemix.Lib;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
@@ -5,6 +6,7 @@ using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
+using CommunityToolkit.Maui.Storage;
 using Microsoft.AspNetCore.Components;
 
 namespace Basemix.Pages;
@@ -15,6 +17,8 @@ public partial class RatProfile
     [Inject] public ILittersRepository LittersRepository { get; set; } = null!;
     [Inject] public IPedigreeRepository PedigreeRepository { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
+    [Inject] public PdfGenerator PdfGenerator { get; set; } = null!;
+    [Inject] public PedigreeContext PedigreeContext { get; set; } = null!;
     [Inject] public DateSpanToString DateSpanToString { get; set; } = null!;
     [Inject] public NowDateOnly NowDateOnly { get; set; } = null!;
     
@@ -22,6 +26,8 @@ public partial class RatProfile
 
     public bool RatLoaded { get; private set; }
     public bool PedigreeLoaded { get; private set; }
+    public bool ShowPdfExport { get; private set; }
+    
     public Rat Rat { get; private set; } = null!;
     public Node Pedigree { get; private set; } = null!;
 
@@ -105,6 +111,16 @@ public partial class RatProfile
 
         this.PedigreeLoaded = true;
         this.Pedigree = pedigree;
+
+
+        if (!string.IsNullOrEmpty(this.Pedigree.Dam?.Name) && !string.IsNullOrEmpty(this.Pedigree.Sire?.Name))
+        {
+            this.LitterName = $"{this.Pedigree.Dam!.Name} & {this.Pedigree.Sire!.Name}";
+        }
+        else
+        {
+            this.LitterName = string.Empty;
+        }
     }
     
     public async Task NewLitter()
@@ -126,4 +142,37 @@ public partial class RatProfile
     {
         this.Nav.NavigateTo($"/litters/{litterId}");
     }
+    
+    public string? LitterName { get; set; }
+
+    public async Task ExportPdfPedigree()
+    {
+        var pdf = this.PdfGenerator.CreateFromPedigree(
+            this.Pedigree,
+            this.Rat.Sex,
+            this.Rat.DateOfBirth,
+            this.PedigreeContext.RatteryName,
+            this.LitterName,
+            this.PedigreeContext.FooterText,
+            this.PedigreeContext.ShowSex);
+        var stream = new MemoryStream();
+        this.PdfGenerator.WriteToStream(pdf, stream);
+        try
+        {
+            await FileSaver.Default.SaveAsync($"{this.Rat.Name}.pdf", stream, CancellationToken.None);
+        }
+        catch (FileSaveException e) when (e.Message is "Path doesn't exist.")
+        {
+            // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
+        }
+
+        this.ShowPdfExport = false;
+    }
+}
+
+public class PedigreeContext
+{
+    public string? RatteryName { get; set; }
+    public string? FooterText { get; set; }
+    public bool ShowSex { get; set; } = true;
 }

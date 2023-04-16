@@ -3,8 +3,8 @@
 
 @if (!RatLoaded)
 {
-    <BackButton />
-    <hr />
+    <BackButton/>
+    <hr/>
     <NoRat/>
 }
 else
@@ -24,7 +24,9 @@ else
                 <dt class="col-sm-2">Age</dt>
                 @if (RatIsSenior)
                 {
-                    <dd class="col-sm-9">@RatAge<br /><sub>Age will not be calculated after 4 years unless date of death is set</sub></dd>
+                    <dd class="col-sm-9">
+                        @RatAge<br/><sub>Age will not be calculated after 4 years unless date of death is set</sub>
+                    </dd>
                 }
                 else
                 {
@@ -32,12 +34,11 @@ else
                 }
             }
         }
-        
+
         @if (RatIsSenior)
         {
-            
         }
-        
+
         @if (Rat.DateOfDeath.HasValue)
         {
             <dt class="col-sm-2">Date of Death</dt>
@@ -91,11 +92,13 @@ else
         </tbody>
     </table>
 
-    <button class="btn btn-primary" @onclick="NewLitter">
+    <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="NewLitter">
         <span class="oi oi-plus"></span> Create litter
     </button>
 
     <h2>Pedigree</h2>
+
+    <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="@(() => ShowPdfExport = true)">Export as PDF</button>
 
     @if (!PedigreeLoaded)
     {
@@ -105,4 +108,47 @@ else
     {
         <PedigreeTable Rat="Pedigree"/>
     }
+}
+
+@if (ShowPdfExport)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Generate Pedigree</h3>
+                    <button type="button" class="btn btn-close"
+                            @onclick="@(() => ShowPdfExport = false)">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Rattery Name</dt>
+                        <dd class="col-sm-9">
+                            <input id="ratteryNameInput" type="text" class="form-control" @bind="PedigreeContext.RatteryName"/>
+                        </dd>
+
+                        <dt class="col-sm-4">Litter Name</dt>
+                        <dd class="col-sm-9">
+                            <input id="litterNameInput" type="text" class="form-control" @bind="LitterName"/>
+                        </dd>
+
+                        <dt class="col-sm-4">Footer Text</dt>
+                        <dd class="col-sm-9">
+                            <input id="footerTextInput" type="text" class="form-control" @bind="PedigreeContext.FooterText"/>
+                        </dd>
+
+                        <dt class="col-sm-4">Show Sex</dt>
+                        <dd class="col-sm-9">
+                            <input type="checkbox" class="form-check-input" id="deceasedCheckbox" @bind="@PedigreeContext.ShowSex"/>
+                                @* <input id="showSexInput" type="checkbox" class="form-control" @bind="PedigreeContext.ShowSex"/> *@
+                        </dd>
+                    </dl>
+
+                    <button class="btn btn-primary" @onclick="ExportPdfPedigree">Generate and save</button>
+                </div>
+            </div>
+        </div>
+    </div>
 }

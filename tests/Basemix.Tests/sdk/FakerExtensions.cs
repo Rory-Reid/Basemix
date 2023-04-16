@@ -1,4 +1,5 @@
 using Basemix.Lib.Litters;
+using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
 using Bogus;
 using Bogus.DataSets;
@@ -42,7 +43,7 @@ public static class FakerExtensions
         "Merle", "Powder Blue", "Pink Eyed Ivory", "Russian Buff", "Russian Burmese", "Russian Pearl", "Satin",
         "Silken", "Variegated Downunder",
     };
-    
+
     public static string Variety(this Faker faker) =>
         faker.PickRandom(Varieties);
 
@@ -82,7 +83,56 @@ public static class FakerExtensions
             dam: dam ?? (hasDam ? new(faker.Id(), faker.Name.FirstName(Name.Gender.Female)) : null),
             sire: sire ?? (hasSire ? new(faker.Id(), faker.Name.FirstName(Name.Gender.Male)) : null),
             dateOfBirth: faker.Date.PastDateOnly(),
-            offspring: offspring?.Select(x => new Offspring(x.Id, x.Name)).ToList() ?? faker.Make(faker.Random.Int(minimumOffspring, maximumOffspring),
+            offspring: offspring?.Select(x => new Offspring(x.Id, x.Name)).ToList() ?? faker.Make(
+                faker.Random.Int(minimumOffspring, maximumOffspring),
                 _ => new Offspring(faker.Id(), faker.Name.FirstName())).ToList());
     }
+
+    public static Node CodedPedigree(this Faker faker) =>
+        new() { Name = "root", Variety = "root",
+            Sire = new Node { Name = "s", Variety = "s",
+                Sire = new Node { Name = "ss", Variety = "ss",
+                    Sire = new Node { Name = "sss", Variety = "sss",
+                        Sire = new Node { Name = "ssss", Variety = "ssss" },
+                        Dam = new Node { Name = "sssd", Variety = "sssd" }
+                    },
+                    Dam = new Node { Name = "ssd", Variety = "ssd",
+                        Sire = new Node { Name = "ssds", Variety = "ssds" },
+                        Dam = new Node { Name = "ssdd", Variety = "ssdd" }
+                    }
+                },
+                Dam = new Node { Name = "sd", Variety = "sd",
+                    Sire = new Node { Name = "sds", Variety = "sds",
+                        Sire = new Node { Name = "sdss", Variety = "sdss" },
+                        Dam = new Node { Name = "sdsd", Variety = "sdsd" }
+                    },
+                    Dam = new Node { Name = "sdd", Variety = "sdd",
+                        Sire = new Node { Name = "sdds", Variety = "sdds" },
+                        Dam = new Node { Name = "sddd", Variety = "sddd" }
+                    }
+                }
+            },
+            Dam = new Node { Name = "d", Variety = "d",
+                Sire = new Node { Name = "ds", Variety = "ds",
+                    Sire = new Node { Name = "dss", Variety = "dss",
+                        Sire = new Node { Name = "dsss", Variety = "dsss" },
+                        Dam = new Node { Name = "dssd", Variety = "dssd" }
+                    },
+                    Dam = new Node { Name = "dsd", Variety = "dsd",
+                        Sire = new Node { Name = "dsds", Variety = "dsds" },
+                        Dam = new Node { Name = "dsdd", Variety = "dsdd" }
+                    }
+                },
+                Dam = new Node { Name = "dd", Variety = "dd",
+                    Sire = new Node { Name = "dds", Variety = "dds",
+                        Sire = new Node { Name = "ddss", Variety = "ddss" },
+                        Dam = new Node { Name = "ddsd", Variety = "ddsd" }
+                    },
+                    Dam = new Node { Name = "ddd", Variety = "ddd",
+                        Sire = new Node { Name = "ddds", Variety = "ddds" },
+                        Dam = new Node { Name = "dddd", Variety = "dddd" }
+                    }
+                }
+            }
+        };
 }
