@@ -77,7 +77,7 @@ public class SqliteRatsRepository : IRatsRepository
         }
         
         var litters = await reader.ReadAsync<PersistedRatLitter>();
-        return rat.ToModelledRat(litters.ToList());
+        return rat.ToModelledRat(litters.OrderByDescending(x => x.DateOfBirth).ToList());
     }
 
     public async Task<List<Rat>> GetAll()
