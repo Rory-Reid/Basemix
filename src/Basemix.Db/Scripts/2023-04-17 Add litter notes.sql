@@ -1,0 +1,1 @@
+ALTER TABLE litter ADD COLUMN notes TEXT NULL;

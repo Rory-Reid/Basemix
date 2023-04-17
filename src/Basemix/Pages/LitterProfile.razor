@@ -41,6 +41,17 @@ else
 
         <dt class="col-sm-2">Date of Birth</dt>
         <dd class="col-sm-9">@(Litter.DateOfBirth?.ToString() ?? "-")</dd>
+        
+        @if (!string.IsNullOrEmpty(Litter.Notes))
+        {
+            <dt class="col-sm-2">Notes</dt>
+            <dd class="col-sm-9">
+                @foreach (var line in Litter.Notes.Split("\n"))
+                {
+                    <p>@line</p>
+                }
+            </dd>
+        }
     </dl>
 
     <h2>Offspring</h2>

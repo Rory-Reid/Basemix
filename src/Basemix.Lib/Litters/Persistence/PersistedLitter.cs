@@ -13,12 +13,14 @@ public class PersistedLitter
         this.DamId = litter.DamId?.Value;
         this.SireId = litter.SireId?.Value;
         this.DateOfBirth = litter.DateOfBirth?.ToPersistedDateTime();
+        this.Notes = litter.Notes;
     }
     
     public long? Id { get; init; }
     public long? DamId { get; init; }
     public long? SireId { get; init; }
     public long? DateOfBirth { get; init; }
+    public string? Notes { get; init; }
 }
 
 public class LitterReadModel
@@ -29,6 +31,7 @@ public class LitterReadModel
     public long? SireId { get; init; }
     public string? SireName { get; init; }
     public long? DateOfBirth { get; init; }
+    public string? Notes { get; init; }
 
     public Litter ToModelledLitter(IEnumerable<LitterOffspringReadModel> offspring)
     {
@@ -46,7 +49,10 @@ public class LitterReadModel
         }
 
         return new Litter(this.Id, dam: dam, sire: sire, this.DateOfBirth?.ToDateOnly(),
-            offspring.Select(x => x.ToModelledOffspring()).ToList());
+            offspring.Select(x => x.ToModelledOffspring()).ToList())
+        {
+            Notes = this.Notes
+        };
     }
 }
 

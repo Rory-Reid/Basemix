@@ -38,6 +38,7 @@ public class Litter
     public string? DamName { get; private set; }
     public string? SireName { get; private set; }
     public DateOnly? DateOfBirth { get; set; }
+    public string? Notes { get; set; }
     public IReadOnlyList<Offspring> Offspring => this.offspring;
 
     public async Task<LitterAddResult> SetDam(ILittersRepository repository, Rat rat)

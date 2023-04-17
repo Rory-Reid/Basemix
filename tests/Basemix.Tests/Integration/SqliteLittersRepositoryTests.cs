@@ -90,7 +90,9 @@ public class LittersRepositoryTests : SqliteIntegration
             () => litter.id.ShouldBe(id),
             () => litter.dam_id.ShouldBe(dam.Id.Value),
             () => litter.sire_id.ShouldBe(sire.Id.Value),
-            () => litter.date_of_birth.ShouldBeNull());
+            () => litter.date_of_birth.ShouldBeNull(),
+            () => litter.date_of_pairing.ShouldBeNull(),
+            () => litter.notes.ShouldBeNull());
     }
 
     [Fact]
@@ -103,8 +105,12 @@ public class LittersRepositoryTests : SqliteIntegration
         dam = await this.fixture.Seed(dam);
         sire = await this.fixture.Seed(sire);
         var dob = this.faker.Date.PastDateOnly();
+        var notes = this.faker.Lorem.Paragraph();
 
-        var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob);
+        var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob)
+        {
+            Notes = notes
+        };
         await this.repository.UpdateLitter(updatedLitter);
 
         using var db = this.fixture.GetConnection(); 
@@ -115,7 +121,8 @@ public class LittersRepositoryTests : SqliteIntegration
             () => row.id.ShouldBe(id),
             () => row.dam_id.ShouldBe(dam.Id.Value),
             () => row.sire_id.ShouldBe(sire.Id.Value),
-            () => row.date_of_birth.ShouldBe(dob.ToPersistedDateTime()));
+            () => row.date_of_birth.ShouldBe(dob.ToPersistedDateTime()),
+            () => row.notes.ShouldBe(notes));
     }
     
     [Fact]
@@ -236,7 +243,10 @@ public class LittersRepositoryTests : SqliteIntegration
         sire = await this.fixture.Seed(sire);
         var dob = this.faker.Date.PastDateOnly();
 
-        var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob);
+        var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob)
+        {
+            Notes = this.faker.Lorem.Paragraph()
+        };
         await this.repository.UpdateLitter(updatedLitter);
 
         var retrievedLitter = await this.repository.GetLitter(id);
@@ -264,6 +274,6 @@ public class LittersRepositoryTests : SqliteIntegration
     }
     
     // ReSharper disable InconsistentNaming
-    private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth, long? date_of_pairing);
+    private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth, long? date_of_pairing, string? notes);
     // ReSharper restore InconsistentNaming
 }

@@ -1,6 +1,7 @@
 @page "/litters/{Id:long}/edit"
 @using Microsoft.AspNetCore.Components
 @using Basemix.Lib.Rats
+@using System.Runtime.CompilerServices
 
 @if (!LitterLoaded)
 {
@@ -52,6 +53,11 @@ else
         <dt class="col-sm-2">Date of Birth</dt>
         <dd class="col-sm-9">
             <input required class="form-control" type="date" id="dateOfBirthInput" @bind="this.Litter.DateOfBirth"/>
+        </dd>
+
+        <dt class="col-sm-2">Notes</dt>
+        <dd class="col-sm-9">
+            <textarea style="box-sizing: border-box;width: 100%" wrap="hard" id="notesInput" rows="5" @bind="Litter.Notes"></textarea>
         </dd>
     </dl>
 

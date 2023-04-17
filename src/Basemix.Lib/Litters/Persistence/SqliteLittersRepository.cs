@@ -21,7 +21,8 @@ public class SqliteLittersRepository : ILittersRepository
         using var reader = await db.QueryMultipleAsync(
             @"SELECT
                 litter.id, litter.dam_id, litter.sire_id, litter.date_of_birth,
-                dam.name as dam_name, sire.name AS sire_name
+                dam.name as dam_name, sire.name AS sire_name,
+                litter.notes
             FROM litter
             LEFT JOIN rat dam on dam.id=dam_id
             LEFT JOIN rat sire on sire.id=sire_id
@@ -81,7 +82,8 @@ public class SqliteLittersRepository : ILittersRepository
             SET
                 dam_id=@DamId,
                 sire_id=@SireId,
-                date_of_birth=@DateOfBirth
+                date_of_birth=@DateOfBirth,
+                notes=@Notes
             WHERE id=@Id",
             new PersistedLitter(litter));
     }
