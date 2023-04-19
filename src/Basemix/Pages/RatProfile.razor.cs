@@ -165,6 +165,11 @@ public partial class RatProfile
         {
             // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
         }
+        catch (IndexOutOfRangeException e) when (e.Message.Contains("Arg_IndexOutOfRangeException"))
+        {
+            // Potential bug in CommunityToolkit for android. Seems to be an issue with returning the filepath
+            // and not with actually saving the file. I can safely ignore it for now.
+        }
 
         this.ShowPdfExport = false;
     }

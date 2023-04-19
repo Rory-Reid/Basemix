@@ -60,10 +60,10 @@ public class PdfGenerator
                     });
 
                     var cellFont = 10;
-                    table.Cell().ColumnSpan(5).Element(RatteryHeader).Text(ratteryName).FontFamily(Fonts.Calibri)
+                    table.Cell().ColumnSpan(5).Element(RatteryHeader).Text(ratteryName).FontFamily(Fonts.Arial)
                         .FontSize(36).Bold();
                     table.Cell().ColumnSpan(5).Element(LitterHeader)
-                        .Text(litterName).FontFamily(Fonts.Calibri).FontSize(26);
+                        .Text(litterName).FontFamily(Fonts.Arial).FontSize(26); // TODO better fonts for android
 
                     table.Cell().RowSpan(16).Element(TopBlock).Text(root.Name).FontFamily(Fonts.Arial)
                         .FontSize(cellFont).Bold();
