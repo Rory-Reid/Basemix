@@ -32,7 +32,16 @@ namespace Basemix
 
         public static void AddBasemix(this IServiceCollection services)
         {
+            var errorContext = new ErrorContext();
             DapperSetup.Configure();
+            try
+            {
+                PdfGenerator.RegisterFonts();
+            }
+            catch (Exception e)
+            {
+                errorContext.LastError = e.ToString();
+            }
 
             var docsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
             var basemixPath = Path.Combine(docsDirectory, "basemix");
@@ -50,6 +59,7 @@ namespace Basemix
             services.AddSingleton<IPedigreeRepository, SqlitePedigreeRepository>();
             services.AddSingleton<PdfGenerator>();
             services.AddSingleton<PedigreeContext>();
+            services.AddSingleton(errorContext);
 
             // UI Nonsense
             services.AddSingleton<JsInteropExports>();

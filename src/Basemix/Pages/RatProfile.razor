@@ -100,6 +100,19 @@ else
 
     <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="@(() => ShowPdfExport = true)">Export as PDF</button>
 
+    @if (ExportSuccess is true)
+    {
+        <div class="alert alert-success" role="alert">
+            Export successful!
+        </div>
+    }
+    else if (ExportSuccess is false)
+    {
+        <div class="alert alert-danger" role="alert">
+            Export failed! Check the "settings" page to find the error details and send them to Rory.
+        </div>
+    }
+    
     @if (!PedigreeLoaded)
     {
         <NoPedigree/>

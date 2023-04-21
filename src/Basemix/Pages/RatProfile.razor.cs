@@ -21,6 +21,7 @@ public partial class RatProfile
     [Inject] public PedigreeContext PedigreeContext { get; set; } = null!;
     [Inject] public DateSpanToString DateSpanToString { get; set; } = null!;
     [Inject] public NowDateOnly NowDateOnly { get; set; } = null!;
+    [Inject] public ErrorContext ErrorContext { get; set; } = null!;
     
     [Parameter] public long Id { get; set; }
 
@@ -144,34 +145,51 @@ public partial class RatProfile
     }
     
     public string? LitterName { get; set; }
+    
+    public bool? ExportSuccess { get; set; }
 
     public async Task ExportPdfPedigree()
     {
-        var pdf = this.PdfGenerator.CreateFromPedigree(
-            this.Pedigree,
-            this.Rat.Sex,
-            this.Rat.DateOfBirth,
-            this.PedigreeContext.RatteryName,
-            this.LitterName,
-            this.PedigreeContext.FooterText,
-            this.PedigreeContext.ShowSex);
-        var stream = new MemoryStream();
-        this.PdfGenerator.WriteToStream(pdf, stream);
         try
         {
-            await FileSaver.Default.SaveAsync($"{this.Rat.Name}.pdf", stream, CancellationToken.None);
+            var pdf = this.PdfGenerator.CreateFromPedigree(
+                this.Pedigree,
+                this.Rat.Sex,
+                this.Rat.DateOfBirth,
+                this.PedigreeContext.RatteryName,
+                this.LitterName,
+                this.PedigreeContext.FooterText,
+                this.PedigreeContext.ShowSex);
+            var stream = new MemoryStream();
+            this.PdfGenerator.WriteToStream(pdf, stream);
+
+            try
+            {
+                await FileSaver.Default.SaveAsync($"{this.Rat.Name}.pdf", stream, CancellationToken.None);
+            }
+            catch (FolderPickerException e) when (e.Message is "Operation cancelled.")
+            {
+            }
+            catch (FileSaveException e) when (e.Message is "Path doesn't exist.")
+            {
+                // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
+            }
+            catch (IndexOutOfRangeException e) when (e.Message.Contains("Arg_IndexOutOfRangeException"))
+            {
+                // Potential bug in CommunityToolkit for android. Seems to be an issue with returning the filepath
+                // and not with actually saving the file. I can safely ignore it for now.
+            }
         }
-        catch (FileSaveException e) when (e.Message is "Path doesn't exist.")
+        catch (Exception e)
         {
-            // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
-        }
-        catch (IndexOutOfRangeException e) when (e.Message.Contains("Arg_IndexOutOfRangeException"))
-        {
-            // Potential bug in CommunityToolkit for android. Seems to be an issue with returning the filepath
-            // and not with actually saving the file. I can safely ignore it for now.
+            this.ShowPdfExport = false;
+            this.ExportSuccess = false;
+            this.ErrorContext.LastError = e.ToString();
+            return;
         }
 
         this.ShowPdfExport = false;
+        this.ExportSuccess = true;
     }
 }
 

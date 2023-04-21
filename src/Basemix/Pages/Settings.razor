@@ -5,6 +5,7 @@
 @using CommunityToolkit.Maui.Storage
 @inject GetDatabasePath GetDatabasePath;
 @inject Migrator Migrator;
+@inject ErrorContext ErrorContext;
 @implements IDisposable;
 
 <h1>Settings</h1>
@@ -16,6 +17,14 @@
 </p>
 
 <button class="btn btn-primary" @onclick="ExportDb">Export database</button>
+
+
+@if (!string.IsNullOrEmpty(ErrorContext.LastError))
+{
+    <hr />
+    <h2>Last Application Error</h2>
+    <p>@ErrorContext.LastError</p>
+}
 
 <hr />
 
@@ -47,7 +56,7 @@
     private bool dangerZoneEnabled = false;
     private string dbPath = "ERROR";
     private bool dbDeleted = false;
-    
+
     protected override void OnInitialized()
     {
         this.dbPath = GetDatabasePath();
@@ -67,14 +76,29 @@
 
     public async Task ExportDb()
     {
-        await using var file = new FileStream(dbPath, FileMode.Open);
         try
         {
-            await FileSaver.Default.SaveAsync("basemix.sqlite3", file, cts.Token);
+            await using var file = new FileStream(dbPath, FileMode.Open);
+            try
+            {
+                await FileSaver.Default.SaveAsync("basemix.sqlite3", file, cts.Token);
+            }
+            catch (FolderPickerException e) when (e.Message is "Operation cancelled.")
+            {
+            }
+            catch (FileSaveException e) when (e.Message is "Path doesn't exist.")
+            {
+                // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
+            }
+            catch (IndexOutOfRangeException e) when (e.Message.Contains("Arg_IndexOutOfRangeException"))
+            {
+                // Potential bug in CommunityToolkit for android. Seems to be an issue with returning the filepath
+                // and not with actually saving the file. I can safely ignore it for now.
+            }
         }
-        catch (FileSaveException e) when (e.Message is "Path doesn't exist.")
+        catch (Exception e)
         {
-            // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
+            this.ErrorContext.LastError = e.ToString();
         }
     }
 
