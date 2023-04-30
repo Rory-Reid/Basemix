@@ -35,6 +35,11 @@
         <AndroidSigningKeyAlias>key</AndroidSigningKeyAlias>
     </PropertyGroup>
 
+    <!-- Uncomment to enable the interpreter. This is needed in release if you or your dependencies use reflection -->
+    <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) Or $(TargetFramework.Contains('-ios'))">
+        <UseInterpreter>true</UseInterpreter>
+    </PropertyGroup>
+
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.png" Color="#FFFFFF" />
