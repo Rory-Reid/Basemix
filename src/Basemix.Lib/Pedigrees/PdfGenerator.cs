@@ -243,7 +243,7 @@ public class PdfGenerator
     
     private static string BuckVariety(Node node, bool showSex) => string.IsNullOrEmpty(node.Variety) 
         ? SexText(showSex, "(Buck)")
-        : $"{SexText(showSex, "(Buck/) ")}{node.Variety}";
+        : $"{SexText(showSex, "(Buck) ")}{node.Variety}";
     private static string DoeVariety(Node node, bool showSex) => string.IsNullOrEmpty(node.Variety)
         ? SexText(showSex, "(Doe)")
         : $"{SexText(showSex, "(Doe) ")}{node.Variety}";
