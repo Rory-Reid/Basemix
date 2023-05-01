@@ -129,5 +129,8 @@ public class MemoryLittersRepository : ILittersRepository
                 ? null
                 : (litter.SireId, litter.SireName!),
             litter.DateOfBirth,
-            newOffspring ?? litter.Offspring.ToList());
+            newOffspring ?? litter.Offspring.ToList())
+        {
+            Notes = litter.Notes
+        };
 }
