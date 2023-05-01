@@ -372,7 +372,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     }
 
     [Fact]
-    public async Task Setting_result_of_offspring_search_sets_offpsring_and_closes_search()
+    public async Task Setting_result_of_offspring_search_sets_offspring_and_closes_search()
     {
         var rat = this.faker.Rat(id: this.faker.Id());
         this.backplane.Seed(rat); // TODO replace with ratrepository.Seed
@@ -390,6 +390,68 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         this.Page.ShowRatSearch.ShouldBeFalse();
     }
 
+    [Fact]
+    public async Task Adding_offspring_from_search_when_rat_has_date_of_birth_and_litter_doesnt_updates_litter_date_of_birth()
+    {
+        var rat = this.faker.Rat(id: this.faker.Id());
+        rat.DateOfBirth = this.faker.Date.PastDateOnly();
+        this.backplane.Seed(rat); // TODO replace with ratrepository.Seed
+        var litter = this.faker.BlankLitter(this.Page.Id);
+        litter.DateOfBirth = null;
+        this.littersRepository.Seed(litter);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.OpenOffspringSearch();
+        this.Page.RatSearchTerm = rat.Name!;
+
+        await this.Page.Search();
+        await this.Page.SetResult(this.Page.RatSearchResults.ShouldHaveSingleItem());
+        
+        this.littersRepository.Litters[this.Page.Id].DateOfBirth.ShouldBe(rat.DateOfBirth);
+    }
+    
+    [Fact]
+    public async Task Adding_offspring_from_search_when_litter_and_rat_have_null_date_of_birth_does_nothing_with_dates()
+    {
+        var rat = this.faker.Rat(id: this.faker.Id());
+        rat.DateOfBirth = null;
+        this.backplane.Seed(rat); // TODO replace with ratrepository.Seed
+        var litter = this.faker.BlankLitter(this.Page.Id);
+        litter.DateOfBirth = null;
+        this.littersRepository.Seed(litter);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.OpenOffspringSearch();
+        this.Page.RatSearchTerm = rat.Name!;
+
+        await this.Page.Search();
+        await this.Page.SetResult(this.Page.RatSearchResults.ShouldHaveSingleItem());
+        
+        this.littersRepository.Litters[this.Page.Id].DateOfBirth.ShouldBeNull();
+        this.ratsRepository.Rats[rat.Id].DateOfBirth.ShouldBeNull();
+    }
+    
+    [Fact]
+    public async Task Adding_offspring_from_search_when_litter_and_rat_have_date_of_birth_does_nothing_with_dates()
+    {
+        var rat = this.faker.Rat(id: this.faker.Id());
+        rat.DateOfBirth = this.faker.Date.PastDateOnly();
+        this.backplane.Seed(rat); // TODO replace with ratrepository.Seed
+        var litter = this.faker.BlankLitter(this.Page.Id);
+        litter.DateOfBirth = this.faker.Date.PastDateOnly();
+        this.littersRepository.Seed(litter);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.OpenOffspringSearch();
+        this.Page.RatSearchTerm = rat.Name!;
+
+        await this.Page.Search();
+        await this.Page.SetResult(this.Page.RatSearchResults.ShouldHaveSingleItem());
+        
+        this.littersRepository.Litters[this.Page.Id].DateOfBirth.ShouldBe(litter.DateOfBirth);
+        this.ratsRepository.Rats[rat.Id].DateOfBirth.ShouldBe(rat.DateOfBirth);
+    }
+    
     [Fact]
     public async Task Save_saves_litter()
     {

@@ -146,6 +146,11 @@ public partial class EditLitter
         this.SetResult = async (rat) =>
         {
             await this.Litter.AddOffspring(this.Repository, rat);
+            if (this.Litter.DateOfBirth == null && rat.DateOfBirth != null)
+            {
+                this.Litter.DateOfBirth = rat.DateOfBirth;
+                await this.Litter.Save(this.Repository);
+            }
             this.ShowRatSearch = false;
         };
         this.ShowRatSearch = true;
