@@ -1,12 +1,14 @@
 @page "/settings"
 @using Basemix.Db
 @using System.IO
+@using System.Net.Security
 @using Basemix.Lib
 @using CommunityToolkit.Maui.Storage
 @inject GetDataDirectory GetDataDirectory;
 @inject GetDatabasePath GetDatabasePath;
 @inject Migrator Migrator;
 @inject ErrorContext ErrorContext;
+@inject NavigationManager Nav;
 @implements IDisposable;
 
 <h1>Settings</h1>
@@ -26,6 +28,8 @@
     <h2>Last Application Error</h2>
     <p>@ErrorContext.LastError</p>
 }
+
+<button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("/import/ratrecords"))">Import from Rat Records spreadsheet</button>
 
 <hr />
 

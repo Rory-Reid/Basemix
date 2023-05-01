@@ -14,7 +14,7 @@ public class RatRecordsSpreadsheetParserTests : SqliteIntegration
     public RatRecordsSpreadsheetParserTests(SqliteFixture fixture) : base(fixture)
     {
         this.fixture = fixture;
-        Parser.Setup();
+        Parser.Configure();
     }
     
     [Fact]

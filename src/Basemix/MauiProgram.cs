@@ -1,5 +1,6 @@
 ﻿using Basemix.Db;
 using Basemix.Lib;
+using Basemix.Lib.Ingestion.RatRecordsSpreadsheet;
 using Basemix.Lib.Litters.Persistence;
 using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Pedigrees;
@@ -35,6 +36,7 @@ namespace Basemix
         {
             var errorContext = new ErrorContext();
             DapperSetup.Configure();
+            Parser.Configure();
             try
             {
                 PdfGenerator.RegisterFonts();

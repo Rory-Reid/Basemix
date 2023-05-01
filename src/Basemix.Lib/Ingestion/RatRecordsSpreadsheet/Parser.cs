@@ -5,7 +5,7 @@ namespace Basemix.Lib.Ingestion.RatRecordsSpreadsheet;
 
 public class Parser
 {
-    public static void Setup()
+    public static void Configure()
     {
         // https://github.com/ExcelDataReader/ExcelDataReader#important-note-on-net-core
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

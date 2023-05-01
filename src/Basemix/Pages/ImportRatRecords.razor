@@ -1,0 +1,125 @@
+@page "/import/ratrecords"
+@using Basemix.Lib.Ingestion.RatRecordsSpreadsheet
+@using Basemix.Lib.Ingestion
+@using Basemix.Lib.Litters.Persistence
+@using Basemix.Lib.Rats.Persistence
+@inject ILittersRepository LittersRepository;
+@inject IRatsRepository RatsRepository;
+
+<div>
+    <div class="d-flex justify-content-between">
+        <BackButton />
+    </div>
+    
+    <hr/>
+</div>
+
+<h1>Import Rat Records spreadsheet</h1>
+
+<p>
+    <strong>Important note:</strong> This tool is currently experimental. Please make a backup of your database using
+    the "Export Database" function before using this tool.
+</p>
+
+<p>
+    This page will let you import records from the "Rat Records" spreadsheet. Once the spreadsheet has been loaded, you 
+    will have a chance to review any problems noted in the spreadsheet before importing. If you're satisfied that the
+    problems do not matter to you, you can click to import everything anyway. If you need to amend anything, either
+    change the spreadsheet and load it again, or edit the rats and litters in Basemix once imported.
+</p>
+
+<button class="btn btn-primary" @onclick="LoadSpreadsheet">Load spreadsheet</button>
+
+@if (!string.IsNullOrEmpty(this.LoadError))
+{
+    <div class="alert alert-danger" role="alert">
+        @this.LoadError
+    </div>
+}
+
+@if (ValidationResult != null)
+{
+    <h2>Loaded Spreadsheet</h2>
+    
+    <dl class="row">
+        <dt class="col-sm-2">Loaded rats</dt>
+        <dd class="col-sm-9">@ValidationResult.NumberOfRatsBeingAdded</dd>
+        <dt class="col-sm-2">Loaded litters</dt>
+        <dd class="col-sm-9">@ValidationResult.NumberOfLittersBeingAdded</dd>
+    </dl>
+    
+    @if (ValidationResult.Problems.Any())
+    {
+        <p>The following problems were noted in the loaded file:</p>
+        <ul>
+            @foreach(var problem in ValidationResult.Problems)
+            {
+                <li>@problem.Message</li>
+            }
+        </ul>
+    }
+}
+
+@if (LoadedData != null)
+{
+    <p>
+        If you are happy with the loaded spreadsheet, click the button below to import the records into Basemix. Again,
+        I recommend you make a backup of your database before doing this.
+    </p>
+    
+    <button class="btn btn-primary" @onclick="Import">Import into Basemix</button>
+}
+
+@code
+{
+    public RatRecords? LoadedData { get; set; }
+    public ValidationResult? ValidationResult { get; set; }
+    public string? LoadError { get; set; }
+
+    public async Task LoadSpreadsheet()
+    {
+        this.LoadedData = null;
+        this.ValidationResult = null;
+        this.LoadError = null;
+        
+        try
+        {
+            var result = await FilePicker.Default.PickAsync(new PickOptions
+            {
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    { DevicePlatform.iOS, new[] { "com.microsoft.excel.xls", "org.openxmlformats.spreadsheetml.sheet" } }, // UTType values
+                    { DevicePlatform.Android, new[] { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" } }, // MIME type
+                    { DevicePlatform.WinUI, new[] { ".xlsx" } }, // file extension
+                    { DevicePlatform.macOS, new[] { "xlsx" } }, // UTType values
+                    { DevicePlatform.MacCatalyst, new[] { "xlsx" } }, // UTType values
+                })
+            });
+            
+            if (result != null)
+            {
+                if (result.FileName.EndsWith("xlsx", StringComparison.OrdinalIgnoreCase))
+                {
+                    await using var stream = await result.OpenReadAsync();
+                    var parser = new Parser();
+                    this.LoadedData = parser.ParseFile(stream);
+                    var validator = new Validator();
+                    this.ValidationResult = validator.Validate(this.LoadedData);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            LoadError = $"An unexpected error occurred: {e}";
+        }
+    }
+
+    public async Task Import()
+    {
+        var mapper = new DataMapper();
+        var data = mapper.Map(this.LoadedData!, new RatIngestionOptions());
+        
+        var importer = new Ingestor(this.LittersRepository, this.RatsRepository);
+        await importer.Ingest(data);
+    }
+}
