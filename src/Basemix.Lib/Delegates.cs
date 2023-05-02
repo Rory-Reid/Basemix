@@ -6,6 +6,8 @@ public delegate IDbConnection GetDatabase();
 
 public delegate string GetDatabasePath();
 
+public delegate string GetDataDirectory();
+
 public delegate DateOnly NowDateOnly();
 
 public delegate string DateSpanToString(DateOnly date1, DateOnly date2);

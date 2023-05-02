@@ -48,6 +48,7 @@ namespace Basemix
             Directory.CreateDirectory(basemixPath);
             var dbPath = Path.Combine(basemixPath, "db.sqlite");
 
+            services.AddSingleton<GetDataDirectory>(() => basemixPath);
             services.AddSingleton<GetDatabasePath>(() => dbPath);
             services.AddSingleton(s => new Migrator(dbPath, s.GetRequiredService<ILogger<Migrator>>()));
             services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath};Pooling=false"));

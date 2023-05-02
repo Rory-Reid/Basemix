@@ -3,6 +3,7 @@
 @using System.IO
 @using Basemix.Lib
 @using CommunityToolkit.Maui.Storage
+@inject GetDataDirectory GetDataDirectory;
 @inject GetDatabasePath GetDatabasePath;
 @inject Migrator Migrator;
 @inject ErrorContext ErrorContext;
@@ -40,12 +41,20 @@
 <label for="dangerCheckbox">I know what I'm doing</label>
 <br />
 <br />
-<button class="btn btn-danger" @onclick="RecreateDatabase" disabled="@(!dangerZoneEnabled)">Delete and re-create database</button>
-@if (this.dbDeleted)
+
+<div class="btn-toolbar" role="toolbar" aria-label="Dangerous Buttons">
+    <div class="btn-group mr-2" role="group">
+        <button class="btn btn-danger" @onclick="RecreateDatabase" disabled="@(!dangerZoneEnabled)">Delete and re-create database</button>
+    </div>
+    <div class="btn-group mr-2" role="group" aria-label="Second group">
+        <button class="btn btn-primary" @onclick="LoadDb" disabled="@(!dangerZoneEnabled)">Load database from file</button>
+    </div>
+</div>
+@if (this.dbModified)
 {
     <p>
-        <strong>Please restart basemix.</strong> The database has been deleted but anything basemix has already loaded
-        from it will remain in memory until restarted - sorry.
+        The database has been modified, you shouldn't need to restart Basemix but if anything looks off, try restarting
+        before editing any data.
     </p>
 }
 
@@ -55,11 +64,13 @@
     
     private bool dangerZoneEnabled = false;
     private string dbPath = "ERROR";
-    private bool dbDeleted = false;
+    private string dbDir = "ERROR";
+    private bool dbModified = false;
 
     protected override void OnInitialized()
     {
         this.dbPath = GetDatabasePath();
+        this.dbDir = GetDataDirectory();
     }
 
     public void RecreateDatabase()
@@ -71,7 +82,7 @@
         
         File.Delete(dbPath);
         this.Migrator.Start();
-        this.dbDeleted = true;
+        this.dbModified = true;
     }
 
     public async Task ExportDb()
@@ -99,6 +110,52 @@
         catch (Exception e)
         {
             this.ErrorContext.LastError = e.ToString();
+        }
+    }
+
+    public async Task LoadDb()
+    {
+        var backupDbPath = Path.Combine(dbDir, "backup.sqlite3");
+        try
+        {
+            var file = await FilePicker.PickAsync(new PickOptions
+            {
+                PickerTitle = "Select exported database (usually called basemix.sqlite3)",
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    { DevicePlatform.iOS, new[] {"public.sqlite3", "public.sqlite"}}, // UTType values
+                    { DevicePlatform.Android, new[] {"application/vnd.sqlite3", "application/x-sqlite3"}}, // MIME type
+                    { DevicePlatform.WinUI, new[] {".sqlite3", ".sqlite"}}, // file extension
+                    { DevicePlatform.macOS, new[] {"sqlite3", "sqlite"}}, // UTType values
+                    { DevicePlatform.MacCatalyst, new[] {"sqlite3", "sqlite3"}}
+                })
+            });
+            
+            if (file == null)
+            {
+                return;
+            }
+
+            await using var loadedFile = File.Open(file.FullPath, FileMode.Open);
+            if (File.Exists(backupDbPath))
+            {
+                // Old backup
+                File.Delete(backupDbPath);
+            }
+            
+            File.Move(dbPath, backupDbPath);
+            await using var import = File.Open(dbPath, FileMode.CreateNew);
+            await loadedFile.CopyToAsync(import);
+            
+            loadedFile.Close();
+            import.Close();
+            
+            this.Migrator.Start();
+            this.dbModified = true;
+        }
+        catch (Exception e)
+        {
+            this.ErrorContext.LastError = $"Loading failed - you might need to manually fix this. Your old database has been moved to {backupDbPath}, please make a copy, then rename it to `db.sqlite` to restore it. Do not click load again, it will delete your backup. \nError Details Below:\n{e}";
         }
     }
 
