@@ -31,7 +31,8 @@ public class LitterTests
             () => litter.SireId.ShouldBeNull(),
             () => litter.SireName.ShouldBeNull(),
             () => litter.DateOfBirth.ShouldBeNull(),
-            () => litter.Offspring.ShouldBeEmpty());
+            () => litter.Offspring.ShouldBeEmpty(),
+            () => litter.Notes.ShouldBeNull());
     }
 
     [Fact]
@@ -227,6 +228,32 @@ public class LitterTests
         await litter.RemoveOffspring(this.littersRepository, otherRat.Id);
 
         litter.Offspring.ShouldHaveSingleItem();
+    }
+
+    [Fact]
+    public async Task Properties_do_not_persist_on_set()
+    {
+        var litter = await this.CreateLitter();
+        litter.DateOfBirth = this.faker.Date.PastDateOnly();
+        litter.Notes = this.faker.Lorem.Paragraphs();
+        
+        (await this.littersRepository.GetLitter(litter.Id)).ShouldNotBeNull().ShouldSatisfyAllConditions(
+            storedLitter => storedLitter.DateOfBirth.ShouldBeNull(),
+            storedLitter => storedLitter.Notes.ShouldBeNull());
+    }
+
+    [Fact]
+    public async Task Properties_persist_on_save()
+    {
+        var litter = await this.CreateLitter();
+        litter.DateOfBirth = this.faker.Date.PastDateOnly();
+        litter.Notes = this.faker.Lorem.Paragraphs();
+
+        await litter.Save(this.littersRepository);
+        
+        (await this.littersRepository.GetLitter(litter.Id)).ShouldNotBeNull().ShouldSatisfyAllConditions(
+            storedLitter => storedLitter.DateOfBirth.ShouldBe(litter.DateOfBirth),
+            storedLitter => storedLitter.Notes.ShouldBe(litter.Notes));
     }
     
     [Fact]

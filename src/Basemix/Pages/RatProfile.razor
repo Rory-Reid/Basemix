@@ -35,10 +35,6 @@ else
             }
         }
 
-        @if (RatIsSenior)
-        {
-        }
-
         @if (Rat.DateOfDeath.HasValue)
         {
             <dt class="col-sm-2">Date of Death</dt>
@@ -154,8 +150,7 @@ else
 
                         <dt class="col-sm-4">Show Sex</dt>
                         <dd class="col-sm-9">
-                            <input type="checkbox" class="form-check-input" id="deceasedCheckbox" @bind="@PedigreeContext.ShowSex"/>
-                                @* <input id="showSexInput" type="checkbox" class="form-control" @bind="PedigreeContext.ShowSex"/> *@
+                            <input type="checkbox" class="form-check-input" id="showSexCheckbox" @bind="@PedigreeContext.ShowSex"/>
                         </dd>
                     </dl>
 
