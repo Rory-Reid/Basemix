@@ -345,6 +345,6 @@ public class SqliteRatRepositoryTests : SqliteIntegration
     
     // ReSharper disable InconsistentNaming
     private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes,
-        long? litter_id, long? date_of_death, string? death_reason, long owned);
+        long? litter_id, long? date_of_death, string? death_reason, long owned, long owner_id);
     // ReSharper restore InconsistentNaming
 }

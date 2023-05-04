@@ -1,4 +1,5 @@
 using Basemix.Lib.Litters;
+using Basemix.Lib.Owners;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
 using Bogus;
@@ -137,5 +138,14 @@ public static class FakerExtensions
                     }
                 }
             }
+        };
+    
+    public static Owner Owner(this Faker faker, OwnerIdentity? id = null) =>
+        new(id)
+        {
+            Name = faker.Person.FullName,
+            Email = faker.Person.Email,
+            Phone = faker.Person.Phone,
+            Notes = faker.Lorem.Paragraphs()
         };
 }

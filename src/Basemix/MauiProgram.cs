@@ -1,6 +1,7 @@
 ﻿using Basemix.Db;
 using Basemix.Lib;
 using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats.Persistence;
@@ -58,6 +59,7 @@ namespace Basemix
             services.AddSingleton<IRatsRepository, SqliteRatsRepository>();
             services.AddSingleton<ILittersRepository, SqliteLittersRepository>();
             services.AddSingleton<IPedigreeRepository, SqlitePedigreeRepository>();
+            services.AddSingleton<IOwnersRepository, SqliteOwnersRepository>();
             services.AddSingleton<PdfGenerator>();
             services.AddSingleton<PedigreeContext>();
             services.AddSingleton(errorContext);

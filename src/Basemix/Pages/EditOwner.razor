@@ -1,0 +1,39 @@
+@page "/owners/{Id:long}/edit"
+
+@if (!OwnerLoaded)
+{
+    <BackButton />
+    <hr />
+    <NoOwner />
+}
+else
+{
+    <SaveHeader OnSave="SaveAndGoBack" />
+    
+    <h1>Editing @Owner.Name</h1>
+    
+    <dl class="row">
+        <dt class="col-sm-2">Name</dt>
+        <dd class="col-sm-9">
+            <input class="form-control" type="text" id="nameInput" @bind="Owner.Name" />
+        </dd>
+        
+        <dt class="col-sm-2">Email</dt>
+        <dd class="col-sm-9">
+            <input class="form-control" type="email" id="emailInput" @bind="Owner.Email" />
+        </dd>
+        
+        <dt class="col-sm-2">Phone</dt>
+        <dd class="col-sm-9">
+            <input class="form-control" type="tel" id="phoneInput" @bind="Owner.Phone"/>
+        </dd>
+        
+        <dt class="col-sm-2">Notes</dt>
+        <dd class="col-sm-9">
+            <textarea style="box-sizing: border-box;width: 100%" wrap="hard" id="notesInput" rows="5" @bind="Owner.Notes"></textarea>
+        </dd>
+    </dl>
+    
+    <SaveDeleteFooter OnDelete="Delete" OnSave="SaveAndGoBack" />
+}
+

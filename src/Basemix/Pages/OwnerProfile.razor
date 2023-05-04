@@ -1,0 +1,43 @@
+@page "/owners/{Id:long}"
+
+@if (!OwnerLoaded)
+{
+    <BackButton />
+    <hr />
+    <NoOwner />
+}
+else
+{
+    <EditHeader OnEdit="@Edit" />
+    
+    <h1>@(Owner.Name ?? "Unnamed Owner")</h1>
+    
+    <dl class="row">
+        @if (!string.IsNullOrEmpty(Owner.Email))
+        {
+            <dt class="col-sm-2">Email</dt>
+            <dd class="col-sm-9">
+                <a href="@($"mailto:{Owner.Email}")">@Owner.Email</a>
+            </dd>
+        }
+        
+        @if (!string.IsNullOrEmpty(Owner.Phone))
+        {
+            <dt class="col-sm-2">Phone</dt>
+            <dd class="col-sm-9">
+                <a href="@($"tel:{Owner.Phone}")">@Owner.Phone</a>
+            </dd>
+        }
+        
+        @if (!string.IsNullOrEmpty(Owner.Notes))
+        {
+            <dt class="col-sm-2">Notes</dt>
+            <dd class="col-sm-9">
+                @foreach (var line in Owner.Notes.Split("\n"))
+                {
+                    <p>@line</p>
+                }
+            </dd>
+        }
+    </dl>
+}
