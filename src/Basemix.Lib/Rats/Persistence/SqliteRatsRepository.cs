@@ -118,7 +118,7 @@ public class SqliteRatsRepository : IRatsRepository
             FROM rat
             JOIN rat_search ON rat.id=rat_search.id
             {Filters(nameSearchTerm, deceased, owned, sex)}
-            ORDER BY rat.date_of_birth DESC",
+            ORDER BY rat.date_of_birth DESC, rat.id",
             new {NameSearchTerm = nameLike, Sex = sex.ToString()});
 
         return results.Select(x => x.ToResult()).ToList();
