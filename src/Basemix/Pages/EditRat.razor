@@ -20,10 +20,33 @@ else
             <input required class="form-control" @bind="RatForm.Name"/>
         </dd>
 
-        <dt class="col-sm-2">Owned</dt>
-        <dd class="col-sm-9">
-            <input required type="checkbox" @bind="RatForm.Owned"/>
-        </dd>
+        @if (Rat.OwnerId == null)
+        {
+            <dt class="col-sm-2">Owned by me</dt>
+            <dd class="col-sm-9">
+                <input required type="checkbox" @bind="RatForm.Owned"/>
+            </dd>
+        }
+        
+        @if (!RatForm.Owned)
+        {
+            <dt class="col-sm-2">Owner</dt>
+            <dd class="col-sm-9">
+                @if (this.Rat.OwnerId != null)
+                {
+                    <div>
+                        <a href="/owners/@Rat.OwnerId?.Value/edit">@(Rat.OwnerName ?? "Unnamed Owner")</a>
+                        <button class="btn btn-danger" @onclick="RemoveOwner">
+                            <span class="oi oi-circle-x"></span> Remove Owner
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <AddOrSearchButtons OnAdd="AddOwner" OnSearch="OpenOwnerSearch"/>
+                }
+            </dd>
+        }
 
         <dt class="col-sm-2">Date of Birth</dt>
         <dd class="col-sm-9">
@@ -89,4 +112,47 @@ else
     </button>
 
     <SaveDeleteFooter OnSave="SaveAndGoBack" OnDelete="DeleteRat"/>
+}
+
+@if (ShowOwnerSearch)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Find an Owner</h3>
+                    <button type="button" class="btn btn-close"
+                            @onclick="@(() => ShowOwnerSearch = false)">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input id="ratSearchInput" type="text" class="form-control" @bind="OwnerSearchTerm" placeholder="Search for an owner here"/>
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" @onclick="SearchOwner">
+                                <span class="oi oi-magnifying-glass"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var owner in OwnerSearchResults)
+                        {
+                            <tr @onclick="@(() => SetResult(owner))">
+                                <th scope="row">@(owner.Name ?? "Unnamed")</th>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 }

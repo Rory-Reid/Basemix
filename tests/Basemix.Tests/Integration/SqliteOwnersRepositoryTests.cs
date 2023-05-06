@@ -75,20 +75,25 @@ public class SqliteOwnersRepositoryTests : SqliteIntegration
         var result = await this.repository.GetOwner(owner.Id);
         result.ShouldBeEquivalentTo(owner);
     }
-    
-    [Fact]
-    public async Task Delete_owner_deletes()
-    {
-        var id = await this.repository.CreateOwner();
-        
-        await this.repository.DeleteOwner(id);
-        
-        using var db = this.fixture.GetConnection();
-        var owner = await db.QuerySingleOrDefaultAsync<OwnerRow>(
-            @"SELECT * FROM owner WHERE id=@Id", new {Id = id.Value});
-        owner.ShouldBeNull();
-    }
 
+    [Fact]
+    public async Task Delete_owner_deletes_and_removes_associations_from_any_rats()
+    {
+        var owner = new Owner(await this.repository.CreateOwner());
+        await this.fixture.Seed(this.faker.Rat(), owner);
+        
+        await this.repository.DeleteOwner(owner.Id);
+
+        using var db = this.fixture.GetConnection();
+        var ownedRats = await db.QueryAsync<long>(
+            @"SELECT rat.id FROM rat WHERE owner_id=@OwnerId", new {OwnerId = owner.Id.Value});
+        var deletedOwner = await db.QuerySingleOrDefaultAsync<OwnerRow>(
+            @"SELECT * FROM owner WHERE id=@Id", new {Id = owner.Id.Value});
+        
+        ownedRats.ShouldBeEmpty();
+        deletedOwner.ShouldBeNull();
+    }
+    
     [Fact]
     public async Task Search_owner_returns_owners_matching_term()
     {

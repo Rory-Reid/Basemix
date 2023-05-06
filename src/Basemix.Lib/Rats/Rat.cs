@@ -1,5 +1,6 @@
 using Basemix.Lib.Identity;
 using Basemix.Lib.Litters;
+using Basemix.Lib.Owners;
 using Basemix.Lib.Rats.Persistence;
 
 namespace Basemix.Lib.Rats;
@@ -11,7 +12,9 @@ public class Rat
         Sex? sex = null,
         string? variety = null,
         DateOnly? dateOfBirth = null,
-        List<RatLitter>? litters = null)
+        List<RatLitter>? litters = null,
+        OwnerIdentity? ownerId = null,
+        string? ownerName = null)
     {
         this.Id = id ?? RatIdentity.Anonymous;
         this.Name = name;
@@ -19,10 +22,14 @@ public class Rat
         this.Variety = variety;
         this.DateOfBirth = dateOfBirth;
         this.Litters = litters ?? new();
+        this.OwnerId = ownerId;
+        this.OwnerName = ownerName;
     }
     
     public RatIdentity Id { get; }
     public bool Owned { get; set; }
+    public OwnerIdentity? OwnerId { get; private set; }
+    public string? OwnerName { get; private set; }
     public string? Name { get; set; }
     public Sex? Sex { get; set; }
     public string? Variety { get; set; }
@@ -32,6 +39,26 @@ public class Rat
     
     public List<RatLitter> Litters { get; }
 
+    public async Task<OwnerAddResult> SetOwner(IRatsRepository repository, IOwnerDetails owner)
+    {
+        if (this.Owned)
+        {
+            return OwnerAddResult.OwnedByUser;
+        }
+
+        this.OwnerId = owner.Id;
+        this.OwnerName = owner.Name;
+        await repository.UpdateRat(this);
+        return OwnerAddResult.Success;
+    }
+
+    public Task RemoveOwner(IRatsRepository repository)
+    {
+        this.OwnerId = null;
+        this.OwnerName = null;
+        return repository.UpdateRat(this);
+    }
+    
     public TimeSpan? Age(NowDateOnly now)
     {
         if (this.DateOfBirth == null)
@@ -61,6 +88,13 @@ public class Rat
 }
 
 public record RatLitter(LitterIdentity Id, DateOnly? DateOfBirth, string? PairedWith, int OffspringCount);
+
+public enum OwnerAddResult
+{
+    Error = default,
+    Success,
+    OwnedByUser
+}
 
 public class RatIdentity
 {

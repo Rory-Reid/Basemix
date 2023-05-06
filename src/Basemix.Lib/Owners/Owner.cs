@@ -1,10 +1,9 @@
 using Basemix.Lib.Identity;
 using Basemix.Lib.Owners.Persistence;
-using Basemix.Lib.Rats;
 
 namespace Basemix.Lib.Owners;
 
-public class Owner
+public class Owner : IOwnerDetails
 {
     public Owner(OwnerIdentity? identity = null)
     {

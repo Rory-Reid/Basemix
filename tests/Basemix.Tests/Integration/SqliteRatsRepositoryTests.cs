@@ -1,3 +1,5 @@
+using Basemix.Lib.Owners;
+using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
@@ -79,15 +81,19 @@ public class SqliteRatRepositoryTests : SqliteIntegration
     public async Task Update_rat_updates()
     {
         var id = await this.repository.CreateRat();
+        var owned = this.faker.Random.Bool();
         var rat = new Rat(id,
             this.faker.Person.FirstName,
             this.faker.PickNonDefault<Sex>(),
             this.faker.Variety(),
-            this.faker.Date.PastDateOnly())
+            this.faker.Date.PastDateOnly(),
+            ownerId: owned 
+                ? null
+                : (await Owner.Create(new SqliteOwnersRepository(this.fixture.GetConnection))).Id)
         {
             Notes = this.faker.Lorem.Paragraphs(),
             DateOfDeath = this.faker.Date.RecentDateOnly(),
-            Owned = this.faker.Random.Bool()
+            Owned = owned,
         };
 
         await this.repository.UpdateRat(rat);
@@ -102,7 +108,8 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             () => storedRat.Variety.ShouldBe(rat.Variety),
             () => storedRat.Notes.ShouldBe(rat.Notes),
             () => storedRat.DateOfDeath.ShouldBe(rat.DateOfDeath),
-            () => storedRat.Owned.ShouldBe(rat.Owned));
+            () => storedRat.Owned.ShouldBe(rat.Owned),
+            () => storedRat.OwnerId.ShouldBe(rat.OwnerId));
     }
 
     [Fact]
@@ -341,6 +348,24 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             () => results.ShouldContain(rat => rat.Id == buck.Id),
             () => results.ShouldContain(rat => rat.Id == doe.Id),
             () => results.ShouldContain(rat => rat.Id == unset.Id));
+    }
+
+    [Fact]
+    public async Task Get_rat_gets_owner_details()
+    {
+        var ownerRepository = new SqliteOwnersRepository(this.fixture.GetConnection);
+        var owner = await Owner.Create(ownerRepository);
+        owner.Name = this.faker.Person.FullName;
+        await owner.Save(ownerRepository);
+        
+        var rat = await Rat.Create(this.repository);
+        rat.Owned = false;
+        await rat.SetOwner(this.repository, owner);
+        
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull().ShouldSatisfyAllConditions(
+            () => result.OwnerId.ShouldBe(owner.Id),
+            () => result.OwnerName.ShouldBe(owner.Name));
     }
     
     // ReSharper disable InconsistentNaming

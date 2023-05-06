@@ -1,3 +1,4 @@
+using Basemix.Lib.Owners;
 using Basemix.Lib.Rats;
 using Basemix.Tests.sdk;
 using Bogus;
@@ -20,7 +21,12 @@ public class RatTests
             () => rat.Name.ShouldBeNull(),
             () => rat.Sex.ShouldBeNull(),
             () => rat.DateOfBirth.ShouldBeNull(),
-            () => rat.Notes.ShouldBeNull());
+            () => rat.Notes.ShouldBeNull(),
+            () => rat.DateOfDeath.ShouldBeNull(),
+            () => rat.Variety.ShouldBeNull(),
+            () => rat.Owned.ShouldBeFalse(),
+            () => rat.OwnerId.ShouldBeNull(),
+            () => rat.OwnerName.ShouldBeNull());
     }
     
     [Fact]
@@ -31,8 +37,11 @@ public class RatTests
         var sex = this.faker.PickNonDefault<Sex>();
         var variety = this.faker.Variety();
         var dob = this.faker.Date.RecentDateOnly();
-        
-        var rat = new Rat(id, name, sex, variety, dob);
+        var litters = this.faker.Make(this.faker.Random.Int(0, 3), () => this.faker.RatLitter()).ToList();
+        var ownerId = new OwnerIdentity(this.faker.Id());
+        var ownerName = this.faker.Person.FullName;
+
+        var rat = new Rat(id, name, sex, variety, dob, litters, ownerId, ownerName);
         
         rat.ShouldSatisfyAllConditions(
             () => rat.Id.ShouldBe(id),
@@ -40,16 +49,19 @@ public class RatTests
             () => rat.Sex.ShouldBe(sex),
             () => rat.Variety.ShouldBe(variety),
             () => rat.DateOfBirth.ShouldBe(dob),
-            () => rat.Notes.ShouldBeNull());
+            () => rat.Litters.ShouldBe(litters),
+            () => rat.OwnerId.ShouldBe(ownerId),
+            () => rat.OwnerName.ShouldBe(ownerName));
     }
 
     [Fact]
-    public async Task Create_saves_and_returns_rat_with_id()
+    public async Task Create_saves_and_returns_owned_rat_with_id()
     {
         var rat = await Rat.Create(this.repository);
         
         rat.Id.Value.ShouldBePositive();
-        
+        rat.Owned.ShouldBeTrue();
+
         this.repository.Rats.ShouldContainKey(rat.Id);
     }
 
@@ -62,12 +74,16 @@ public class RatTests
         rat.DateOfBirth = this.faker.Date.PastDateOnly();
         rat.Sex = this.faker.PickNonDefault<Sex>();
         rat.Notes = this.faker.Lorem.Paragraphs();
+        rat.Variety = this.faker.Variety();
+        rat.Owned = this.faker.Random.Bool();
         
         this.repository.Rats[rat.Id].ShouldSatisfyAllConditions(
             storedRat => storedRat.Name.ShouldBeNull(),
             storedRat => storedRat.DateOfBirth.ShouldBeNull(),
             storedRat => storedRat.Sex.ShouldBeNull(),
-            storedRat => storedRat.Notes.ShouldBeNull());
+            storedRat => storedRat.Notes.ShouldBeNull(),
+            storedRat => storedRat.Variety.ShouldBeNull(),
+            storedRat => storedRat.Owned.ShouldBeTrue());
 
         await rat.Save(this.repository);
         
@@ -75,7 +91,9 @@ public class RatTests
             storedRat => storedRat.Name.ShouldBe(rat.Name),
             storedRat => storedRat.DateOfBirth.ShouldBe(rat.DateOfBirth),
             storedRat => storedRat.Sex.ShouldBe(rat.Sex),
-            storedRat => storedRat.Notes.ShouldBe(rat.Notes));
+            storedRat => storedRat.Notes.ShouldBe(rat.Notes),
+            storedRat => storedRat.Variety.ShouldBe(rat.Variety),
+            storedRat => storedRat.Owned.ShouldBe(rat.Owned));
     }
 
     [Fact]
@@ -118,5 +136,67 @@ public class RatTests
         var dateOfBirth = rat.DateOfBirth.Value.ToDateTime(TimeOnly.MinValue);
         var dateOfDeath = rat.DateOfDeath.Value.ToDateTime(TimeOnly.MinValue);
         rat.Age(() => DateOnly.MaxValue).ShouldBe(dateOfDeath - dateOfBirth);
+    }
+
+    [Fact]
+    public async Task Set_owner_sets_owner_id_and_name_if_unowned()
+    {
+        var rat = await Rat.Create(this.repository);
+        var owner = this.faker.Owner();
+        
+        rat.Owned = false;
+        var result = await rat.SetOwner(this.repository, owner);
+        
+        result.ShouldBe(OwnerAddResult.Success);
+        rat.ShouldSatisfyAllConditions(
+            () => rat.OwnerId.ShouldBe(owner.Id),
+            () => rat.OwnerName.ShouldBe(owner.Name));
+    }
+    
+    [Fact]
+    public async Task Set_owner_saves_rat_with_owner_details_if_unowned()
+    {
+        var rat = await Rat.Create(this.repository);
+        var owner = this.faker.Owner();
+        
+        rat.Owned = false;
+        var result = await rat.SetOwner(this.repository, owner);
+        
+        result.ShouldBe(OwnerAddResult.Success);
+        this.repository.Rats[rat.Id].OwnerId.ShouldBe(owner.Id);
+    }
+
+    [Fact]
+    public async Task Set_owner_returns_owned_by_user_if_owned_and_doesnt_save()
+    {
+        var rat = await Rat.Create(this.repository);
+        var owner = this.faker.Owner();
+        
+        rat.Owned = true;
+        var result = await rat.SetOwner(this.repository, owner);
+        
+        result.ShouldBe(OwnerAddResult.OwnedByUser);
+        rat.ShouldSatisfyAllConditions(
+            () => rat.OwnerId.ShouldBeNull(),
+            () => rat.OwnerName.ShouldBeNull());
+        this.repository.Rats[rat.Id].OwnerId.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task Remove_owner_removes_and_saves()
+    {
+        var rat = await Rat.Create(this.repository);
+        var owner = this.faker.Owner();
+        
+        rat.Owned = false;
+        await rat.SetOwner(this.repository, owner);
+        await rat.RemoveOwner(this.repository);
+        
+        rat.ShouldSatisfyAllConditions(
+            () => rat.OwnerId.ShouldBeNull(),
+            () => rat.OwnerName.ShouldBeNull());
+        this.repository.Rats[rat.Id].ShouldSatisfyAllConditions(
+            storedRat => storedRat.OwnerId.ShouldBeNull(),
+            storedRat => storedRat.OwnerName.ShouldBeNull());
     }
 }

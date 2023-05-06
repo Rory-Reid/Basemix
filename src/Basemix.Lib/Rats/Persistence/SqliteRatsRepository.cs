@@ -44,7 +44,8 @@ public class SqliteRatsRepository : IRatsRepository
                 date_of_birth=@DateOfBirth,
                 notes=@Notes,
                 date_of_death=@DateOfDeath,
-                owned=@Owned
+                owned=@Owned,
+                owner_id=@OwnerId
             WHERE id=@Id",
             new PersistedRat(rat));
     }
@@ -55,8 +56,11 @@ public class SqliteRatsRepository : IRatsRepository
         
         using var reader = await db.QueryMultipleAsync( // TODO simplify the weird dam/sire stuff
             @"SELECT
-                id, name, sex, variety, date_of_birth, notes, date_of_death, owned
-            FROM rat WHERE id=@Id;
+                rat.id, rat.name, rat.sex, rat.variety, rat.date_of_birth, rat.notes, rat.date_of_death, rat.owned,
+                rat.owner_id, owner.name as owner_name
+            FROM rat
+            LEFT JOIN owner ON owner.id = rat.owner_id
+            WHERE rat.id=@Id;
 
             SELECT
                 litter.id,

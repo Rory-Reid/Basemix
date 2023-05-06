@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Basemix.Lib.Owners;
 using Basemix.Lib.Rats;
 using Basemix.Pages;
 using Basemix.Tests.sdk;
@@ -14,12 +15,14 @@ public class EditRatTests : RazorPageTests<EditRat>
     private readonly TestNavigationManager nav = new();
     private MemoryRatsRepository ratsRepository = null!;
     private MemoryLittersRepository littersRepository = null!;
+    private MemoryOwnersRepository ownersRepository = null!;
     
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override EditRat CreatePage()
     {
         this.ratsRepository = new MemoryRatsRepository(this.backplane);
         this.littersRepository = new MemoryLittersRepository(this.backplane);
+        this.ownersRepository = new MemoryOwnersRepository(this.backplane);
         
         // TODO - edit rat shouldn't crash without a rat
         var rat = this.faker.Rat(id: this.faker.Id());
@@ -30,6 +33,7 @@ public class EditRatTests : RazorPageTests<EditRat>
             Id = rat.Id,
             Repository = this.ratsRepository,
             LittersRepository = this.littersRepository,
+            OwnersRepository = this.ownersRepository,
             JsRuntime = new NullJsRuntime(),
             Nav = this.nav
         };
@@ -186,7 +190,6 @@ public class EditRatTests : RazorPageTests<EditRat>
         this.nav.CurrentUri.ShouldBe("/rats");
     }
     
-    
     [Fact]
     public void Edit_litter_navigates_to_litter_edit()
     {
@@ -195,5 +198,102 @@ public class EditRatTests : RazorPageTests<EditRat>
         this.Page.EditLitter(id);
         
         this.nav.CurrentUri.ShouldBe($"/litters/{id}/edit");
+    }
+
+    [Fact]
+    public void Open_owner_search_clears_existing_search_props_and_shows_search()
+    {
+        this.Page.OwnerSearchTerm = this.faker.Lorem.Sentence();
+        this.Page.OwnerSearchResults.Add(new OwnerSearchResult(this.faker.Id(), this.faker.Person.FullName));
+        this.Page.ShowOwnerSearch = false;
+        
+        this.Page.OpenOwnerSearch();
+        
+        this.Page.ShouldSatisfyAllConditions(
+            page => page.OwnerSearchTerm.ShouldBeNullOrEmpty(),
+            page => page.OwnerSearchResults.ShouldBeEmpty(),
+            page => page.ShowOwnerSearch.ShouldBeTrue());
+    }
+
+    [Fact]
+    public async Task Can_search_for_owner()
+    {
+        var ownerMatch = this.faker.Owner(id: this.faker.Id());
+        var otherOwner = this.faker.Owner(id: this.faker.Id());
+        
+        this.ownersRepository.Seed(ownerMatch);
+        this.ownersRepository.Seed(otherOwner);
+        
+        this.Page.OpenOwnerSearch();
+        this.Page.OwnerSearchTerm = ownerMatch.Name;
+        
+        await this.Page.SearchOwner();
+        
+        this.Page.OwnerSearchResults.ShouldHaveSingleItem().ShouldSatisfyAllConditions(
+            result => result.Id.ShouldBe(ownerMatch.Id),
+            result => result.Name.ShouldBe(ownerMatch.Name));
+    }
+
+    [Fact]
+    public async Task Setting_owner_from_search_updates_rat_owner()
+    {
+        var rat = this.faker.Rat(id: this.Page.Id, owned: false);
+        this.ratsRepository.Rats[rat.Id] = rat; // TODO replace with ratrepository.seed
+        
+        var owner = this.faker.Owner(this.faker.Id());
+        this.ownersRepository.Seed(owner);
+
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.OpenOwnerSearch();
+        this.Page.OwnerSearchTerm = owner.Name;
+        await this.Page.SearchOwner();
+        await this.Page.SetResult(new OwnerSearchResult(owner.Id, owner.Name));
+        
+        this.ratsRepository.Rats[this.Page.Id].Owned.ShouldBe(false);
+        this.ratsRepository.Rats[this.Page.Id].OwnerId.ShouldBe(owner.Id);
+    }
+
+    [Fact]
+    public async Task Add_owner_creates_linked_owner_and_navigates()
+    {
+        var rat = this.faker.Rat(id: this.Page.Id, owned: false);
+        this.ratsRepository.Rats[rat.Id] = rat; // TODO replace with ratrepository.seed
+        
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        await this.Page.AddOwner();
+
+        var ownerId = this.ratsRepository.Rats[this.Page.Id].OwnerId.ShouldNotBeNull();
+        this.nav.CurrentUri.ShouldBe($"/owners/{ownerId.Value}/edit");
+    }
+
+    [Fact]
+    public async Task Remove_owner_removes_from_rat_and_saves()
+    {
+        var owner = this.faker.Owner(this.faker.Id());
+        this.backplane.Seed(owner);
+        var rat = this.faker.Rat(id: this.Page.Id, owner: owner);
+        this.ratsRepository.Rats[this.Page.Id] = rat; // TODO replace with ratrepository.seed
+        
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        this.Page.Rat.ShouldSatisfyAllConditions(
+            loadedRat => loadedRat.OwnerId.ShouldBe(owner.Id),
+            loadedRat => loadedRat.OwnerName.ShouldBe(owner.Name),
+            loadedRat => loadedRat.Owned.ShouldBe(false));
+        this.Page.RatForm.ShouldSatisfyAllConditions(
+            form => form.Owned.ShouldBeFalse());
+        
+        await this.Page.RemoveOwner();
+        
+        this.Page.Rat.ShouldSatisfyAllConditions(
+            loadedRat => loadedRat.OwnerId.ShouldBeNull(),
+            loadedRat => loadedRat.OwnerName.ShouldBeNull(),
+            loadedRat => loadedRat.Owned.ShouldBe(false));
+        this.Page.RatForm.ShouldSatisfyAllConditions(
+            form => form.Owned.ShouldBeFalse());
+        this.ratsRepository.Rats[this.Page.Id].ShouldSatisfyAllConditions(
+            storedRat => storedRat.OwnerId.ShouldBeNull(),
+            storedRat => storedRat.OwnerName.ShouldBeNull());
     }
 }

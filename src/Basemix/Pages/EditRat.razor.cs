@@ -1,5 +1,7 @@
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Owners;
+using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
 using Microsoft.AspNetCore.Components;
@@ -11,6 +13,7 @@ public partial class EditRat
 {
     [Inject] public IRatsRepository Repository { get; set; } = null!;
     [Inject] public ILittersRepository LittersRepository { get; set; } = null!;
+    [Inject] public IOwnersRepository OwnersRepository { get; set; } = null!;
     [Inject] public IJSRuntime JsRuntime { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
 
@@ -19,6 +22,10 @@ public partial class EditRat
     public bool RatLoaded { get; private set; }
     public Rat Rat { get; private set; } = null!;
     public RatForm RatForm { get; private set; } = new();
+    
+    public bool ShowOwnerSearch { get; set; }
+    public string? OwnerSearchTerm { get; set; }
+    public List<OwnerSearchResult> OwnerSearchResults { get; set; } = new();
     
     public bool DisableCreateLitter => !this.CanAddLitter();
 
@@ -85,6 +92,40 @@ public partial class EditRat
     {
         await this.Repository.DeleteRat(this.Id);
         this.Nav.NavigateTo("/rats");
+    }
+
+    public async Task AddOwner()
+    {
+        await this.Rat.Save(this.Repository);
+        var owner = await Owner.Create(this.OwnersRepository);
+        if (await this.Rat.SetOwner(this.Repository, owner) == OwnerAddResult.Success)
+        {
+            this.Nav.NavigateTo($"/owners/{owner.Id.Value}/edit");
+        }
+    }
+    
+    public void OpenOwnerSearch()
+    {
+        this.OwnerSearchResults.Clear();
+        this.OwnerSearchTerm = string.Empty;
+        this.ShowOwnerSearch = true;
+    }
+
+    public async Task SearchOwner()
+    {
+        this.OwnerSearchResults = await this.OwnersRepository.SearchOwner(this.OwnerSearchTerm);
+    }
+
+    public async Task SetResult(OwnerSearchResult result)
+    {
+        this.Rat.Owned = this.RatForm.Owned;
+        await this.Rat.SetOwner(this.Repository, result);
+        this.ShowOwnerSearch = false;
+    }
+
+    public async Task RemoveOwner()
+    {
+        await this.Rat.RemoveOwner(this.Repository);
     }
     
     private async Task SaveRat()

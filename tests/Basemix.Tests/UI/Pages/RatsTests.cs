@@ -61,7 +61,7 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
     [Fact]
     public async Task Search_button_only_returns_rats_matching_search_term()
     {
-        var matchingRat = this.faker.Rat(name: this.faker.Random.AlphaNumeric(10));
+        var matchingRat = this.faker.Rat(name: this.faker.Random.AlphaNumeric(10), owned: true);
         var matchingRatId = this.faker.Id();
         this.repository.Rats[matchingRatId] = matchingRat;
 
@@ -81,11 +81,11 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
     [Fact]
     public async Task Search_with_hide_deceased_true_hides_deceased_rats()
     {
-        var matchingRat = this.faker.Rat();
+        var matchingRat = this.faker.Rat(owned: true);
         var matchingRatId = this.faker.Id();
         
         this.repository.Rats[matchingRatId] = matchingRat;
-        this.repository.Rats[this.faker.Id()] = this.faker.Rat(dateOfDeath: this.faker.Date.RecentDateOnly());
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: true, dateOfDeath: this.faker.Date.RecentDateOnly());
 
         this.Page.HideDeceased = true;
         await this.Page.Search();
@@ -98,8 +98,8 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
     [Fact]
     public async Task Search_with_hide_deceased_false_includes_deceased_rats()
     {
-        this.repository.Rats[this.faker.Id()] = this.faker.Rat();
-        this.repository.Rats[this.faker.Id()] = this.faker.Rat(dateOfDeath: this.faker.Date.RecentDateOnly());
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: true);
+        this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: true, dateOfDeath: this.faker.Date.RecentDateOnly());
 
         this.Page.HideDeceased = false;
         await this.Page.Search();

@@ -47,12 +47,16 @@ public class SqliteOwnersRepository : IOwnersRepository
             new PersistedOwner(owner));
     }
 
-    public Task DeleteOwner(OwnerIdentity id)
+    public async Task DeleteOwner(OwnerIdentity id)
     {
         using var db = this.getDatabase();
-        return db.ExecuteAsync(
-            @"DELETE FROM owner WHERE id=@Id",
-            new {Id = id.Value});
+        db.Open();
+        using var transaction = db.BeginTransaction();
+        
+        await db.ExecuteAsync("UPDATE rat SET owner_id=NULL WHERE owner_id=@Id", new {Id = id.Value}, transaction);
+        await db.ExecuteAsync(@"DELETE FROM owner WHERE id=@Id", new {Id = id.Value}, transaction);
+        
+        transaction.Commit();
     }
 
     public async Task<List<OwnerSearchResult>> SearchOwner(string? nameSearchTerm = null)

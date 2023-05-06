@@ -49,7 +49,7 @@ public static class FakerExtensions
         faker.PickRandom(Varieties);
 
     public static Rat Rat(this Faker faker, RatIdentity? id = null, string? name = null, Sex? sex = null,
-        DateOnly? dateOfBirth = null, DateOnly? dateOfDeath = null, bool? owned = true)
+        DateOnly? dateOfBirth = null, DateOnly? dateOfDeath = null, bool? owned = null, Owner? owner = null)
     {
         var ratSex = sex ?? faker.PickNonDefault<Sex>();
         var ratName = name ?? ratSex switch
@@ -59,14 +59,19 @@ public static class FakerExtensions
             _ => throw new ArgumentOutOfRangeException()
         };
 
+        var ownedByUser = owner == null && (owned ?? faker.Random.Bool());
         return new Rat(id: id, name: ratName, sex: ratSex, variety: faker.Variety(),
-            dateOfBirth: dateOfBirth ?? faker.Date.PastDateOnly(1))
+            dateOfBirth: dateOfBirth ?? faker.Date.PastDateOnly(1), new List<RatLitter>(),
+            owner?.Id, owner?.Name)
         {
             Notes = faker.PickRandom(null, faker.Lorem.Paragraphs()),
             DateOfDeath = dateOfDeath,
-            Owned = owned ?? faker.Random.Bool()
+            Owned = ownedByUser
         };
     }
+    
+    public static RatLitter RatLitter(this Faker faker) =>
+        new(faker.Id(), faker.Date.RecentDateOnly(), faker.Person.FirstName, faker.Random.Int(1, 15));
 
     public static Litter BlankLitter(this Faker faker, LitterIdentity? id = null) =>
         faker.Litter(id: id, null, null, null, 0, 0, 0, 0);
@@ -139,13 +144,16 @@ public static class FakerExtensions
                 }
             }
         };
-    
-    public static Owner Owner(this Faker faker, OwnerIdentity? id = null) =>
-        new(id)
+
+    public static Owner Owner(this Faker faker, OwnerIdentity? id = null)
+    {
+        var person = new Person();
+        return new(id)
         {
-            Name = faker.Person.FullName,
-            Email = faker.Person.Email,
-            Phone = faker.Person.Phone,
+            Name = person.FullName,
+            Email = person.Email,
+            Phone = person.Phone,
             Notes = faker.Lorem.Paragraphs()
         };
+    }
 }

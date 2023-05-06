@@ -345,7 +345,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     [Fact]
     public async Task Can_search_for_offspring_of_either_sex()
     {
-        var doeMatch = this.faker.Rat(id: this.faker.Id(), sex: Sex.Doe);
+        var doeMatch = this.faker.Rat(id: this.faker.Id(), sex: Sex.Doe, name: this.faker.Random.Hash());
         var buckMatch = this.faker.Rat(id: this.faker.Id(), sex: Sex.Buck, name: doeMatch.Name);
         var otherRat = this.faker.Rat(id: this.faker.Id());
         

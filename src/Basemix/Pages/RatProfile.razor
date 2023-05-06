@@ -14,6 +14,14 @@ else
     <h1>@Rat.Name</h1>
 
     <dl class="row">
+        @if (Rat.OwnerId != null)
+        {
+            <dt class="col-sm-2">Owned by</dt>
+            <dd class="col-sm-9">
+                <a href="/owners/@Rat.OwnerId?.Value">@(Rat.OwnerName ?? "Unnamed Owner")</a>
+            </dd>
+        }
+        
         @if (Rat.DateOfBirth.HasValue)
         {
             <dt class="col-sm-2">Date of Birth</dt>

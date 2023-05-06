@@ -85,8 +85,13 @@ public class MemoryRatsRepository : IRatsRepository
     }
 
     private static Rat CopyOf(Rat rat, RatIdentity id) =>
-        new(id, rat.Name, rat.Sex, rat.Variety, rat.DateOfBirth)
+        new(id, rat.Name, rat.Sex, rat.Variety, rat.DateOfBirth, CopyOf(rat.Litters), rat.OwnerId, rat.OwnerName)
         {
-            Notes = rat.Notes
+            Notes = rat.Notes,
+            Owned = rat.Owned,
+            DateOfDeath = rat.DateOfDeath
         };
+
+    private static List<RatLitter> CopyOf(List<RatLitter> litters) =>
+        litters.Select(l => new RatLitter(l.Id, l.DateOfBirth, l.PairedWith, l.OffspringCount)).ToList();
 }
