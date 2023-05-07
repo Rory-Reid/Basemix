@@ -45,9 +45,11 @@
     
     <dl class="row">
         <dt class="col-sm-2">Loaded rats</dt>
-        <dd class="col-sm-9">@ValidationResult.NumberOfRatsBeingAdded</dd>
+        <dd class="col-sm-9">@ValidationResult.NumberOfRatsToAdd</dd>
         <dt class="col-sm-2">Loaded litters</dt>
-        <dd class="col-sm-9">@ValidationResult.NumberOfLittersBeingAdded</dd>
+        <dd class="col-sm-9">@ValidationResult.NumberOfLittersToAdd</dd>
+        <dt class="col-sm-2">Loaded Owners</dt>
+        <dd class="col-sm-2">@ValidationResult.NumberOfOwnersToAdd</dd>
     </dl>
     
     @if (ValidationResult.Problems.Any())
@@ -80,10 +82,16 @@
     </p>
     
     <button class="btn btn-primary" @onclick="Import" disabled="@Importing">Import into Basemix</button>
+    
+    @if (!Imported)
+    {
+        <p>Click the button above, wait, and you'll see an import status here.</p>
+    }
 }
 
 @if (Imported)
 {
+    <br />
     <div class="alert alert-success" role="alert">
         <h4 class="alert-heading">Imported!</h4>
         <p>

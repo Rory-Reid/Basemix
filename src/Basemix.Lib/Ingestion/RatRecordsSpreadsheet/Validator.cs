@@ -5,6 +5,9 @@ public class Validator
     public ValidationResult Validate(RatRecords records)
     {
         var problems = new List<ValidationProblem>();
+        var inferredRats = new HashSet<string>();
+        var inferredLitters = new HashSet<string>();
+        var ratOwners = new HashSet<string>();
         
         var ratsByLitter = records.Rats
             .Where(x => !string.IsNullOrEmpty(x.LitterIdentifier))
@@ -75,6 +78,7 @@ public class Validator
             }
             else if (ratsByLitter.All(x => x.Key != rat.LitterIdentifier))
             {
+                inferredLitters.Add(rat.LitterIdentifier);
                 problems.Add(new ValidationProblem($"Rat '{preferredName}' has litter ID '{rat.LitterIdentifier}' but there is no litter with that ID."));
             }
 
@@ -85,23 +89,35 @@ public class Validator
 
             if (!string.IsNullOrEmpty(rat.LitterMum) && records.Rats.FirstOrDefault(x => x.RatName == rat.LitterMum) is null)
             {
+                inferredRats.Add(rat.LitterMum);
                 problems.Add(new ValidationProblem($"Rat '{preferredName}' has litter mum '{rat.LitterMum}' but there is no rat with that name (Litter {rat.LitterIdentifier})."));
             }
             
             if (!string.IsNullOrEmpty(rat.LitterDad) && records.Rats.FirstOrDefault(x => x.RatName == rat.LitterDad) is null)
             {
+                inferredRats.Add(rat.LitterDad);
                 problems.Add(new ValidationProblem($"Rat '{preferredName}' has litter dad '{rat.LitterDad}' but there is no rat with that name (Litter {rat.LitterIdentifier})."));
+            }
+
+            if (rat.Owner != null)
+            {
+                ratOwners.Add(rat.Owner);
             }
         }
 
-        return new ValidationResult(problems, records.Litters.Count, records.Rats.Count);
+        return new ValidationResult(
+            problems,
+            records.Litters.Count + inferredLitters.Count,
+            records.Rats.Count + inferredRats.Count,
+            ratOwners.Count);
     }
 }
 
 public record ValidationResult(
     IReadOnlyList<ValidationProblem> Problems,
-    int NumberOfLittersBeingAdded,
-    int NumberOfRatsBeingAdded);
+    int NumberOfLittersToAdd,
+    int NumberOfRatsToAdd,
+    int NumberOfOwnersToAdd);
 
 public class ValidationProblem
 {

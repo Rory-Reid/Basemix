@@ -28,6 +28,10 @@ public class DataMapper
                 };
                 owners.Add(owner);
             }
+            else if (owner.Notes != null && !string.IsNullOrEmpty(rat.OwnerContactDetails))
+            {
+                owner.Notes = $"**Contact Details**{Environment.NewLine}{rat.OwnerContactDetails}";
+            }
         }
         
         var rats = new Dictionary<RatRow, RatToCreate>();
@@ -65,6 +69,50 @@ public class DataMapper
             };
         }
 
+        var unknownSires = new Dictionary<string, RatToCreate>();
+        foreach (var sireGroup in records.Rats.GroupBy(x => x.LitterDad).ToList())
+        {
+            var sireName = sireGroup.Key;
+            if (string.IsNullOrEmpty(sireName) || rats.Keys.Any(r => 
+                (r.RatName != null && r.RatName.Equals(sireName, StringComparison.InvariantCultureIgnoreCase)) ||
+                (r.PetName != null && r.PetName.Equals(sireName, StringComparison.InvariantCultureIgnoreCase))))
+            {
+                continue;
+            }
+
+            unknownSires[sireName] = new RatToCreate
+            {
+                Name = sireName,
+                Sex = Sex.Buck,
+                Notes =
+                    $"**Notes from spreadsheet below**{Environment.NewLine}No explicit record was found for this " +
+                    $"rat. It is the imported father of {sireGroup.Count()} rats:{Environment.NewLine}- " +
+                    $"{string.Join($"{Environment.NewLine}- ", sireGroup.Select(x => x.RatName ?? x.PetName))}"
+            };
+        }
+        
+        var unknownDams = new Dictionary<string, RatToCreate>();
+        foreach (var damGroup in records.Rats.GroupBy(x => x.LitterMum).ToList())
+        {
+            var damName = damGroup.Key;
+            if (string.IsNullOrEmpty(damName) || rats.Keys.Any(r => 
+                    (r.RatName != null && r.RatName.Equals(damName, StringComparison.InvariantCultureIgnoreCase)) ||
+                    (r.PetName != null && r.PetName.Equals(damName, StringComparison.InvariantCultureIgnoreCase))))
+            {
+                continue;
+            }
+
+            unknownDams[damName] = new RatToCreate
+            {
+                Name = damName,
+                Sex = Sex.Doe,
+                Notes =
+                    $"**Notes from spreadsheet below**{Environment.NewLine}No explicit record was found for this " +
+                    $"rat. It is the imported mother of {damGroup.Count()} rats:{Environment.NewLine}- " +
+                    $"{string.Join($"{Environment.NewLine}- ", damGroup.Select(x => x.RatName ?? x.PetName))}"
+            };
+        }
+
         var litters = new List<LitterToCreate>();
         var litterRats = records.Rats.GroupBy(x => x.LitterIdentifier).ToList();
         var litterIdentifiers = litterRats
@@ -78,15 +126,17 @@ public class DataMapper
             
             var sireName = ratsInLitter.FirstOrDefault()?.LitterDad;
             var damName = ratsInLitter.FirstOrDefault()?.LitterMum;
-            var sire = string.IsNullOrEmpty(sireName) ? null : records.Rats.FirstOrDefault(x => x.RatName == sireName || x.PetName == damName);
-            var dam = string.IsNullOrEmpty(damName) ? null : records.Rats.FirstOrDefault(x => x.RatName == damName || x.PetName == damName);
-            
+            var sireRow = string.IsNullOrEmpty(sireName) ? null : records.Rats.FirstOrDefault(x => x.RatName == sireName || x.PetName == sireName);
+            var damRow = string.IsNullOrEmpty(damName) ? null : records.Rats.FirstOrDefault(x => x.RatName == damName || x.PetName == damName);
+            var sire = sireRow != null ? rats[sireRow] : !string.IsNullOrEmpty(sireName) && unknownSires.TryGetValue(sireName, out var unknownSire) ? unknownSire : null;
+            var dam = damRow != null ? rats[damRow] : !string.IsNullOrEmpty(damName) && unknownDams.TryGetValue(damName, out var unknownDam) ? unknownDam : null;
+
             var notes = this.MapNotes(litter, options);
             litters.Add(new LitterToCreate
             {
                 DateOfBirth = litter?.DateOfBirth ?? ratsInLitter.FirstOrDefault()?.DateOfBirth,
-                Sire = sire != null ? rats[sire] : null,
-                Dam = dam != null ? rats[dam] : null,
+                Sire = sire,
+                Dam = dam,
                 Offspring = ratsInLitter.Select(x => rats[x]).ToList(),
                 Notes = notes.Any()
                     ? $"**Notes from spreadsheet below**{Environment.NewLine}{string.Join(Environment.NewLine, notes)}"
@@ -94,7 +144,10 @@ public class DataMapper
             });
         }
 
-        return new RatIngestionData(rats.Values.ToList(), litters, owners);
+        return new RatIngestionData(
+            rats.Values.Concat(unknownSires.Values).Concat(unknownDams.Values).ToList(),
+            litters,
+            owners);
     }
 
     public List<string> MapNotes(RatRow rat, RatIngestionOptions options)
