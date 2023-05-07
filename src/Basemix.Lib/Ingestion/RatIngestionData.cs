@@ -1,9 +1,13 @@
 using Basemix.Lib.Litters;
+using Basemix.Lib.Owners;
 using Basemix.Lib.Rats;
 
 namespace Basemix.Lib.Ingestion;
 
-public record RatIngestionData(IReadOnlyList<RatToCreate> Rats, IReadOnlyList<LitterToCreate> Litters);
+public record RatIngestionData(
+    IReadOnlyList<RatToCreate> Rats,
+    IReadOnlyList<LitterToCreate> Litters,
+    IReadOnlyList<OwnerToCreate> Owners);
 
 public class RatToCreate
 {
@@ -16,6 +20,7 @@ public class RatToCreate
     public DateOnly? DateOfDeath { get; set; }
     public string? DeathReason { get; set; }
     public bool Owned { get; set; }
+    public OwnerToCreate? Owner { get; set; }
 
     public void Apply(Rat rat)
     {
@@ -48,4 +53,19 @@ public class LitterToCreate
        litter.DateOfBirth = this.DateOfBirth;
        litter.Notes = this.Notes;
    }
+}
+
+public class OwnerToCreate
+{
+    public OwnerIdentity? AssignedId { get; set; }
+    public string? Name { get; set; }
+    public string? Notes { get; set; }
+
+    public void Apply(Owner owner)
+    {
+        this.AssignedId = owner.Id;
+
+        owner.Name = this.Name;
+        owner.Notes = this.Notes;
+    }
 }

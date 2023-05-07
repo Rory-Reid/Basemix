@@ -1,6 +1,8 @@
 using System.Runtime.CompilerServices;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Owners;
+using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
 
@@ -10,15 +12,27 @@ public class Ingestor
 {
     private readonly ILittersRepository littersRepository;
     private readonly IRatsRepository ratsRepository;
+    private readonly IOwnersRepository ownersRepository;
 
-    public Ingestor(ILittersRepository littersRepository, IRatsRepository ratsRepository)
+    public Ingestor(ILittersRepository littersRepository, IRatsRepository ratsRepository, IOwnersRepository ownersRepository)
     {
         this.littersRepository = littersRepository;
         this.ratsRepository = ratsRepository;
+        this.ownersRepository = ownersRepository;
     }
 
     public async Task Ingest(RatIngestionData data)
     {
+        var createdOwners = new Dictionary<OwnerToCreate, Owner>();
+        foreach (var ownerData in data.Owners)
+        {
+            var owner = await Owner.Create(this.ownersRepository);
+            
+            ownerData.Apply(owner);
+            await owner.Save(this.ownersRepository);
+            createdOwners.Add(ownerData, owner);
+        }
+        
         var createdRats = new Dictionary<RatToCreate, Rat>();
         foreach (var ratData in data.Rats)
         {
@@ -26,6 +40,11 @@ public class Ingestor
 
             ratData.Apply(rat);
             await rat.Save(this.ratsRepository);
+
+            _ = ratData.Owner != null
+                ? await rat.SetOwner(this.ratsRepository, createdOwners[ratData.Owner])
+                : OwnerAddResult.Success;
+            
             createdRats.Add(ratData, rat);
         }
 

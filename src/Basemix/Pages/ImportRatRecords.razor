@@ -2,9 +2,11 @@
 @using Basemix.Lib.Ingestion.RatRecordsSpreadsheet
 @using Basemix.Lib.Ingestion
 @using Basemix.Lib.Litters.Persistence
+@using Basemix.Lib.Owners.Persistence
 @using Basemix.Lib.Rats.Persistence
 @inject ILittersRepository LittersRepository;
 @inject IRatsRepository RatsRepository;
+@inject IOwnersRepository OwnersRepository;
 
 <div>
     <div class="d-flex justify-content-between">
@@ -63,11 +65,32 @@
 @if (LoadedData != null)
 {
     <p>
+        If you've used your own name or your rattery name under "Owner" in the "Rat Summary" sheet, you can enter it in
+        the box below and the import will match this and set those rats to owned by you (rather than creating an owner)
+    </p>
+    
+    <div class="form-group">
+        <label for="ownerName">Your name</label>
+        <input type="text" class="form-control" id="ownerName" @bind="OwnerName" />
+    </div>
+    
+    <p>
         If you are happy with the loaded spreadsheet, click the button below to import the records into Basemix. Again,
         I recommend you make a backup of your database before doing this.
     </p>
     
-    <button class="btn btn-primary" @onclick="Import">Import into Basemix</button>
+    <button class="btn btn-primary" @onclick="Import" disabled="@Importing">Import into Basemix</button>
+}
+
+@if (Imported)
+{
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">Imported!</h4>
+        <p>
+            The spreadsheet has been imported into Basemix. You can now go to the <a href="/rats">Rats</a> page to see
+            the imported rats, and the <a href="/litters">Litters</a> page to see the imported litters.
+        </p>
+    </div>
 }
 
 @code
@@ -75,6 +98,9 @@
     public RatRecords? LoadedData { get; set; }
     public ValidationResult? ValidationResult { get; set; }
     public string? LoadError { get; set; }
+    public string? OwnerName { get; set; }
+    public bool Importing { get; set; } = false;
+    public bool Imported { get; set; } = false;
 
     public async Task LoadSpreadsheet()
     {
@@ -116,10 +142,12 @@
 
     public async Task Import()
     {
+        this.Importing = true;
         var mapper = new DataMapper();
-        var data = mapper.Map(this.LoadedData!, new RatIngestionOptions());
+        var data = mapper.Map(this.LoadedData!, new RatIngestionOptions { UserOwnerName = this.OwnerName });
         
-        var importer = new Ingestor(this.LittersRepository, this.RatsRepository);
+        var importer = new Ingestor(this.LittersRepository, this.RatsRepository, this.OwnersRepository);
         await importer.Ingest(data);
+        this.Imported = true;
     }
 }

@@ -7,14 +7,40 @@ public class DataMapper
 {
     public RatIngestionData Map(RatRecords records, RatIngestionOptions options)
     {
+        var owners = new List<OwnerToCreate>();
+        foreach (var rat in records.Rats)
+        {
+            if (string.IsNullOrEmpty(rat.Owner) ||
+                rat.Owner.Equals(options.UserOwnerName, StringComparison.InvariantCultureIgnoreCase))
+            {
+                continue;
+            }
+            
+            var owner = owners.FirstOrDefault(x => x.Name == rat.Owner);
+            if (owner is null)
+            {
+                owner = new OwnerToCreate
+                {
+                    Name = rat.Owner,
+                    Notes = string.IsNullOrEmpty(rat.OwnerContactDetails)
+                        ? null
+                        : $"**Contact Details**{Environment.NewLine}{rat.OwnerContactDetails}"
+                };
+                owners.Add(owner);
+            }
+        }
+        
         var rats = new Dictionary<RatRow, RatToCreate>();
         foreach (var rat in records.Rats)
         {
-            var owned = string.IsNullOrEmpty(rat.Owner) || rat.Owner == options.UserOwnerName;
+            var owned = string.IsNullOrEmpty(rat.Owner) || 
+                rat.Owner.Equals(options.UserOwnerName, StringComparison.InvariantCultureIgnoreCase);
             var notes = this.MapNotes(rat, options);
-            if (notes.Any())
+            
+            OwnerToCreate? owner = null;
+            if (!owned)
             {
-                
+                owner = owners.FirstOrDefault(x => x.Name == rat.Owner);
             }
 
             rats[rat] = new RatToCreate
@@ -31,6 +57,7 @@ public class DataMapper
                 DateOfDeath = rat.DateOfDeath,
                 //DeathReason = TODO
                 Owned = owned,
+                Owner = owner,
                 
                 Notes = notes.Any()
                     ? $"**Notes from spreadsheet below**{Environment.NewLine}{string.Join(Environment.NewLine, notes)}"
@@ -67,7 +94,7 @@ public class DataMapper
             });
         }
 
-        return new RatIngestionData(rats.Values.ToList(), litters);
+        return new RatIngestionData(rats.Values.ToList(), litters, owners);
     }
 
     public List<string> MapNotes(RatRow rat, RatIngestionOptions options)
