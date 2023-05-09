@@ -91,7 +91,7 @@ public static class FakerExtensions
             dateOfBirth: faker.Date.PastDateOnly(),
             offspring: offspring?.Select(x => new Offspring(x.Id, x.Name)).ToList() ?? faker.Make(
                 faker.Random.Int(minimumOffspring, maximumOffspring),
-                _ => new Offspring(faker.Id(), faker.Name.FirstName())).ToList())
+                _ => new Offspring(faker.Id(), faker.Name.FirstName(), faker.Name.FullName())).ToList())
         {
             Notes = faker.PickRandom(null, faker.Lorem.Paragraphs())
         };

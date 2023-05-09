@@ -177,7 +177,7 @@ public class Litter
     }
 }
 
-public record Offspring(RatIdentity Id, string? Name);
+public record Offspring(RatIdentity Id, string? Name, string? OwnerName = null);
 
 public enum LitterAddResult
 {

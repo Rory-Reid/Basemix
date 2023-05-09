@@ -60,6 +60,7 @@ else
         <thead>
         <tr>
             <th scope="col">Name</th>
+            <th scope="col">Owner</th>
         </tr>
         </thead>
         <tbody>
@@ -67,6 +68,7 @@ else
         {
             <tr @onclick="@(() => OpenRatProfile(rat.Id))">
                 <td>@(rat.Name ?? "Unnamed")</td>
+                <td>@rat.OwnerName</td>
             </tr>
         }
         </tbody>

@@ -1,5 +1,6 @@
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Tests.sdk;
@@ -257,18 +258,18 @@ public class LittersRepositoryTests : SqliteIntegration
     public async Task Get_litter_gets_litter_offspring()
     {
         var id = await this.repository.CreateLitter();
-        
-        var rat1 = await this.fixture.Seed(this.faker.Rat());
+
+        var owner1 = await this.fixture.Seed(this.faker.Owner());
+        var rat1 = await this.fixture.Seed(this.faker.Rat(), owner1);
         var rat2 = await this.fixture.Seed(this.faker.Rat());
         await this.repository.AddOffspring(id, rat1.Id);
         await this.repository.AddOffspring(id, rat2.Id);
-
 
         var litter = await this.repository.GetLitter(id);
         
         litter.ShouldNotBeNull().Offspring.ShouldBeEquivalentTo(new List<Offspring>
         {
-            new(rat1.Id, rat1.Name),
+            new(rat1.Id, rat1.Name, owner1.Name),
             new(rat2.Id, rat2.Name)
         });
     }

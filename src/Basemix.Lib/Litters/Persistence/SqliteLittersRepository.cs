@@ -28,8 +28,10 @@ public class SqliteLittersRepository : ILittersRepository
             LEFT JOIN rat sire on sire.id=sire_id
             WHERE litter.id=@Id;
 
-            SELECT offspring.id, offspring.name
-            FROM rat offspring WHERE offspring.litter_id=@Id",
+            SELECT offspring.id, offspring.name, owner.name AS owner_name
+            FROM rat offspring
+            LEFT JOIN owner ON owner.id=offspring.owner_id
+            WHERE offspring.litter_id=@Id",
             new { Id = id });
 
         var litter = await reader.ReadSingleOrDefaultAsync<LitterReadModel?>();

@@ -1,9 +1,8 @@
 using System.Data;
-using System.Runtime.CompilerServices;
 using Basemix.Db;
 using Basemix.Lib;
+using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Rats.Persistence;
-using Bogus;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -38,9 +37,11 @@ public class SqliteFixture
         DapperSetup.Configure();
 
         this.RatsRepository = new SqliteRatsRepository(this.GetConnection);
+        this.OwnersRepository = new SqliteOwnersRepository(this.GetConnection);
     }
 
     public SqliteRatsRepository RatsRepository { get; }
+    public SqliteOwnersRepository OwnersRepository { get; }
     
     private void ProvisionDatabase()
     {
