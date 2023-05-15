@@ -12,7 +12,7 @@ public class SqliteOwnersRepository : IOwnersRepository
     public async Task<Owner?> GetOwner(OwnerIdentity id)
     {
         using var db = this.getDatabase();
-        var owner = await db.QuerySingleOrDefaultAsync<PersistedOwner>(
+        var reader = await db.QueryMultipleAsync(
             @"SELECT
                 id,
                 name,
@@ -20,10 +20,22 @@ public class SqliteOwnersRepository : IOwnersRepository
                 phone,
                 notes
             FROM owner
-            WHERE id=@Id",
+            WHERE id=@Id;
+
+            SELECT rat.id, rat.name
+            FROM rat
+            JOIN owner o on o.id=rat.owner_id
+            WHERE o.id=@Id;",
             new {Id = id.Value});
 
-        return owner?.ToModelledOwner();
+        var owner = await reader.ReadSingleOrDefaultAsync<PersistedOwner>();
+        if (owner == null)
+        {
+            return null;
+        }
+        
+        var rats = await reader.ReadAsync<PersistedOwnedRat>();
+        return owner.ToModelledOwner(rats);
     }
 
     public async Task<OwnerIdentity> CreateOwner()

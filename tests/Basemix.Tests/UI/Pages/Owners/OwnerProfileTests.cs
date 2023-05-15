@@ -60,4 +60,14 @@ public class OwnerProfileTests : RazorPageTests<OwnerProfile>
         
         this.nav.CurrentUri.ShouldBe($"/owners/{this.Page.Id}/edit");
     }
+    
+    [Fact]
+    public void OpenRatProfile_navigates_to_rat_profile()
+    {
+        var ratId = this.faker.Id();
+        
+        this.Page.OpenRatProfile(ratId);
+        
+        this.nav.CurrentUri.ShouldBe($"/rats/{ratId}");
+    }
 }

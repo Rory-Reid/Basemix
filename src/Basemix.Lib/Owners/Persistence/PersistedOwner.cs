@@ -19,8 +19,8 @@ public record PersistedOwner
     public string? Phone { get; init; }
     public string? Notes { get; init; }
 
-    public Owner ToModelledOwner() =>
-        new(this.Id)
+    public Owner ToModelledOwner(IEnumerable<PersistedOwnedRat> rats) =>
+        new(this.Id, rats.Select(r => r.ToModelledOwnedRat()).ToList())
         {
             Name = this.Name,
             Email = this.Email,
@@ -35,5 +35,11 @@ public record PersistedOwnerSearchResult
     public string? Name { get; set; }
 
     public OwnerSearchResult ToResult() =>
+        new(this.Id, this.Name);
+}
+
+public record PersistedOwnedRat(long Id, string? Name)
+{
+    public OwnedRat ToModelledOwnedRat() =>
         new(this.Id, this.Name);
 }

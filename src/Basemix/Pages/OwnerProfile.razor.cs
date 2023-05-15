@@ -31,4 +31,9 @@ public partial class OwnerProfile
     {
         this.Nav.NavigateTo($"/owners/{this.Id}/edit");
     }
+    
+    public void OpenRatProfile(long ratId)
+    {
+        this.Nav.NavigateTo($"/rats/{ratId}");
+    }
 }

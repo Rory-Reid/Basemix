@@ -40,4 +40,24 @@ else
             </dd>
         }
     </dl>
+    
+    @if (Owner.Rats.Any())
+    {
+        <h2>Rats</h2>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var rat in Owner.Rats)
+            {
+                <tr @onclick="@(() => OpenRatProfile(rat.Id))">
+                    <td>@(rat.Name ?? "Unnamed")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
 }

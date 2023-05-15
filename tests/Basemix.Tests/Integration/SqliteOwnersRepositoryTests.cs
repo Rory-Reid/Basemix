@@ -75,6 +75,18 @@ public class SqliteOwnersRepositoryTests : SqliteIntegration
         var result = await this.repository.GetOwner(owner.Id);
         result.ShouldBeEquivalentTo(owner);
     }
+    
+    [Fact]
+    public async Task Get_owner_gets_rats()
+    {
+        var owner = await this.fixture.Seed(this.faker.Owner());
+        var rat = await this.fixture.Seed(this.faker.Rat(), owner);
+        
+        var result = await this.repository.GetOwner(owner.Id);
+        result.ShouldNotBeNull().Rats.ShouldHaveSingleItem().ShouldSatisfyAllConditions(
+            ownedRat => ownedRat.Id.ShouldBe(rat.Id),
+            ownedRat => ownedRat.Name.ShouldBe(rat.Name));
+    }
 
     [Fact]
     public async Task Delete_owner_deletes_and_removes_associations_from_any_rats()

@@ -1,21 +1,25 @@
 using Basemix.Lib.Identity;
 using Basemix.Lib.Owners.Persistence;
+using Basemix.Lib.Rats;
 
 namespace Basemix.Lib.Owners;
 
 public class Owner : IOwnerDetails
 {
-    public Owner(OwnerIdentity? identity = null)
+    public Owner(OwnerIdentity? identity = null, List<OwnedRat>? rats = null)
     {
         this.Id = identity ?? OwnerIdentity.Anonymous;
+        this.Rats = rats ?? new();
     }
-    
+
     public OwnerIdentity Id { get; }
     public string? Name { get; set; }
     public string? Email { get; set; }
     public string? Phone { get; set; }
     public string? Notes { get; set; }
 
+    public List<OwnedRat>  Rats { get; set; }
+    
     public Task Save(IOwnersRepository repository) => repository.UpdateOwner(this);
 
     public static async Task<Owner> Create(IOwnersRepository repository)
@@ -24,6 +28,8 @@ public class Owner : IOwnerDetails
         return new Owner(id);
     }
 }
+
+public record OwnedRat(RatIdentity Id, string? Name);
 
 public class OwnerIdentity
 {
