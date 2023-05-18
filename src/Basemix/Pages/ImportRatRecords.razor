@@ -54,7 +54,7 @@
     
     @if (ValidationResult.Problems.Any())
     {
-        <p>The following problems were noted in the loaded file:</p>
+        <p>The following @(ValidationResult.Problems.Count) problems were noted in the loaded file:</p>
         <ul>
             @foreach(var problem in ValidationResult.Problems)
             {
@@ -81,7 +81,7 @@
         I recommend you make a backup of your database before doing this.
     </p>
     
-    <button class="btn btn-primary" @onclick="Import" disabled="@Importing">Import into Basemix</button>
+    <button class="btn btn-primary" @onclick="@Import" disabled="@Importing">Import into Basemix</button>
     
     @if (!Imported)
     {

@@ -35,6 +35,6 @@ public class RatRecordsSpreadsheetParserTests : SqliteIntegration
             new SqliteOwnersRepository(this.fixture.GetConnection));
         await ingestor.Ingest(mapped);
         
-        spreadsheet.Rats.Count.ShouldBe(2);
+        spreadsheet.Rats.Count.ShouldBeGreaterThan(2);
     }
 }

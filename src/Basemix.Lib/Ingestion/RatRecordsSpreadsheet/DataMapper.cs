@@ -33,7 +33,8 @@ public class DataMapper
                 owner.Notes = $"**Contact Details**{Environment.NewLine}{rat.OwnerContactDetails}";
             }
         }
-        
+
+        var dateOfDeathToIgnore = records.Rats.Max(x => x.DateOfDeath);
         var rats = new Dictionary<RatRow, RatToCreate>();
         foreach (var rat in records.Rats)
         {
@@ -58,14 +59,39 @@ public class DataMapper
                 },
                 DateOfBirth = rat.DateOfBirth,
                 Variety = rat.Variety,
-                DateOfDeath = rat.DateOfDeath,
+                DateOfDeath = rat.DateOfDeath == dateOfDeathToIgnore ? null : rat.DateOfDeath,
                 //DeathReason = TODO
                 Owned = owned,
                 Owner = owner,
                 
                 Notes = notes.Any()
-                    ? $"**Notes from spreadsheet below**{Environment.NewLine}{string.Join(Environment.NewLine, notes)}"
+                    ? $"**Notes from spreadsheet import below**{Environment.NewLine}{string.Join(Environment.NewLine, notes)}"
                     : null
+            };
+        }
+
+        var familyRats = new Dictionary<FamilyRow, RatToCreate>();
+        foreach (var rat in records.FamilyData)
+        {
+            var preferredName = string.IsNullOrEmpty(rat.ShowOrFullName) ? rat.PetName : rat.ShowOrFullName;
+            if (preferredName != null)
+            {
+                var existingRat = rats
+                    .Cast<KeyValuePair<RatRow, RatToCreate>?>() // Todo - something less expensive
+                    .FirstOrDefault(x => preferredName.Equals(x?.Value.Name, StringComparison.InvariantCultureIgnoreCase));
+                if (existingRat != null)
+                {
+                    continue;
+                }
+            }
+
+            var notes = this.MapNotes(rat, options);
+            familyRats[rat] = new RatToCreate
+            {
+                Name = preferredName,
+                Variety = rat.Variety,
+                Notes = $"**Notes from spreadsheet import below**{Environment.NewLine}This rat has been imported from the Family Tree Data " +
+                        $"sheet.{Environment.NewLine}{string.Join(Environment.NewLine, notes)}"
             };
         }
 
@@ -80,15 +106,27 @@ public class DataMapper
                 continue;
             }
 
-            unknownSires[sireName] = new RatToCreate
+            var existingRat = familyRats
+                .FirstOrDefault(x => sireName.Equals(x.Value.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (existingRat.Key != null)
             {
-                Name = sireName,
-                Sex = Sex.Buck,
-                Notes =
-                    $"**Notes from spreadsheet below**{Environment.NewLine}No explicit record was found for this " +
-                    $"rat. It is the imported father of {sireGroup.Count()} rats:{Environment.NewLine}- " +
-                    $"{string.Join($"{Environment.NewLine}- ", sireGroup.Select(x => x.RatName ?? x.PetName))}"
-            };
+                existingRat.Value.Sex = Sex.Buck;
+                existingRat.Value.Notes +=
+                    $"{Environment.NewLine}He is the imported father of {sireGroup.Count()} rats:{Environment.NewLine}- " +
+                    $"{string.Join($"{Environment.NewLine}- ", sireGroup.Select(x => x.RatName ?? x.PetName))}";
+            }
+            else
+            {
+                unknownSires[sireName] = new RatToCreate
+                {
+                    Name = sireName,
+                    Sex = Sex.Buck,
+                    Notes =
+                        $"**Notes from spreadsheet import below**{Environment.NewLine}No explicit record was found for this " +
+                        $"rat. He is the imported father of {sireGroup.Count()} rats:{Environment.NewLine}- " +
+                        $"{string.Join($"{Environment.NewLine}- ", sireGroup.Select(x => x.RatName ?? x.PetName))}"
+                };
+            }
         }
         
         var unknownDams = new Dictionary<string, RatToCreate>();
@@ -102,15 +140,27 @@ public class DataMapper
                 continue;
             }
 
-            unknownDams[damName] = new RatToCreate
+            var existingRat = familyRats
+                .FirstOrDefault(x => damName.Equals(x.Value.Name, StringComparison.InvariantCultureIgnoreCase));
+            if (existingRat.Key != null)
             {
-                Name = damName,
-                Sex = Sex.Doe,
-                Notes =
-                    $"**Notes from spreadsheet below**{Environment.NewLine}No explicit record was found for this " +
-                    $"rat. It is the imported mother of {damGroup.Count()} rats:{Environment.NewLine}- " +
-                    $"{string.Join($"{Environment.NewLine}- ", damGroup.Select(x => x.RatName ?? x.PetName))}"
-            };
+                existingRat.Value.Sex = Sex.Doe;
+                existingRat.Value.Notes +=
+                    $"{Environment.NewLine}She is the imported mother of {damGroup.Count()} rats:{Environment.NewLine}- " +
+                    $"{string.Join($"{Environment.NewLine}- ", damGroup.Select(x => x.RatName ?? x.PetName))}";
+            }
+            else
+            {
+                unknownDams[damName] = new RatToCreate
+                {
+                    Name = damName,
+                    Sex = Sex.Doe,
+                    Notes =
+                        $"**Notes from spreadsheet import below**{Environment.NewLine}No explicit record was found for this " +
+                        $"rat. She is the imported mother of {damGroup.Count()} rats:{Environment.NewLine}- " +
+                        $"{string.Join($"{Environment.NewLine}- ", damGroup.Select(x => x.RatName ?? x.PetName))}"
+                };;
+            }
         }
 
         var litters = new List<LitterToCreate>();
@@ -123,13 +173,11 @@ public class DataMapper
         {
             var litter = records.Litters.FirstOrDefault(x => x.LitterIdentifier == litterId);
             var ratsInLitter = litterRats.FirstOrDefault(x => x.Key == litterId)?.ToList() ?? new List<RatRow>();
-            
+
             var sireName = ratsInLitter.FirstOrDefault()?.LitterDad;
             var damName = ratsInLitter.FirstOrDefault()?.LitterMum;
-            var sireRow = string.IsNullOrEmpty(sireName) ? null : records.Rats.FirstOrDefault(x => x.RatName == sireName || x.PetName == sireName);
-            var damRow = string.IsNullOrEmpty(damName) ? null : records.Rats.FirstOrDefault(x => x.RatName == damName || x.PetName == damName);
-            var sire = sireRow != null ? rats[sireRow] : !string.IsNullOrEmpty(sireName) && unknownSires.TryGetValue(sireName, out var unknownSire) ? unknownSire : null;
-            var dam = damRow != null ? rats[damRow] : !string.IsNullOrEmpty(damName) && unknownDams.TryGetValue(damName, out var unknownDam) ? unknownDam : null;
+            var sire = this.FindRat(sireName, records, rats, unknownSires, familyRats);
+            var dam = this.FindRat(damName, records, rats, unknownDams, familyRats);
 
             var notes = this.MapNotes(litter, options);
             litters.Add(new LitterToCreate
@@ -139,15 +187,37 @@ public class DataMapper
                 Dam = dam,
                 Offspring = ratsInLitter.Select(x => rats[x]).ToList(),
                 Notes = notes.Any()
-                    ? $"**Notes from spreadsheet below**{Environment.NewLine}{string.Join(Environment.NewLine, notes)}"
+                    ? $"**Notes from spreadsheet import below**{Environment.NewLine}{string.Join(Environment.NewLine, notes)}"
                     : null
             });
         }
 
         return new RatIngestionData(
-            rats.Values.Concat(unknownSires.Values).Concat(unknownDams.Values).ToList(),
+            rats.Values.Concat(unknownSires.Values).Concat(unknownDams.Values).Concat(familyRats.Values).ToList(),
             litters,
             owners);
+    }
+
+    private RatToCreate? FindRat(string? name, RatRecords records, Dictionary<RatRow, RatToCreate> rats, Dictionary<string, RatToCreate> unknownRats, Dictionary<FamilyRow, RatToCreate> family)
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            return null;
+        }
+
+        var sireRow = records.Rats.FirstOrDefault(x => name.Equals(x.RatName, StringComparison.InvariantCultureIgnoreCase) || name.Equals(x.PetName, StringComparison.InvariantCultureIgnoreCase));
+        if (sireRow != null)
+        {
+            return rats[sireRow];
+        }
+
+        var familyRow = family.Values.FirstOrDefault(x => name.Equals(x.Name, StringComparison.InvariantCultureIgnoreCase));
+        if (familyRow != null)
+        {
+            return familyRow;
+        }
+
+        return unknownRats.TryGetValue(name, out var unknownRat) ? unknownRat : null;
     }
 
     public List<string> MapNotes(RatRow rat, RatIngestionOptions options)
@@ -156,14 +226,6 @@ public class DataMapper
         if (rat.PetName != rat.RatName)
         {
             notes.Add($"Pet name: {rat.PetName}");
-        }
-        
-        if (rat.Owner != options.UserOwnerName)
-        {
-            var contactDetails = string.IsNullOrEmpty(rat.OwnerContactDetails)
-                ? string.Empty
-                : $" (Contact: {rat.OwnerContactDetails})";
-            notes.Add($"Owner: {rat.Owner}{contactDetails}");
         }
 
         if (rat.Ear != null)
@@ -228,6 +290,27 @@ public class DataMapper
         {
             notes.Add($"Stillborn: {litter.NumberOfStillborn}");
         }
+        return notes;
+    }
+
+    public List<string> MapNotes(FamilyRow? rat, RatIngestionOptions options)
+    {
+        var notes = new List<string>();
+        if (rat == null)
+        {
+            return notes;
+        }
+
+        if (!string.IsNullOrEmpty(rat.ShowOrFullName) && !string.IsNullOrEmpty(rat.PetName))
+        {
+            notes.Add($"Pet name: {rat.PetName}");
+        }
+
+        if (!string.IsNullOrEmpty(rat.Breeder))
+        {
+            notes.Add($"Breeder: {rat.Breeder}");
+        }
+
         return notes;
     }
 }

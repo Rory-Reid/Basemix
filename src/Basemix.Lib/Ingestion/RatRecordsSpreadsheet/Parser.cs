@@ -27,12 +27,39 @@ public class Parser
     public RatRecords ParseFile(Stream stream)
     {
         var reader = ExcelReaderFactory.CreateReader(stream);
-        if (reader.ResultsCount != 7)
+        if (reader.ResultsCount < 7)
         {
-            throw new Exception($"Expected 7 sheets, but found {reader.ResultsCount}");
+            throw new Exception($"Expected at least 7 sheets, but found {reader.ResultsCount}");
         }
 
-        reader.NextResult(); // Move to Rat Summary sheet
+        var sheet = 0;
+        var ratDetailsRows = new List<RatRow>();
+        var litterDetailsRows = new List<LitterRow>();
+        var familyTreeDataRows = new List<FamilyRow>();
+        while (sheet < 7)
+        {
+            switch (reader.Name)
+            {
+                case "Rat Summary":
+                    ratDetailsRows = this.ReadRatDetails(reader);
+                    break;
+                case "Litter Summary":
+                    litterDetailsRows = this.ReadLitterDetails(reader);
+                    break;
+                case "Family Tree data":
+                    familyTreeDataRows = this.ReadFamilyTreeData(reader);
+                    break;
+            }
+
+            reader.NextResult();
+            sheet += 1;
+        }
+
+        return new RatRecords(ratDetailsRows, litterDetailsRows, familyTreeDataRows);
+    }
+
+    private List<RatRow> ReadRatDetails(IExcelDataReader reader)
+    {
         var row = 0;
         while (row < 5) // Rat Summary header row is row 4-5. 6 is start of the data.
         {
@@ -54,8 +81,12 @@ public class Parser
             row += 1;
         }
 
-        reader.NextResult(); // Move to Litter Summary sheet
-        row = 0;
+        return ratDetailsRows;
+    }
+
+    private List<LitterRow> ReadLitterDetails(IExcelDataReader reader)
+    {
+        var row = 0;
         var litterDetailsRows = new List<LitterRow>();
         while(row < 6) // Litter Summary header row is row 4-6. 7 is start of the data.
         {
@@ -78,7 +109,33 @@ public class Parser
             reader.Read();
             row += 2;
         }
+
+        return litterDetailsRows;
+    }
+
+    private List<FamilyRow> ReadFamilyTreeData(IExcelDataReader reader)
+    {
+        var row = 0;
+        var familyTreeDataRows = new List<FamilyRow>();
+        while (row < 5) // Family Tree Data header row is row 4-5. 6 is start of the data.
+        {
+            reader.Read();
+            row += 1;
+        }
         
-        return new RatRecords(ratDetailsRows, litterDetailsRows);
+        while (row < 5000)
+        {
+            reader.Read();
+            var family = reader.ReadFamilyTreeDataRow();
+            if (family.IsNullFamilyData)
+            {
+                break; // End of data
+            }
+            
+            familyTreeDataRows.Add(family);
+            row += 1;
+        }
+        
+        return familyTreeDataRows;
     }
 }
