@@ -1,6 +1,5 @@
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
-using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Tests.sdk;
@@ -106,10 +105,12 @@ public class LittersRepositoryTests : SqliteIntegration
         dam = await this.fixture.Seed(dam);
         sire = await this.fixture.Seed(sire);
         var dob = this.faker.Date.PastDateOnly();
+        var dop = this.faker.Date.RecentDateOnly(refDate: dob);
         var notes = this.faker.Lorem.Paragraph();
 
         var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob)
         {
+            DateOfPairing = dop,
             Notes = notes
         };
         await this.repository.UpdateLitter(updatedLitter);
@@ -123,6 +124,7 @@ public class LittersRepositoryTests : SqliteIntegration
             () => row.dam_id.ShouldBe(dam.Id.Value),
             () => row.sire_id.ShouldBe(sire.Id.Value),
             () => row.date_of_birth.ShouldBe(dob.ToPersistedDateTime()),
+            () => row.date_of_pairing.ShouldBe(dop.ToPersistedDateTime()),
             () => row.notes.ShouldBe(notes));
     }
     
@@ -243,9 +245,11 @@ public class LittersRepositoryTests : SqliteIntegration
         dam = await this.fixture.Seed(dam);
         sire = await this.fixture.Seed(sire);
         var dob = this.faker.Date.PastDateOnly();
+        var dop = dob.AddDays(-21);
 
         var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob)
         {
+            DateOfPairing = dop,
             Notes = this.faker.Lorem.Paragraph()
         };
         await this.repository.UpdateLitter(updatedLitter);

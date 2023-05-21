@@ -21,6 +21,7 @@ public class SqliteLittersRepository : ILittersRepository
         using var reader = await db.QueryMultipleAsync(
             @"SELECT
                 litter.id, litter.dam_id, litter.sire_id, litter.date_of_birth,
+                litter.date_of_pairing,
                 dam.name as dam_name, sire.name AS sire_name,
                 litter.notes
             FROM litter
@@ -84,6 +85,7 @@ public class SqliteLittersRepository : ILittersRepository
             SET
                 dam_id=@DamId,
                 sire_id=@SireId,
+                date_of_pairing=@DateOfPairing,
                 date_of_birth=@DateOfBirth,
                 notes=@Notes
             WHERE id=@Id",

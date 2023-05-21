@@ -39,8 +39,11 @@ else
             }
         </dd>
 
+        <dt class="col-sm-2">Date of Pairing</dt>
+        <dd class="col-sm-9">@(Litter.DateOfPairing?.ToString("dd/MM/yyyy") ?? "-")</dd>
+        
         <dt class="col-sm-2">Date of Birth</dt>
-        <dd class="col-sm-9">@(Litter.DateOfBirth?.ToString() ?? "-")</dd>
+        <dd class="col-sm-9">@(Litter.DateOfBirth?.ToString("dd/MM/yyyy") ?? "-")</dd>
         
         @if (!string.IsNullOrEmpty(Litter.Notes))
         {

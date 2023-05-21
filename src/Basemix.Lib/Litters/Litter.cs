@@ -37,6 +37,7 @@ public class Litter
     public RatIdentity? SireId { get; private set; }
     public string? DamName { get; private set; }
     public string? SireName { get; private set; }
+    public DateOnly? DateOfPairing { get; set; }
     public DateOnly? DateOfBirth { get; set; }
     public string? Notes { get; set; }
     public IReadOnlyList<Offspring> Offspring => this.offspring;
