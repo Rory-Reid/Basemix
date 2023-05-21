@@ -95,49 +95,9 @@ else
     <SaveDeleteFooter OnDelete="Delete" OnSave="Save"/>
 }
 
-@if (ShowRatSearch)
-{
-<div class="modal" tabindex="-1" style="display:block" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Find a rat</h3>
-                <button type="button" class="btn btn-close"
-                        @onclick="@(() => ShowRatSearch = false)">
-                </button>
-            </div>
-            
-            <div class="modal-body">
-                <div class="input-group mb-3">
-                    <input id="ratSearchInput" type="text" class="form-control" @bind="RatSearchTerm" placeholder="Search for a rat here"/>
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" @onclick="Search">
-                            <span class="oi oi-magnifying-glass"></span>
-                        </button>
-                    </div>
-                </div>
-                
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Sex</th>
-                        <th scope="col">DoB</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var rat in RatSearchResults)
-                    {
-                        <tr @onclick="@(() => SetResult(rat))">
-                            <th scope="row">@(rat.Name ?? "Unnamed")</th>
-                            <td>@(rat.Sex.ToString() ?? "-")</td>
-                            <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-}
+<RatSearchModal
+    ShowSearch="@ShowRatSearch"
+    SearchTerm="@RatSearchTerm"
+    OnSearch="@Search"
+    OnResultSet="@SetResult"
+    SearchResults="@RatSearchResults"/>
