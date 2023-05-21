@@ -56,6 +56,38 @@ else
             </dd>
         }
     </dl>
+    
+    @if (Estimates.IsRelevant(Now))
+    {
+        <h2>Estimates</h2>
+        <dl class="row">
+            @if (Estimates.EarliestDateOfBirth.HasValue)
+            {
+                <dt class="col-sm-2">Earliest Birth</dt>
+                <dd class="col-sm-9">@(Estimates.EarliestDateOfBirth.Value.ToString("dd/MM/yyyy"))</dd>
+            }
+            @if (Estimates.LatestDateOfBirth.HasValue)
+            {
+                <dt class="col-sm-2">Latest Birth</dt>
+                <dd class="col-sm-9">@(Estimates.LatestDateOfBirth.Value.ToString("dd/MM/yyyy"))</dd>
+            }
+            @if (Estimates.EarliestFullyWeanedDate.HasValue)
+            {
+                <dt class="col-sm-2">Weaned after</dt>
+                <dd class="col-sm-9">@(Estimates.EarliestFullyWeanedDate.Value.ToString("dd/MM/yyyy"))</dd>
+            }
+            @if (Estimates.EarliestSeparateSexesDate.HasValue)
+            {
+                <dt class="col-sm-2">Separate sexes after</dt>
+                <dd class="col-sm-9">@(Estimates.EarliestSeparateSexesDate.Value.ToString("dd/MM/yyyy"))</dd>
+            }
+            @if (Estimates.EarliestRehomeDate.HasValue)
+            {
+                <dt class="col-sm-2">Rehome after</dt>
+                <dd class="col-sm-9">@(Estimates.EarliestRehomeDate.Value.ToString("dd/MM/yyyy"))</dd>
+            }
+        </dl>
+    }
 
     <h2>Offspring</h2>
 

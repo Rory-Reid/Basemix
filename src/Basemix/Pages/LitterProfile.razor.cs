@@ -1,3 +1,4 @@
+using Basemix.Lib;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
 using Basemix.Lib.Rats;
@@ -11,12 +12,15 @@ public partial class LitterProfile
     [Inject] public ILittersRepository Repository { get; set; } = null!;
     [Inject] public IRatsRepository RatsRepository { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
-    
+    [Inject] public NowDateOnly Now { get; set; } = null!;
+    [Inject] public LitterEstimator Estimator { get; set; } = null!;
+
     [Parameter] public long Id { get; set; }
     
     public bool LitterLoaded { get; private set; }
     public Litter Litter { get; private set; } = null!;
-    
+    public Estimation Estimates { get; private set; } = null!;
+
     public bool ShowRatSearch { get; set; }
     public Sex? RatSearchSex { get; set; }
     public string RatSearchTerm { get; set; } = string.Empty;
@@ -38,6 +42,7 @@ public partial class LitterProfile
 
         this.LitterLoaded = true;
         this.Litter = storedLitter;
+        this.Estimates = this.Estimator.EstimateFor(this.Litter);
     }
     
     public void OpenRatProfile(long ratId)

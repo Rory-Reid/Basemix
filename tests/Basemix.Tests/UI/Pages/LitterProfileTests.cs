@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using Basemix.Lib.Litters;
 using Basemix.Lib.Rats;
 using Basemix.Pages;
 using Basemix.Tests.sdk;
@@ -14,6 +16,7 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
     private readonly TestNavigationManager nav = new();
     private MemoryLittersRepository littersRepository = null!;
     private MemoryRatsRepository ratsRepository = null!;
+    private LitterEstimator estimator = new LitterEstimator(() => EstimationParameters.Standard);
 
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override LitterProfile CreatePage()
@@ -26,9 +29,13 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
             Id = this.faker.Id(),
             Repository = this.littersRepository,
             RatsRepository = this.ratsRepository,
-            Nav = this.nav
+            Nav = this.nav,
+            Now = () => this.Now,
+            Estimator = this.estimator
         };
     }
+
+    private DateOnly Now { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
     [Fact]
     public async Task Loads_rat_litter_on_parameters_set()
@@ -39,6 +46,27 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
         await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.Litter.ShouldBeEquivalentTo(litter);
+        this.Page.LitterLoaded.ShouldBeTrue();
+    }
+    
+    [Fact]
+    public async Task Sets_litter_loaded_false_when_litter_not_found()
+    {
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        this.Page.LitterLoaded.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Runs_estimator_after_litter_loaded()
+    {
+        var litter = this.faker.Litter(id: this.Page.Id);
+        this.littersRepository.Seed(litter);
+
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        var expected = this.estimator.EstimateFor(litter);
+        expected.IsEmpty.ShouldBeFalse();
+        this.Page.Estimates.ShouldBeEquivalentTo(expected);
     }
 
     [Fact]

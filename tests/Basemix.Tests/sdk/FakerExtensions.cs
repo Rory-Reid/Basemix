@@ -156,4 +156,20 @@ public static class FakerExtensions
             Notes = faker.Lorem.Paragraphs()
         };
     }
+
+    public static EstimationParameters EstimationParameters(this Faker faker)
+    {
+        var minBirthAfterPairing = faker.Random.Int(1, 30);
+        var maxBirthAfterPairing = minBirthAfterPairing + faker.Random.Int(1,4);
+        var minWeaning = faker.Random.Int(1, 30);
+        var minSeparation = minWeaning + faker.Random.Int(1, 14);
+        var minRehome = minSeparation + faker.Random.Int(7, 14);
+        
+        return new EstimationParameters(
+            minBirthAfterPairing,
+            maxBirthAfterPairing,
+            minWeaning,
+            minSeparation,
+            minRehome);
+    }
 }

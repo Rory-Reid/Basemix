@@ -1,6 +1,7 @@
 ﻿using Basemix.Db;
 using Basemix.Lib;
 using Basemix.Lib.Ingestion.RatRecordsSpreadsheet;
+using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
 using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Pedigrees;
@@ -65,6 +66,8 @@ namespace Basemix
             services.AddSingleton<PdfGenerator>();
             services.AddSingleton<PedigreeContext>();
             services.AddSingleton(errorContext);
+            services.AddSingleton<LitterEstimator>();
+            services.AddSingleton<LitterEstimator.GetEstimationParameters>(() => EstimationParameters.Standard);
 
             // UI Nonsense
             services.AddSingleton<JsInteropExports>();
