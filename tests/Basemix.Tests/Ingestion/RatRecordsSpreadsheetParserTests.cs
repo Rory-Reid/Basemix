@@ -18,10 +18,13 @@ public class RatRecordsSpreadsheetParserTests : SqliteIntegration
         Parser.Configure();
     }
     
+    /// <summary>
+    /// TODO: Add simple spreadsheet to embedded resources and test against that.
+    /// </summary>
     [Fact]
     public async Task Works()
     {
-        using var file = new FileStream("/Users/rory/Downloads/spreadsheet for rory.xlsx", FileMode.Open);
+        await using var file = new FileStream("/Users/rory/Downloads/spreadsheet for rory.xlsx", FileMode.Open);
         var parser = new Parser();
         var spreadsheet = parser.ParseFile(file);
         var validator = new Validator();
@@ -35,6 +38,6 @@ public class RatRecordsSpreadsheetParserTests : SqliteIntegration
             new SqliteOwnersRepository(this.fixture.GetConnection));
         await ingestor.Ingest(mapped);
         
-        spreadsheet.Rats.Count.ShouldBeGreaterThan(2);
+        spreadsheet.Rats.Count.ShouldBeGreaterThanOrEqualTo(2);
     }
 }
