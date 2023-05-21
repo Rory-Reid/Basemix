@@ -136,7 +136,7 @@ public class Litter
     }
 
     public async Task<CreateMultipleResult> CreateMultipleOffspring(ILittersRepository littersRepository, IRatsRepository ratsRepository,
-        int amount)
+        int amount, Sex? sex, string? variety, bool owned)
     {
         // TODO - write tests once rats are fixed
         if (this.DamId == null)
@@ -158,9 +158,23 @@ public class Litter
         for (var i = 0; i < amount; i++)
         {
             // Todo - should be transactional
+            var sexPrefix = sex switch
+            {
+                Sex.Doe => "D",
+                Sex.Buck => "B",
+                _ => string.Empty
+            };
+
+            var varietyPrefix = string.IsNullOrEmpty(variety)
+                ? string.Empty
+                : variety.Substring(0, 3);
+            var unownedSuffix = owned ? string.Empty : " - unowned";
             var rat = await Rat.Create(ratsRepository);
-            rat.Name = $"{this.DamName} & {this.SireName}'s offspring ({count + i})";
+            rat.Name = $"{this.DamName} & {this.SireName}'s offspring ({sexPrefix}{varietyPrefix}{count + i}{unownedSuffix})";
             rat.DateOfBirth = this.DateOfBirth;
+            rat.Sex = sex;
+            rat.Variety = variety;
+            rat.Owned = owned;
             await rat.Save(ratsRepository);
 
             await this.AddOffspring(littersRepository, rat);

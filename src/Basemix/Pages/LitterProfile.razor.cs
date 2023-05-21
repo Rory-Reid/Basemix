@@ -27,6 +27,8 @@ public partial class LitterProfile
     public List<RatSearchResult> RatSearchResults { get; set; } = new();
     public Func<RatSearchResult, Task> SetResult { get; set; } = _ => Task.CompletedTask;
 
+    public bool ShowBulkKittenTool { get; set; }
+    
     public bool HasDam => this.Litter.DamId != null;
     public bool HasDamName => !string.IsNullOrEmpty(this.Litter.DamName);
     public bool HasSire => this.Litter.SireId != null;

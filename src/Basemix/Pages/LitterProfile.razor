@@ -110,6 +110,9 @@ else
     </table>
 
     <AddOrSearchButtons OnAdd="AddOffspring" OnSearch="OpenOffspringSearch"/>
+    <button class="btn btn-primary" @onclick="@(() => ShowBulkKittenTool = true)">
+        <span class="oi oi-plus"></span> Add many
+    </button>
 }
 
 @if (ShowRatSearch)
@@ -153,6 +156,53 @@ else
                         }
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (ShowBulkKittenTool)
+{
+    <div class="modal" tabindex="-1" style="display:block" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Add multiple kittens</h3>
+                    <button type="button" class="btn btn-close"
+                            @onclick="@(() => ShowBulkKittenTool = false)">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Amount</dt>
+                        <dd class="col-sm-8">
+                            <input type="number" min="1" class="form-control" />
+                        </dd>
+                        
+                        <dt class="col-sm-4">Sex</dt>
+                        <dd class="col-sm-8">
+                            <select id="sexInput">
+                                <option value="">-</option>
+                                <option value="Buck">Buck</option>
+                                <option value="Doe">Doe</option>
+                            </select>
+                        </dd>
+                        
+                        <dt class="col-sm-4">Variety</dt>
+                        <dd class="col-sm-8">
+                            <input type="text" class="form-control" /><br/>
+                            <div><button class="btn btn-primary">Copy Dam</button><button class="btn btn-primary">Copy Sire</button></div>
+                        </dd>
+
+                        <dt class="col-sm-4">Set as unowned</dt>
+                        <dd class="col-sm-8">
+                            <input type="checkbox" />
+                        </dd>
+                        
+                        <button class="btn btn-primary">Create</button>
+                    </dl>
                 </div>
             </div>
         </div>

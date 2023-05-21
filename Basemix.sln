@@ -23,6 +23,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{1B7E6D4C-4E99-41C0-B0C1-193CEC6121D1}"
 	ProjectSection(SolutionItems) = preProject
 		docs\publishing.md = docs\publishing.md
+		docs\notes.md = docs\notes.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "adrs", "adrs", "{0171CB0D-FC95-41E8-A4C1-4AEEA9574B48}"

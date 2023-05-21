@@ -84,6 +84,13 @@ public class SqliteRatsRepository : IRatsRepository
         return rat.ToModelledRat(litters.OrderByDescending(x => x.DateOfBirth).ToList());
     }
 
+    public async Task<string?> GetRatVariety(RatIdentity id)
+    {
+        using var db = this.getDatabase();
+        
+        db.ExecuteAsync()
+    }
+
     public async Task<List<Rat>> GetAll()
     {
         using var db = this.getDatabase();
