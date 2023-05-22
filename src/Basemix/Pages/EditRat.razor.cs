@@ -96,7 +96,7 @@ public partial class EditRat
 
     public async Task AddOwner()
     {
-        await this.Rat.Save(this.Repository);
+        await this.SaveRat();
         var owner = await Owner.Create(this.OwnersRepository);
         if (await this.Rat.SetOwner(this.Repository, owner) == OwnerAddResult.Success)
         {

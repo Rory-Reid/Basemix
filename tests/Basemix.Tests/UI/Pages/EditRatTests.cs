@@ -254,6 +254,23 @@ public class EditRatTests : RazorPageTests<EditRat>
         this.ratsRepository.Rats[this.Page.Id].OwnerId.ShouldBe(owner.Id);
     }
 
+    /// <summary>
+    /// It's important that we save the rat before adding an owner because we intend to navigate away to the owner after
+    /// </summary>
+    [Fact]
+    public async Task Add_owner_saves_rat()
+    {
+        var rat = this.faker.Rat(id: this.Page.Id, owned: true);
+        this.ratsRepository.Rats[rat.Id] = rat; // TODO replace with ratrepository.seed
+
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        this.Page.RatForm.Owned = false; // Edit rat
+        await this.Page.AddOwner();
+
+        this.ratsRepository.Rats[this.Page.Id].Owned.ShouldBeFalse();
+    }
+
     [Fact]
     public async Task Add_owner_creates_linked_owner_and_navigates()
     {

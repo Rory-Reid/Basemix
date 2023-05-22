@@ -36,7 +36,7 @@ else
                 {
                     <div>
                         <a href="/owners/@Rat.OwnerId?.Value/edit">@(Rat.OwnerName ?? "Unnamed Owner")</a>
-                        <button class="btn btn-danger" @onclick="RemoveOwner">
+                        <button class="btn btn-danger" @onclick="@RemoveOwner">
                             <span class="oi oi-circle-x"></span> Remove Owner
                         </button>
                     </div>
