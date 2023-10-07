@@ -5,6 +5,7 @@ using Basemix.Lib.Rats;
 using Basemix.Pages;
 using Basemix.Tests.sdk;
 using Bogus;
+using Bogus.DataSets;
 using Shouldly;
 
 namespace Basemix.Tests.UI.Pages;
@@ -167,6 +168,24 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
         this.Page.LitterName().ShouldBe(expectedLitterName);
     }
 
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData("Alice", null)]
+    [InlineData(null, "Bob")]
+    [InlineData("Alice", "Bob")]
+    public async Task Custom_litter_name_takes_precedence_over_dam_and_sire_names(string damName, string sireName)
+    {
+        var litter = this.faker.Litter(id: this.Page.Id,
+            dam: new(this.faker.Id(), damName),
+            sire: new(this.faker.Id(), sireName));
+        var expectedLitterName = $"{this.faker.Hacker.Noun()} Litter";
+        litter.Name = expectedLitterName;
+        this.littersRepository.Seed(litter);
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.LitterName().ShouldBe(expectedLitterName);
+    }
+    
     [Fact]
     public async Task Add_parent_with_doe_creates_linked_dam_and_navigates_to_edit()
     {

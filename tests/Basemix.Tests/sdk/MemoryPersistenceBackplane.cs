@@ -1,5 +1,6 @@
 using Basemix.Lib.Litters;
 using Basemix.Lib.Owners;
+using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
 using Bogus;
 
@@ -15,6 +16,8 @@ public class MemoryPersistenceBackplane
     public Dictionary<LitterIdentity, Litter> Litters { get; } = new();
     public Sequence NextOwnerId { get; } = new();
     public Dictionary<OwnerIdentity, Owner> Owners { get; } = new();
+    
+    public Dictionary<RatIdentity, Node> Pedigrees { get; } = new();
 
     public void Seed(Litter litter)
     {

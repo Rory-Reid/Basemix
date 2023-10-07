@@ -7,6 +7,8 @@ namespace Basemix.Tests.sdk;
 public class MemoryPedigreesRepository : IPedigreeRepository
 {
     private readonly MemoryPersistenceBackplane backplane;
+    
+    public Dictionary<RatIdentity, Node> Pedigrees => this.backplane.Pedigrees;
 
     public MemoryPedigreesRepository(MemoryPersistenceBackplane? backplane = null)
     {
@@ -15,6 +17,7 @@ public class MemoryPedigreesRepository : IPedigreeRepository
         
     public Task<Node?> GetPedigree(RatIdentity id)
     {
-        return Task.FromResult((Node?) null);
+        this.Pedigrees.TryGetValue(id, out var pedigree);
+        return Task.FromResult(pedigree);
     }
 }

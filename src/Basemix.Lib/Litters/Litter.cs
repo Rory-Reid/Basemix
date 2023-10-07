@@ -33,6 +33,8 @@ public class Litter
     }
 
     public LitterIdentity Id { get; }
+    public string? Name { get; set; }
+    public bool BredByMe { get; set; }
     public RatIdentity? DamId { get; private set; }
     public RatIdentity? SireId { get; private set; }
     public string? DamName { get; private set; }
@@ -173,8 +175,20 @@ public class Litter
 
     public static async Task<Litter> Create(ILittersRepository repository)
     {
+        // TODO: Don't like how this is a double-source-of-truth. Consider other patterns
+        // If this returns a litter in a state that doesn't match the database defaults then it could
+        // introduce subtle errors. I don't like having no defaults in the db but I also don't like the
+        // concept of creating and reading then returning from db. Maybe I'll have to suck it up and do that.
+        // Consider:
+        //  - Test which validates consistency of `item.Create` and result from `repository.Get` for litter/rat/owner
+        //  - Expand repository.create method to take parameters for some fields. This method can then create with
+        //    defaults and return them and it'll at least be guaranteed consistent at creation via this.
+        //  - Decide if 'create-and-read' really is all that bad
         var id = await repository.CreateLitter();
-        return new Litter(id);
+        return new Litter(id)
+        {
+            BredByMe = true
+        };
     }
 }
 

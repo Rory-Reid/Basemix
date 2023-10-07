@@ -46,6 +46,13 @@ public class LitterTests
     }
 
     [Fact]
+    public async Task Create_sets_bred_by_me_to_true()
+    {
+        var litter = await Litter.Create(this.littersRepository);
+        litter.BredByMe.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task Set_dam_updates_local_and_stored_litter_with_valid_dam()
     {
         var litter = await this.CreateLitter();

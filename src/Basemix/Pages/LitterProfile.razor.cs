@@ -52,6 +52,11 @@ public partial class LitterProfile
     
     public string LitterName()
     {
+        if (!string.IsNullOrEmpty(this.Litter.Name))
+        {
+            return this.Litter.Name;
+        }
+        
         if (this.HasDamName && this.HasSireName)
         {
             return $"{this.Litter.DamName} & {this.Litter.SireName}'s litter";

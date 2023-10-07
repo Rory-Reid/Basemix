@@ -131,6 +131,8 @@ public class MemoryLittersRepository : ILittersRepository
             litter.DateOfBirth,
             newOffspring ?? litter.Offspring.ToList())
         {
+            Name = litter.Name,
+            BredByMe = litter.BredByMe,
             Notes = litter.Notes
         };
 }

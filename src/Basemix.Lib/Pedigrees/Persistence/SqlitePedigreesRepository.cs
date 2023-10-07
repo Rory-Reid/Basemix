@@ -18,7 +18,7 @@ public class SqlitePedigreeRepository : IPedigreeRepository
 
         var pedigree = await db.QuerySingleOrDefaultAsync<PersistedPedigree>(
             @"SELECT 
-                rat.id, rat.name, rat.variety,
+                rat.id, rat.name, rat.variety, immediate_family.name as family_name,
                 d.id AS dam_id, d.name AS dam_name, d.variety AS dam_variety,
                     dd.id AS dam_dam_id, dd.name AS dam_dam_name, dd.variety AS dam_dam_variety,
                         ddd.id AS dam_dam_dam_id, ddd.name AS dam_dam_dam_name, ddd.variety AS dam_dam_dam_variety,

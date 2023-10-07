@@ -5,6 +5,7 @@ public class PersistedPedigree
     public long Id { get; set; }
     public string? Name { get; set; }
     public string? Variety { get; set; }
+    public string? FamilyName { get; set; }
     
     public long? DamId { get; set; }
     public string? DamName { get; set; }
@@ -132,7 +133,8 @@ public class PersistedPedigree
         {
             Id = this.Id,
             Name = this.Name,
-            Variety = this.Variety
+            Variety = this.Variety,
+            LitterName = this.FamilyName
         };
 
         if (this.DamId != null)

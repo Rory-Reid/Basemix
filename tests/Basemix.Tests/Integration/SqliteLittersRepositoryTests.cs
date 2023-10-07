@@ -88,6 +88,8 @@ public class LittersRepositoryTests : SqliteIntegration
         
         litter.ShouldSatisfyAllConditions(
             () => litter.id.ShouldBe(id),
+            () => litter.name.ShouldBeNull(),
+            () => litter.bred_by_me.ShouldBe(1), // boolean true
             () => litter.dam_id.ShouldBe(dam.Id.Value),
             () => litter.sire_id.ShouldBe(sire.Id.Value),
             () => litter.date_of_birth.ShouldBeNull(),
@@ -107,11 +109,15 @@ public class LittersRepositoryTests : SqliteIntegration
         var dob = this.faker.Date.PastDateOnly();
         var dop = this.faker.Date.RecentDateOnly(refDate: dob);
         var notes = this.faker.Lorem.Paragraph();
+        var bredByMe = this.faker.Random.Bool();
+        var name = this.faker.Random.AlphaNumeric(10);
 
         var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob)
         {
             DateOfPairing = dop,
-            Notes = notes
+            Notes = notes,
+            BredByMe = bredByMe,
+            Name = name
         };
         await this.repository.UpdateLitter(updatedLitter);
 
@@ -125,6 +131,8 @@ public class LittersRepositoryTests : SqliteIntegration
             () => row.sire_id.ShouldBe(sire.Id.Value),
             () => row.date_of_birth.ShouldBe(dob.ToPersistedDateTime()),
             () => row.date_of_pairing.ShouldBe(dop.ToPersistedDateTime()),
+            () => row.bred_by_me.ShouldBe(bredByMe ? 1 : 0),
+            () => row.name.ShouldBe(name),
             () => row.notes.ShouldBe(notes));
     }
     
@@ -249,6 +257,8 @@ public class LittersRepositoryTests : SqliteIntegration
 
         var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob)
         {
+            Name = this.faker.Lorem.Sentence(),
+            BredByMe = this.faker.Random.Bool(),
             DateOfPairing = dop,
             Notes = this.faker.Lorem.Paragraph()
         };
@@ -279,6 +289,7 @@ public class LittersRepositoryTests : SqliteIntegration
     }
     
     // ReSharper disable InconsistentNaming
-    private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth, long? date_of_pairing, string? notes);
+    private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth,
+        long? date_of_pairing, string? notes, string? name, long bred_by_me);
     // ReSharper restore InconsistentNaming
 }

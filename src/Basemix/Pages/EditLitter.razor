@@ -15,24 +15,34 @@ else
 
     <h1>@("Editing " + LitterName())</h1>
     <dl class="row">
+        <dt class="col-sm-2">Name</dt>
+        <dd class="col-sm-9">
+            <input required class="form-control" @bind="Litter.Name"/>
+        </dd>
+        
+        <dt class="col-sm-2">Bred by me</dt>
+        <dd class="col-sm-9">
+            <input required type="checkbox" @bind="Litter.BredByMe"/>
+        </dd>
+        
         <dt class="col-sm-2">Dam</dt>
         <dd class="col-sm-9">
             @if (this.HasDam)
             {
                 <div>
-                    <a href="/rats/@this.Litter.DamId?.Value/edit">@(this.Litter.DamName ?? "Unnamed Dam")</a>
-                    <button class="btn btn-danger" @onclick="@(() => this.RemoveParent(Sex.Doe))">
+                    <a href="/rats/@Litter.DamId?.Value/edit">@(Litter.DamName ?? "Unnamed Dam")</a>
+                    <button class="btn btn-danger" @onclick="@(() => RemoveParent(Sex.Doe))">
                         <span class="oi oi-circle-x"></span> Remove Dam
                     </button>
                 </div>
             }
             else
             {
-                <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Doe))" OnSearch="OpenDamSearch" />
+                <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Doe))" OnSearch="OpenDamSearch"/>
             }
         </dd>
-        
-        
+
+
         <dt class="col-sm-2">Sire</dt>
         <dd class="col-sm-9">
             @if (this.HasSire)
@@ -46,15 +56,15 @@ else
             }
             else
             {
-                <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Buck))" OnSearch="OpenSireSearch" />
+                <AddOrSearchButtons OnAdd="@(() => AddParent(Sex.Buck))" OnSearch="OpenSireSearch"/>
             }
         </dd>
-        
+
         <dt class="col-sm-2">Date of Pairing</dt>
         <dd class="col-sm-9">
             <input required class="form-control" type="date" id="dateOfPairingInput" @bind="this.Litter.DateOfPairing"/>
         </dd>
-        
+
         <dt class="col-sm-2">Date of Birth</dt>
         <dd class="col-sm-9">
             <input required class="form-control" type="date" id="dateOfBirthInput" @bind="this.Litter.DateOfBirth"/>

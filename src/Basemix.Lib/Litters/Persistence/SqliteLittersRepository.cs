@@ -20,8 +20,8 @@ public class SqliteLittersRepository : ILittersRepository
 
         using var reader = await db.QueryMultipleAsync(
             @"SELECT
-                litter.id, litter.dam_id, litter.sire_id, litter.date_of_birth,
-                litter.date_of_pairing,
+                litter.id, litter.name, litter.bred_by_me, litter.dam_id,
+                litter.sire_id, litter.date_of_birth, litter.date_of_pairing,
                 dam.name as dam_name, sire.name AS sire_name,
                 litter.notes
             FROM litter
@@ -83,6 +83,8 @@ public class SqliteLittersRepository : ILittersRepository
         return db.ExecuteAsync(
             @"UPDATE litter
             SET
+                name=@Name,
+                bred_by_me=@BredByMe,
                 dam_id=@DamId,
                 sire_id=@SireId,
                 date_of_pairing=@DateOfPairing,

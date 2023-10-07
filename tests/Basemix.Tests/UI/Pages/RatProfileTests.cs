@@ -1,9 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Basemix.Lib;
+using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
 using Basemix.Pages;
 using Basemix.Tests.sdk;
 using Bogus;
+using Bogus.DataSets;
 using Shouldly;
 
 namespace Basemix.Tests.UI.Pages;
@@ -196,5 +198,106 @@ public class RatProfileTests : RazorPageTests<RatProfile>
         await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         this.Page.RatTooOld.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Litter_name_is_pulled_from_named_litter_in_pedigree()
+    {
+        var litterName = $"{this.faker.Hacker.Phrase()} Litter";
+        var rat = this.faker.Rat(id: this.Page.Id);
+        this.repository.Rats[this.Page.Id] = rat;
+        this.pedigreesRepository.Pedigrees[this.Page.Id] = new Node
+        {
+            LitterName = litterName,
+        };
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.LitterName.ShouldBe(litterName);
+    }
+
+    [Fact]
+    public async Task Litter_name_generates_from_parents_if_rat_is_not_from_named_litter()
+    {
+        var rat = this.faker.Rat(id: this.Page.Id);
+        this.repository.Rats[this.Page.Id] = rat;
+        var familyTree = new Node
+        {
+            Dam = new Node
+            {
+                Name = this.faker.Name.FirstName(Name.Gender.Female)
+            },
+            Sire = new Node
+            {
+                Name = this.faker.Name.FirstName(Name.Gender.Male)
+            }
+        };
+        this.pedigreesRepository.Pedigrees[this.Page.Id] = familyTree;
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.LitterName.ShouldBe($"{familyTree.Dam.Name} & {familyTree.Sire.Name}'s litter");
+    }
+    
+    [Theory]
+    [InlineData(true)] // We've got a dad but they don't have a name
+    [InlineData(false)] // No dad
+    public async Task Litter_name_generates_from_dam_only_if_rat_is_not_from_named_litter(bool hasSire)
+    {
+        var rat = this.faker.Rat(id: this.Page.Id);
+        this.repository.Rats[this.Page.Id] = rat;
+        var familyTree = new Node
+        {
+            Dam = new Node
+            {
+                Name = this.faker.Name.FirstName(Name.Gender.Female)
+            },
+            Sire = hasSire ? new Node {Name = string.Empty} : null
+        };
+        this.pedigreesRepository.Pedigrees[this.Page.Id] = familyTree;
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.LitterName.ShouldBe($"{familyTree.Dam.Name} & Unknown Sire's litter");
+    }    
+    
+    [Theory]
+    [InlineData(true)] // We've got a mum but they don't have a name
+    [InlineData(false)] // No dad
+    public async Task Litter_name_generates_from_sire_only_if_rat_is_not_from_named_litter(bool hasDam)
+    {
+        var rat = this.faker.Rat(id: this.Page.Id);
+        this.repository.Rats[this.Page.Id] = rat;
+        var familyTree = new Node
+        {
+            Sire = new Node
+            {
+                Name = this.faker.Name.FirstName(Name.Gender.Female)
+            },
+            Dam = hasDam ? new Node {Name = string.Empty} : null
+        };
+        this.pedigreesRepository.Pedigrees[this.Page.Id] = familyTree;
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.LitterName.ShouldBe($"{familyTree.Sire.Name} & Unknown Dam's litter");
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(false, false)]
+    public async Task Litter_name_is_empty_if_rat_has_no_named_parents_and_is_not_from_named_litter(bool hasDam, bool hasSire)
+    {
+        var rat = this.faker.Rat(id: this.Page.Id);
+        this.repository.Rats[this.Page.Id] = rat;
+        var familyTree = new Node
+        {
+            LitterName = this.faker.Random.Bool() ? string.Empty : null, 
+            Dam = hasDam ? new Node {Name = string.Empty} : null,
+            Sire = hasSire ? new Node {Name = string.Empty} : null
+        };
+        this.pedigreesRepository.Pedigrees[this.Page.Id] = familyTree;
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.LitterName.ShouldBeNull();
+        
     }
 }

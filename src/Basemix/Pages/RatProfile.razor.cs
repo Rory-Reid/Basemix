@@ -113,14 +113,21 @@ public partial class RatProfile
         this.PedigreeLoaded = true;
         this.Pedigree = pedigree;
 
-
-        if (!string.IsNullOrEmpty(this.Pedigree.Dam?.Name) && !string.IsNullOrEmpty(this.Pedigree.Sire?.Name))
+        if (!string.IsNullOrEmpty(this.Pedigree.LitterName))
         {
-            this.LitterName = $"{this.Pedigree.Dam!.Name} & {this.Pedigree.Sire!.Name}";
+            this.LitterName = this.Pedigree.LitterName;
         }
-        else
+        else if (!string.IsNullOrEmpty(this.Pedigree.Dam?.Name) && !string.IsNullOrEmpty(this.Pedigree.Sire?.Name))
         {
-            this.LitterName = string.Empty;
+            this.LitterName = $"{this.Pedigree.Dam.Name} & {this.Pedigree.Sire.Name}'s litter";
+        }
+        else if (!string.IsNullOrEmpty(this.Pedigree.Dam?.Name))
+        {
+            this.LitterName = $"{this.Pedigree.Dam.Name} & Unknown Sire's litter";
+        }
+        else if (!string.IsNullOrEmpty(this.Pedigree.Sire?.Name))
+        {
+            this.LitterName = $"{this.Pedigree.Sire.Name} & Unknown Dam's litter";
         }
     }
     
