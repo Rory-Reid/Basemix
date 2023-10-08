@@ -1,7 +1,6 @@
 @page "/settings"
 @using Basemix.Db
 @using System.IO
-@using System.Net.Security
 @using Basemix.Lib
 @using CommunityToolkit.Maui.Storage
 @inject GetDataDirectory GetDataDirectory;
@@ -94,6 +93,16 @@
         try
         {
             await using var file = new FileStream(dbPath, FileMode.Open);
+#if ANDROID
+            var tempFilePath = Path.Combine(FileSystem.Current.CacheDirectory, "basemix.sqlite3");
+            await using var tempFile = new FileStream(tempFilePath, FileMode.Create);
+            await file.CopyToAsync(tempFile);
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Save database backup",
+                File = new ShareFile(tempFilePath)
+            });
+#else
             try
             {
                 await FileSaver.Default.SaveAsync("basemix.sqlite3", file, cts.Token);
@@ -110,6 +119,7 @@
                 // Potential bug in CommunityToolkit for android. Seems to be an issue with returning the filepath
                 // and not with actually saving the file. I can safely ignore it for now.
             }
+#endif
         }
         catch (Exception e)
         {

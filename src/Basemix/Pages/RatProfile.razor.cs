@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Basemix.Lib;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
@@ -167,11 +166,21 @@ public partial class RatProfile
                 this.LitterName,
                 this.PedigreeContext.FooterText,
                 this.PedigreeContext.ShowSex);
-            var stream = new MemoryStream();
-            this.PdfGenerator.WriteToStream(pdf, stream);
 
+#if ANDROID
+            var tempFilePath = Path.Combine(FileSystem.Current.CacheDirectory, $"{this.Rat.Name}.pdf");
+            await using var tempFile = new FileStream(tempFilePath, FileMode.Create);
+            this.PdfGenerator.WriteToStream(pdf, tempFile);
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "Save pedigree",
+                File = new ShareFile(tempFilePath)
+            });
+#else
             try
             {
+                var stream = new MemoryStream();
+                this.PdfGenerator.WriteToStream(pdf, stream);
                 await FileSaver.Default.SaveAsync($"{this.Rat.Name}.pdf", stream, CancellationToken.None);
             }
             catch (FolderPickerException e) when (e.Message is "Operation cancelled.")
@@ -186,6 +195,7 @@ public partial class RatProfile
                 // Potential bug in CommunityToolkit for android. Seems to be an issue with returning the filepath
                 // and not with actually saving the file. I can safely ignore it for now.
             }
+#endif
         }
         catch (Exception e)
         {
