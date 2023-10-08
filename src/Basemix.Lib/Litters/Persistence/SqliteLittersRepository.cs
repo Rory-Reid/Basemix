@@ -45,27 +45,7 @@ public class SqliteLittersRepository : ILittersRepository
 
         return litter.ToModelledLitter(offspring);
     }
-    
-    public async Task<List<LitterOverview>> GetAll()
-    {
-        using var db = this.getDatabase();
 
-        var litters = await db.QueryAsync<PersistedLitterOverview>(
-            @"SELECT
-                litter.id,
-                litter.date_of_birth,
-                litter.name,
-                sire.name AS sire,
-                dam.name AS dam,
-                (SELECT COUNT(id) FROM rat WHERE rat.litter_id=litter.id) AS offspring_count
-            FROM litter
-            LEFT JOIN rat sire on sire.id=litter.sire_id
-            LEFT JOIN rat dam on dam.id=litter.dam_id
-            ORDER BY litter.date_of_birth DESC");
-
-        return litters.Select(x => x.ToModelledOverview()).ToList();
-    }
-    
     public async Task<long> CreateLitter(RatIdentity? damId = null, RatIdentity? sireId = null)
     {
         using var db = this.getDatabase();
@@ -150,6 +130,44 @@ public class SqliteLittersRepository : ILittersRepository
         await db.ExecuteAsync("DELETE FROM litter WHERE id=@Id", new {Id = id.Value}, transaction);
         
         transaction.Commit();
+    }
+    
+    public async Task<List<LitterOverview>> SearchLitters(bool? bredByMe)
+    {
+        using var db = this.getDatabase();
+
+        var litters = await db.QueryAsync<PersistedLitterOverview>(
+            @$"SELECT
+                litter.id,
+                litter.date_of_birth,
+                litter.name,
+                sire.name AS sire,
+                dam.name AS dam,
+                (SELECT COUNT(id) FROM rat WHERE rat.litter_id=litter.id) AS offspring_count
+            FROM litter
+            LEFT JOIN rat sire on sire.id=litter.sire_id
+            LEFT JOIN rat dam on dam.id=litter.dam_id
+            {Filters(bredByMe)}
+            ORDER BY litter.date_of_birth DESC");
+
+        return litters.Select(x => x.ToModelledOverview()).ToList();
+    }
+
+    private static string Filters(bool? bredByMe)
+    {
+        var filters = new List<string>();
+        
+        switch (bredByMe)
+        {
+            case true:
+                filters.Add("(litter.bred_by_me IS TRUE)");
+                break;
+            case false:
+                filters.Add("(litter.bred_by_me IS FALSE)");
+                break;
+        }
+        
+        return filters.Any() ? $"WHERE {string.Join(" AND ", filters)}" : string.Empty;
     }
 }
 

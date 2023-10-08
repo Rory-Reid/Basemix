@@ -10,10 +10,12 @@ public partial class Litters
     [Inject] public NavigationManager Nav { get; set; } = null!;
     
     public List<LitterOverview> LitterList { get; private set; } = new();
+
+    public bool BredByMeOnly { get; set; } = true;
     
     protected override async Task OnParametersSetAsync()
     {
-        this.LitterList = await this.Repository.GetAll();
+        await this.Search();
     }
 
     public void OpenLitterProfile(long litterId)
@@ -25,5 +27,11 @@ public partial class Litters
     {
         var litter = await Litter.Create(this.Repository);
         this.Nav.NavigateTo($"/litters/{litter.Id.Value}/edit");
+    }
+
+    public async Task Search()
+    {
+        this.LitterList = await this.Repository.SearchLitters(
+            this.BredByMeOnly ? true : null);
     }
 }

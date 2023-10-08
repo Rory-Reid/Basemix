@@ -63,11 +63,51 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
             dam: (this.faker.Id(), damName),
             sire: (this.faker.Id(), sireName))
         {
-            Name = litterName
+            Name = litterName,
+            BredByMe = true
         });
         
         await RazorEngine.InvokeOnParametersSetAsync(this.Page);
         
         this.Page.LitterList.ShouldHaveSingleItem().LitterName.ShouldBe(expectedLitterName);
+    }
+
+    [Fact]
+    public async Task Bred_by_me_only_true_by_default() => this.Page.BredByMeOnly.ShouldBeTrue();
+
+    [Fact]
+    public async Task Search_bred_by_me_only_true_returns_bred_litters_only()
+    {
+        var matchingLitter = this.faker.Litter(bredByMe: true);
+        
+        this.repository.Litters[matchingLitter.Id] = matchingLitter;
+        this.repository.Litters[this.faker.Id()] = this.faker.Litter(bredByMe: false);
+
+        this.Page.BredByMeOnly = true;
+        await this.Page.Search();
+        
+        this.Page.LitterList
+            .ShouldHaveSingleItem()
+            .ShouldSatisfyAllConditions(
+                litter => litter.Id.ShouldBe(matchingLitter.Id),
+                litter => litter.DateOfBirth.ShouldBe(matchingLitter.DateOfBirth),
+                litter => litter.Name.ShouldBe(matchingLitter.Name),
+                litter => litter.OffspringCount.ShouldBe(matchingLitter.Offspring.Count),
+                litter => litter.Dam.ShouldBe(matchingLitter.DamName),
+                litter => litter.Sire.ShouldBe(matchingLitter.SireName));
+    }
+    
+    [Fact]
+    public async Task Search_bred_by_me_only_false_includes_litters_not_bred_by_user()
+    {
+        var matchingLitter = this.faker.Litter(bredByMe: true);
+        
+        this.repository.Litters[matchingLitter.Id] = matchingLitter;
+        this.repository.Litters[this.faker.Id()] = this.faker.Litter(bredByMe: false);
+
+        this.Page.BredByMeOnly = false;
+        await this.Page.Search();
+        
+        this.Page.LitterList.Count.ShouldBe(2);
     }
 }

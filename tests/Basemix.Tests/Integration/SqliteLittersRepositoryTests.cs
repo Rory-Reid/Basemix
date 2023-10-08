@@ -287,6 +287,63 @@ public class LittersRepositoryTests : SqliteIntegration
             new(rat2.Id, rat2.Name)
         });
     }
+
+    [Fact]
+    public async Task Search_bred_by_me_only_returns_litters_bred_by_me()
+    {
+        var expectedLitter = await Litter.Create(this.repository);
+        var otherLitter = await Litter.Create(this.repository);
+
+        expectedLitter.BredByMe = true;
+        otherLitter.BredByMe = false;
+        
+        await this.repository.UpdateLitter(expectedLitter);
+        await this.repository.UpdateLitter(otherLitter);
+        
+        var results = await this.repository.SearchLitters(bredByMe: true);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(litter => litter.Id == expectedLitter.Id),
+            () => results.ShouldNotContain(litter => litter.Id == otherLitter.Id));
+    }
+
+    [Fact]
+    public async Task Search_bred_by_me_false_only_returns_litters_not_bred_by_me()
+    {
+        var expectedLitter = await Litter.Create(this.repository);
+        var otherLitter = await Litter.Create(this.repository);
+
+        expectedLitter.BredByMe = false;
+        otherLitter.BredByMe = true;
+        
+        await this.repository.UpdateLitter(expectedLitter);
+        await this.repository.UpdateLitter(otherLitter);
+        
+        var results = await this.repository.SearchLitters(bredByMe: false);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(litter => litter.Id == expectedLitter.Id),
+            () => results.ShouldNotContain(litter => litter.Id == otherLitter.Id));
+    }
+
+    [Fact]
+    public async Task Search_bred_by_me_null_returns_both_litters_bred_by_me_and_not()
+    {
+        var bredByMeLitter = await Litter.Create(this.repository);
+        var notBredByMeLitter = await Litter.Create(this.repository);
+
+        bredByMeLitter.BredByMe = true;
+        notBredByMeLitter.BredByMe = false;
+        
+        await this.repository.UpdateLitter(bredByMeLitter);
+        await this.repository.UpdateLitter(notBredByMeLitter);
+        
+        var results = await this.repository.SearchLitters(bredByMe: null);
+        
+        results.ShouldSatisfyAllConditions(
+            () => results.ShouldContain(litter => litter.Id == bredByMeLitter.Id),
+            () => results.ShouldContain(litter => litter.Id == notBredByMeLitter.Id));
+    }
     
     // ReSharper disable InconsistentNaming
     private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth,

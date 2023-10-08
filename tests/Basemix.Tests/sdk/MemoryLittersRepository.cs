@@ -23,8 +23,18 @@ public class MemoryLittersRepository : ILittersRepository
             : Task.FromResult((Litter?)null);
     }
 
-    public Task<List<LitterOverview>> GetAll() =>
-        Task.FromResult(this.Litters.Values.Select(x => new LitterOverview(x.Id)
+    public Task<List<LitterOverview>> SearchLitters(bool? bredByMe = null)
+    {
+        var results = this.Litters.Values.AsEnumerable();
+        
+        results = bredByMe switch
+        {
+            true => results.Where(x => x.BredByMe),
+            false => results.Where(x => !x.BredByMe),
+            _ => results
+        };
+            
+        return Task.FromResult(results.Select(x => new LitterOverview(x.Id)
         {
             Name = x.Name,
             DateOfBirth = x.DateOfBirth,
@@ -32,6 +42,7 @@ public class MemoryLittersRepository : ILittersRepository
             Sire = x.SireName,
             OffspringCount = x.Offspring.Count
         }).ToList());
+    }
 
     public Task<long> CreateLitter(RatIdentity? damId = null, RatIdentity? sireId = null)
     {
@@ -60,7 +71,7 @@ public class MemoryLittersRepository : ILittersRepository
             sire = new(sireId, sireRat.Name);
         }
         
-        this.Litters.Add(id, new Litter(id, dam: dam, sire: sire));
+        this.Litters.Add(id, new Litter(id, dam: dam, sire: sire) {BredByMe = true});
         return Task.FromResult(id);
     }
 
