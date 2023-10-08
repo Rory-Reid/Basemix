@@ -10,8 +10,7 @@
     <thead>
     <tr>
         <th scope="col">DoB</th>
-        <th scope="col">Dam</th>
-        <th scope="col">Sire</th>
+        <th scope="col">Name</th>
         <th scope="col"># of rats</th>
     </tr>
     </thead>
@@ -20,8 +19,7 @@
     {
         <tr @onclick="@(() => OpenLitterProfile(litter.Id))">
             <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
-            <td>@(litter.Dam ?? "-")</td>
-            <td>@(litter.Sire ?? "-")</td>
+            <td>@(litter.LitterName)</td>
             <td>@litter.OffspringCount</td>
         </tr>
     }

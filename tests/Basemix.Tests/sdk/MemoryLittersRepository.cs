@@ -26,6 +26,7 @@ public class MemoryLittersRepository : ILittersRepository
     public Task<List<LitterOverview>> GetAll() =>
         Task.FromResult(this.Litters.Values.Select(x => new LitterOverview(x.Id)
         {
+            Name = x.Name,
             DateOfBirth = x.DateOfBirth,
             Dam = x.DamName,
             Sire = x.SireName,

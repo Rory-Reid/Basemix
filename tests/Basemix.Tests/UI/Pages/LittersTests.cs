@@ -1,3 +1,4 @@
+using Basemix.Lib.Litters;
 using Basemix.Tests.sdk;
 using Bogus;
 using Shouldly;
@@ -23,7 +24,7 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
         this.faker.Make(100, () => this.repository.CreateLitter());
 
         await RazorEngine.InvokeOnParametersSetAsync(this.Page);
-        
+
         this.Page.LitterList.Count.ShouldBe(100);
     }
 
@@ -31,9 +32,9 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
     public void Open_litter_profile_navigates_to_litter()
     {
         var litterId = this.faker.Id();
-        
+
         this.Page.OpenLitterProfile(litterId);
-        
+
         this.nav.CurrentUri.ShouldBe($"/litters/{litterId}");
     }
 
@@ -44,5 +45,29 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
 
         var litter = this.repository.Litters.ShouldHaveSingleItem().Value;
         this.nav.CurrentUri.ShouldBe($"/litters/{litter.Id.Value}/edit");
+    }
+
+    [Theory]
+    [InlineData("", "", "", "Anonymous litter")]
+    [InlineData("My Litter", "", "", "My Litter")]
+    [InlineData("My Litter", "Dam Name", "", "My Litter")]
+    [InlineData("My Litter", "", "Sire Name", "My Litter")]
+    [InlineData("My Litter", "Dam Name", "Sire Name", "My Litter")]
+    [InlineData("", "Dam Name", "", "Dam Name's litter")]
+    [InlineData("", "", "Sire Name", "Sire Name's litter")]
+    [InlineData("", "Dam Name", "Sire Name", "Dam Name & Sire Name's litter")]
+    public async Task Litter_name_in_list_is_set_correctly(string litterName, string damName, string sireName,
+        string expectedLitterName)
+    {
+        this.repository.Seed(new Litter(
+            dam: (this.faker.Id(), damName),
+            sire: (this.faker.Id(), sireName))
+        {
+            Name = litterName
+        });
+        
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.LitterList.ShouldHaveSingleItem().LitterName.ShouldBe(expectedLitterName);
     }
 }

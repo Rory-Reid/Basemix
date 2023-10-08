@@ -54,6 +54,7 @@ public class SqliteLittersRepository : ILittersRepository
             @"SELECT
                 litter.id,
                 litter.date_of_birth,
+                litter.name,
                 sire.name AS sire,
                 dam.name AS dam,
                 (SELECT COUNT(id) FROM rat WHERE rat.litter_id=litter.id) AS offspring_count
@@ -65,22 +66,22 @@ public class SqliteLittersRepository : ILittersRepository
         return litters.Select(x => x.ToModelledOverview()).ToList();
     }
     
-    public Task<long> CreateLitter(RatIdentity? damId = null, RatIdentity? sireId = null)
+    public async Task<long> CreateLitter(RatIdentity? damId = null, RatIdentity? sireId = null)
     {
         using var db = this.getDatabase();
 
-        return db.ExecuteScalarAsync<long>(
+        return await db.ExecuteScalarAsync<long>(
             @"INSERT INTO litter (dam_id, sire_id)
             VALUES (@DamId, @SireId)
             RETURNING id",
             new PersistedLitter {DamId = damId, SireId = sireId});
     }
 
-    public Task UpdateLitter(Litter litter)
+    public async Task UpdateLitter(Litter litter)
     {
         using var db = this.getDatabase();
 
-        return db.ExecuteAsync(
+        await db.ExecuteAsync(
             @"UPDATE litter
             SET
                 name=@Name,
