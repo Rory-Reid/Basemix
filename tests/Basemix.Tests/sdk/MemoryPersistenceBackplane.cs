@@ -2,6 +2,7 @@ using Basemix.Lib.Litters;
 using Basemix.Lib.Owners;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
+using Basemix.Lib.Settings;
 using Bogus;
 
 namespace Basemix.Tests.sdk;
@@ -18,6 +19,7 @@ public class MemoryPersistenceBackplane
     public Dictionary<OwnerIdentity, Owner> Owners { get; } = new();
     
     public Dictionary<RatIdentity, Node> Pedigrees { get; } = new();
+    public Dictionary<long, Profile> Profiles { get; } = new();
 
     public void Seed(Litter litter)
     {

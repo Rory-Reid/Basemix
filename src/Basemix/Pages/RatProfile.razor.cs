@@ -5,6 +5,7 @@ using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
+using Basemix.Lib.Settings.Persistence;
 using CommunityToolkit.Maui.Storage;
 using Microsoft.AspNetCore.Components;
 
@@ -15,9 +16,9 @@ public partial class RatProfile
     [Inject] public IRatsRepository Repository { get; set; } = null!;
     [Inject] public ILittersRepository LittersRepository { get; set; } = null!;
     [Inject] public IPedigreeRepository PedigreeRepository { get; set; } = null!;
+    [Inject] public IProfileRepository ProfileRepository { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
     [Inject] public PdfGenerator PdfGenerator { get; set; } = null!;
-    [Inject] public PedigreeContext PedigreeContext { get; set; } = null!;
     [Inject] public DateSpanToString DateSpanToString { get; set; } = null!;
     [Inject] public NowDateOnly NowDateOnly { get; set; } = null!;
     [Inject] public ErrorContext ErrorContext { get; set; } = null!;
@@ -30,6 +31,7 @@ public partial class RatProfile
     
     public Rat Rat { get; private set; } = null!;
     public Node Pedigree { get; private set; } = null!;
+    public PedigreeContext PedigreeContext { get; set; } = null!;
 
     public string? RatAge
     {
@@ -128,6 +130,14 @@ public partial class RatProfile
         {
             this.LitterName = $"{this.Pedigree.Sire.Name} & Unknown Dam's litter";
         }
+
+        var profile = await this.ProfileRepository.GetDefaultProfile();
+        this.PedigreeContext = new PedigreeContext
+        {
+            RatteryName = profile.RatteryName,
+            FooterText = profile.Pedigree.Footer,
+            ShowSex = profile.Pedigree.ShowSex
+        };
     }
     
     public async Task NewLitter()
@@ -156,6 +166,7 @@ public partial class RatProfile
 
     public async Task ExportPdfPedigree()
     {
+        var profile = await this.ProfileRepository.GetDefaultProfile();
         try
         {
             var pdf = this.PdfGenerator.CreateFromPedigree(
@@ -165,7 +176,8 @@ public partial class RatProfile
                 this.PedigreeContext.RatteryName,
                 this.LitterName,
                 this.PedigreeContext.FooterText,
-                this.PedigreeContext.ShowSex);
+                this.PedigreeContext.ShowSex,
+                profile.Pedigree.Pdf);
 
 #if ANDROID
             var tempFilePath = Path.Combine(FileSystem.Current.CacheDirectory, $"{this.Rat.Name}.pdf");
@@ -214,5 +226,5 @@ public class PedigreeContext
 {
     public string? RatteryName { get; set; }
     public string? FooterText { get; set; }
-    public bool ShowSex { get; set; } = true;
+    public bool ShowSex { get; set; }
 }

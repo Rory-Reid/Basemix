@@ -7,6 +7,7 @@ using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats.Persistence;
+using Basemix.Lib.Settings.Persistence;
 using Basemix.Pages;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
@@ -63,8 +64,8 @@ namespace Basemix
             services.AddSingleton<ILittersRepository, SqliteLittersRepository>();
             services.AddSingleton<IPedigreeRepository, SqlitePedigreeRepository>();
             services.AddSingleton<IOwnersRepository, SqliteOwnersRepository>();
+            services.AddSingleton<IProfileRepository, SqliteProfileRepository>();
             services.AddSingleton<PdfGenerator>();
-            services.AddSingleton<PedigreeContext>();
             services.AddSingleton(errorContext);
             services.AddSingleton<LitterEstimator>();
             services.AddSingleton<LitterEstimator.GetEstimationParameters>(() => EstimationParameters.Standard);

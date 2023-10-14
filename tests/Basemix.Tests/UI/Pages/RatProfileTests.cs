@@ -17,6 +17,7 @@ public class RatProfileTests : RazorPageTests<RatProfile>
     private MemoryRatsRepository repository = null!;
     private MemoryLittersRepository littersRepository = null!;
     private MemoryPedigreesRepository pedigreesRepository = null!;
+    private MemoryProfileRepository profileRepository = null!;
 
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override RatProfile CreatePage()
@@ -25,12 +26,14 @@ public class RatProfileTests : RazorPageTests<RatProfile>
         this.repository = new MemoryRatsRepository(backplane);
         this.littersRepository = new MemoryLittersRepository(backplane);
         this.pedigreesRepository = new MemoryPedigreesRepository(backplane);
+        this.profileRepository = new MemoryProfileRepository(backplane);
         return new()
         {
             Id = this.faker.Id(),
             Repository = this.repository,
             LittersRepository = this.littersRepository,
             PedigreeRepository = this.pedigreesRepository,
+            ProfileRepository = this.profileRepository,
             Nav = this.nav,
             DateSpanToString = Delegates.HumaniseDateSpan,
             NowDateOnly = () => this.Now,

@@ -1,181 +1,66 @@
 @page "/settings"
-@using Basemix.Db
-@using System.IO
-@using Basemix.Lib
-@using CommunityToolkit.Maui.Storage
-@inject GetDataDirectory GetDataDirectory;
-@inject GetDatabasePath GetDatabasePath;
-@inject Migrator Migrator;
-@inject ErrorContext ErrorContext;
-@inject NavigationManager Nav;
-@implements IDisposable;
 
-<h1>Settings</h1>
-
-<p>
-    Database location:
-    <br />
-    @dbPath
-</p>
-
-<button class="btn btn-primary" @onclick="ExportDb">Export database</button>
-
-
-@if (!string.IsNullOrEmpty(ErrorContext.LastError))
+@if (!SettingsLoaded)
 {
-    <hr />
-    <h2>Last Application Error</h2>
-    <p>@ErrorContext.LastError</p>
-}
-
-<button class="btn btn-primary" @onclick="@(() => Nav.NavigateTo("/import/ratrecords"))">Import from Rat Records spreadsheet</button>
-
-<hr />
-
-<h2>Danger zone</h2>
-
-<p>
-    The buttons and options in this section will perform irreversible changes to your data. Please make sure you've
-    backed up your database, or at the very least have made peace with whatever will happen as a result of these actions.
-</p>
-
-
-<input type="checkbox" @bind="dangerZoneEnabled" id="dangerCheckbox"/>
-<label for="dangerCheckbox">I know what I'm doing</label>
-<br />
-<br />
-
-<div class="btn-toolbar" role="toolbar" aria-label="Dangerous Buttons">
-    <div class="btn-group mr-2" role="group">
-        <button class="btn btn-danger" @onclick="RecreateDatabase" disabled="@(!dangerZoneEnabled)">Delete and re-create database</button>
+    <BackButton/>
+    <hr/>
+    <div class="alert alert-danger" role="alert">
+        Settings could not be loaded, something must be really wrong. Please contact the developer.
     </div>
-    <div class="btn-group mr-2" role="group" aria-label="Second group">
-        <button class="btn btn-primary" @onclick="LoadDb" disabled="@(!dangerZoneEnabled)">Load database from file</button>
-    </div>
-</div>
-@if (this.dbModified)
-{
-    <p>
-        The database has been modified, you shouldn't need to restart Basemix but if anything looks off, try restarting
-        before editing any data.
-    </p>
 }
-
-@code
+else
 {
-    private CancellationTokenSource cts = new();
+    <SaveHeader OnSave="SaveAndGoBack"/>
+
+    <h1>Settings</h1>
     
-    private bool dangerZoneEnabled = false;
-    private string dbPath = "ERROR";
-    private string dbDir = "ERROR";
-    private bool dbModified = false;
-
-    protected override void OnInitialized()
-    {
-        this.dbPath = GetDatabasePath();
-        this.dbDir = GetDataDirectory();
-    }
-
-    public void RecreateDatabase()
-    {
-        if (!File.Exists(dbPath) || !this.dangerZoneEnabled)
-        {
-            return;
-        }
+    <dl class="row">
+        <dt class="col-sm-4">Rattery Name</dt>
+        <dd class="col-sm-9">
+            <input required class="form-control" @bind="Profile.RatteryName"/>
+        </dd>
+    </dl>
+    
+    <h2>Pedigree settings</h2>
+    <dl class="row">
+        <dt class="col-sm-4">Footer Text</dt>
+        <dd class="col-sm-9">
+            <input required class="form-control" @bind="Profile.Pedigree.Footer"/>
+        </dd>
         
-        File.Delete(dbPath);
-        this.Migrator.Start();
-        this.dbModified = true;
-    }
-
-    public async Task ExportDb()
-    {
-        try
-        {
-            await using var file = new FileStream(dbPath, FileMode.Open);
-#if ANDROID
-            var tempFilePath = Path.Combine(FileSystem.Current.CacheDirectory, "basemix.sqlite3");
-            await using var tempFile = new FileStream(tempFilePath, FileMode.Create);
-            await file.CopyToAsync(tempFile);
-            await Share.Default.RequestAsync(new ShareFileRequest
-            {
-                Title = "Save database backup",
-                File = new ShareFile(tempFilePath)
-            });
-#else
-            try
-            {
-                await FileSaver.Default.SaveAsync("basemix.sqlite3", file, cts.Token);
-            }
-            catch (FolderPickerException e) when (e.Message is "Operation cancelled.")
-            {
-            }
-            catch (FileSaveException e) when (e.Message is "Path doesn't exist.")
-            {
-                // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
-            }
-            catch (IndexOutOfRangeException e) when (e.Message.Contains("Arg_IndexOutOfRangeException"))
-            {
-                // Potential bug in CommunityToolkit for android. Seems to be an issue with returning the filepath
-                // and not with actually saving the file. I can safely ignore it for now.
-            }
-#endif
-        }
-        catch (Exception e)
-        {
-            this.ErrorContext.LastError = e.ToString();
-        }
-    }
-
-    public async Task LoadDb()
-    {
-        var backupDbPath = Path.Combine(dbDir, "backup.sqlite3");
-        try
-        {
-            var file = await FilePicker.PickAsync(new PickOptions
-            {
-                PickerTitle = "Select exported database (usually called basemix.sqlite3)",
-                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
-                {
-                    { DevicePlatform.iOS, new[] {"public.sqlite3", "public.sqlite"}}, // UTType values
-                    { DevicePlatform.Android, new[] {"application/vnd.sqlite3", "application/x-sqlite3"}}, // MIME type
-                    { DevicePlatform.WinUI, new[] {".sqlite3", ".sqlite"}}, // file extension
-                    { DevicePlatform.macOS, new[] {"sqlite3", "sqlite"}}, // UTType values
-                    { DevicePlatform.MacCatalyst, new[] {"sqlite3", "sqlite3"}}
-                })
-            });
-            
-            if (file == null)
-            {
-                return;
-            }
-
-            await using var loadedFile = File.Open(file.FullPath, FileMode.Open);
-            if (File.Exists(backupDbPath))
-            {
-                // Old backup
-                File.Delete(backupDbPath);
-            }
-            
-            File.Move(dbPath, backupDbPath);
-            await using var import = File.Open(dbPath, FileMode.CreateNew);
-            await loadedFile.CopyToAsync(import);
-            
-            loadedFile.Close();
-            import.Close();
-            
-            this.Migrator.Start();
-            this.dbModified = true;
-        }
-        catch (Exception e)
-        {
-            this.ErrorContext.LastError = $"Loading failed - you might need to manually fix this. Your old database has been moved to {backupDbPath}, please make a copy, then rename it to `db.sqlite` to restore it. Do not click load again, it will delete your backup. \nError Details Below:\n{e}";
-        }
-    }
-
-    public void Dispose()
-    {
-        cts.Cancel();
-        cts.Dispose();
-    }
+        <dt class="col-sm-4">Show rat sex</dt>
+        <dd class="col-sm-9">
+            <input required type="checkbox" @bind="Profile.Pedigree.ShowSex"/>
+        </dd>
+        
+        <dt class="col-sm-4">Page margin size</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.Pedigree.Pdf.PageMargin"/>
+        </dd>
+        
+        <dt class="col-sm-4">Font family</dt>
+        <dd class="col-sm-9">
+            @(Profile.Pedigree.Pdf.Font)
+        </dd>
+        
+        <dt class="col-sm-4">Font size</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.Pedigree.Pdf.FontSize"/>
+        </dd>
+        
+        <dt class="col-sm-4">Footer font size</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.Pedigree.Pdf.FooterFontSize"/>
+        </dd>
+        
+        <dt class="col-sm-4">Rattery name font size</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.Pedigree.Pdf.HeaderFontSize"/>
+        </dd>
+        
+        <dt class="col-sm-4">Litter name font size</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.Pedigree.Pdf.SubheaderFontSize"/>
+        </dd>
+    </dl>
 }

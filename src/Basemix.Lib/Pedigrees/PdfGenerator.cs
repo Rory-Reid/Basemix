@@ -1,5 +1,6 @@
 using System.Reflection;
 using Basemix.Lib.Rats;
+using Basemix.Lib.Settings;
 using QuestPDF.Drawing;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
@@ -23,7 +24,7 @@ public class PdfGenerator
         }
     }
     
-    public Document CreateFromPedigree(Node root, Sex? ratSex, DateOnly? dateOfBirth, string? ratteryName, string? litterName, string? footerText, bool showSex)
+    public Document CreateFromPedigree(Node root, Sex? ratSex, DateOnly? dateOfBirth, string? ratteryName, string? litterName, string? footerText, bool showSex, Profile.PedigreeSettings.PdfSettings settings)
     {
         var nullNode = new Node {Name = "-", Variety = string.Empty};
         var s = root.Sire ?? nullNode;
@@ -63,7 +64,7 @@ public class PdfGenerator
             container.Page(page =>
             {
                 page.Size(PageSizes.A4.Landscape());
-                page.Margin(25);
+                page.Margin(settings.PageMargin);
                 page.Content().Table(table =>
                 {
                     table.ColumnsDefinition(c =>
@@ -75,13 +76,13 @@ public class PdfGenerator
                         c.RelativeColumn();
                     });
 
-                    var fontName = "Carlito";
-
-                    var cellFont = 10;
+                    var fontName = settings.Font;
+                    var cellFont = settings.FontSize;
+                    
                     table.Cell().ColumnSpan(5).Element(RatteryHeader).Text(ratteryName).FontFamily(fontName)
-                        .FontSize(36).Bold();
+                        .FontSize(settings.HeaderFontSize).Bold();
                     table.Cell().ColumnSpan(5).Element(LitterHeader)
-                        .Text(litterName).FontFamily(fontName).FontSize(26);
+                        .Text(litterName).FontFamily(fontName).FontSize(settings.SubheaderFontSize);
 
                     table.Cell().RowSpan(16).Element(TopBlock).Text(root.Name).FontFamily(fontName)
                         .FontSize(cellFont).Bold();
@@ -94,14 +95,16 @@ public class PdfGenerator
                         .FontSize(cellFont).Bold();
                     table.Cell().Element(TopBlock).Text(ssss.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(BuckVariety(ssss, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(BuckVariety(ssss, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(2).Element(BottomBlock).Text(BuckVariety(sss, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
 
                     table.Cell().Element(TopBlock).Text(sssd.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(DoeVariety(sssd, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(DoeVariety(sssd, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(4).Element(BottomBlock).Text(BuckVariety(ss, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
@@ -110,14 +113,16 @@ public class PdfGenerator
                         .FontSize(cellFont).Bold();
                     table.Cell().Element(TopBlock).Text(ssds.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(BuckVariety(ssds, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(BuckVariety(ssds, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(2).Element(BottomBlock).Text(DoeVariety(ssd, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
 
                     table.Cell().Element(TopBlock).Text(ssdd.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(DoeVariety(ssdd, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(DoeVariety(ssdd, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(8).Element(BottomBlock).Text(BuckVariety(s, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
@@ -128,14 +133,16 @@ public class PdfGenerator
                         .FontSize(cellFont).Bold();
                     table.Cell().Element(TopBlock).Text(sdss.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(BuckVariety(sdss, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(BuckVariety(sdss, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(2).Element(BottomBlock).Text(BuckVariety(sds, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
 
                     table.Cell().Element(TopBlock).Text(sdsd.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(DoeVariety(sdsd, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(DoeVariety(sdsd, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(4).Element(BottomBlock).Text(DoeVariety(sd, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
@@ -144,14 +151,16 @@ public class PdfGenerator
                         .FontSize(cellFont).Bold();
                     table.Cell().Element(TopBlock).Text(sdds.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(BuckVariety(sdds, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(BuckVariety(sdds, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(2).Element(BottomBlock).Text(DoeVariety(sdd, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
 
                     table.Cell().Element(TopBlock).Text(sddd.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(DoeVariety(sddd, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(DoeVariety(sddd, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(16).Element(BottomBlock)
                         .Text(ratSex switch
@@ -171,14 +180,16 @@ public class PdfGenerator
                         .FontSize(cellFont).Bold();
                     table.Cell().Element(TopBlock).Text(dsss.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(BuckVariety(dsss, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(BuckVariety(dsss, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(2).Element(BottomBlock).Text(BuckVariety(dss, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
 
                     table.Cell().Element(TopBlock).Text(dssd.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(DoeVariety(dssd, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(DoeVariety(dssd, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(4).Element(BottomBlock).Text(BuckVariety(ds, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
@@ -187,14 +198,16 @@ public class PdfGenerator
                         .FontSize(cellFont).Bold();
                     table.Cell().Element(TopBlock).Text(dsds.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(BuckVariety(dsds, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(BuckVariety(dsds, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(2).Element(BottomBlock).Text(DoeVariety(dsd, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
 
                     table.Cell().Element(TopBlock).Text(dsdd.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(DoeVariety(dsdd, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(DoeVariety(dsdd, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(8).Element(BottomBlock).Text(DoeVariety(d, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
@@ -205,14 +218,16 @@ public class PdfGenerator
                         .FontSize(cellFont).Bold();
                     table.Cell().Element(TopBlock).Text(ddss.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(BuckVariety(ddss, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(BuckVariety(ddss, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(2).Element(BottomBlock).Text(BuckVariety(dds, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
 
                     table.Cell().Element(TopBlock).Text(ddsd.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(DoeVariety(ddsd, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(DoeVariety(ddsd, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(4).Element(BottomBlock).Text(DoeVariety(dd, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
@@ -221,16 +236,20 @@ public class PdfGenerator
                         .FontSize(cellFont).Bold();
                     table.Cell().Element(TopBlock).Text(ddds.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(BuckVariety(ddds, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(BuckVariety(ddds, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
                     table.Cell().RowSpan(2).Element(BottomBlock).Text(DoeVariety(ddd, showSex)).FontFamily(fontName)
                         .FontSize(cellFont);
 
                     table.Cell().Element(TopBlock).Text(dddd.Name).FontFamily(fontName).FontSize(cellFont)
                         .Bold();
-                    table.Cell().Element(BottomBlock).Text(DoeVariety(dddd, showSex)).FontFamily(fontName).FontSize(cellFont);
+                    table.Cell().Element(BottomBlock).Text(DoeVariety(dddd, showSex)).FontFamily(fontName)
+                        .FontSize(cellFont);
 
-                    table.Cell().ColumnSpan(5).Element(Footer).Text($"Date of birth: {dateOfBirth?.ToString("dd/MM/yyyy.")} {footerText}");
+                    table.Cell().ColumnSpan(5).Element(Footer)
+                        .Text($"Date of birth: {dateOfBirth?.ToString("dd/MM/yyyy.")} {footerText}")
+                        .FontFamily(fontName).FontSize(settings.FooterFontSize);
                 });
             });
         });
