@@ -14,14 +14,14 @@ public class LitterEstimatorTests
     public LitterEstimatorTests()
     {
         this.parameters = this.faker.EstimationParameters();
-        this.estimator = new LitterEstimator(() => this.parameters);
+        this.estimator = new LitterEstimator(() => Task.FromResult(this.parameters));
     }
 
     [Fact]
-    public void Estimations_should_be_null_for_no_date_of_pairing_or_birth()
+    public async Task Estimations_should_be_null_for_no_date_of_pairing_or_birth()
     {
         var litter = new Litter {DateOfBirth = null, DateOfPairing = null};
-        this.estimator.EstimateFor(litter).ShouldSatisfyAllConditions(
+        (await this.estimator.EstimateFor(litter)).ShouldSatisfyAllConditions(
             estimate => estimate.EarliestDateOfBirth.ShouldBeNull(),
             estimate => estimate.LatestDateOfBirth.ShouldBeNull(),
             estimate => estimate.EarliestFullyWeanedDate.ShouldBeNull(),
@@ -30,10 +30,10 @@ public class LitterEstimatorTests
     }
 
     [Fact]
-    public void Estimation_should_have_all_values_when_date_of_pairing_set()
+    public async Task Estimation_should_have_all_values_when_date_of_pairing_set()
     {
         var litter = new Litter {DateOfBirth = null, DateOfPairing = this.faker.Date.PastDateOnly()};
-        this.estimator.EstimateFor(litter).ShouldSatisfyAllConditions(
+        (await this.estimator.EstimateFor(litter)).ShouldSatisfyAllConditions(
             estimate => estimate.EarliestDateOfBirth.ShouldNotBeNull(),
             estimate => estimate.LatestDateOfBirth.ShouldNotBeNull(),
             estimate => estimate.EarliestFullyWeanedDate.ShouldNotBeNull(),
@@ -42,10 +42,10 @@ public class LitterEstimatorTests
     }
     
     [Fact]
-    public void Estimation_should_only_have_values_after_birth_when_date_of_birth_set()
+    public async Task Estimation_should_only_have_values_after_birth_when_date_of_birth_set()
     {
         var litter = new Litter {DateOfBirth = this.faker.Date.PastDateOnly(), DateOfPairing = null};
-        this.estimator.EstimateFor(litter).ShouldSatisfyAllConditions(
+        (await this.estimator.EstimateFor(litter)).ShouldSatisfyAllConditions(
             estimate => estimate.EarliestDateOfBirth.ShouldBeNull(),
             estimate => estimate.LatestDateOfBirth.ShouldBeNull(),
             estimate => estimate.EarliestFullyWeanedDate.ShouldNotBeNull(),
@@ -54,57 +54,57 @@ public class LitterEstimatorTests
     }
     
     [Fact]
-    public void Earliest_date_of_birth_should_be_min_days_after_date_of_pairing()
+    public async Task Earliest_date_of_birth_should_be_min_days_after_date_of_pairing()
     {
         var dateOfPairing = this.faker.Date.RecentDateOnly();
         var litter = new Litter {DateOfPairing = dateOfPairing};
-        this.estimator.EstimateFor(litter)
+        (await this.estimator.EstimateFor(litter))
             .EarliestDateOfBirth.ShouldBe(dateOfPairing.AddDays(this.parameters.MinBirthDaysAfterPairing));
     }
     
     [Fact]
-    public void Latest_date_of_birth_should_be_max_days_after_date_of_pairing()
+    public async Task Latest_date_of_birth_should_be_max_days_after_date_of_pairing()
     {
         var dateOfPairing = this.faker.Date.RecentDateOnly();
         var litter = new Litter {DateOfPairing = dateOfPairing};
-        this.estimator.EstimateFor(litter)
+        (await this.estimator.EstimateFor(litter))
             .LatestDateOfBirth.ShouldBe(dateOfPairing.AddDays(this.parameters.MaxBirthDaysAfterPairing));
     }
     
     [Fact]
-    public void Earliest_fully_weaned_date_should_be_min_days_after_date_of_birth()
+    public async Task Earliest_fully_weaned_date_should_be_min_days_after_date_of_birth()
     {
         var dateOfBirth = this.faker.Date.RecentDateOnly();
         var litter = new Litter {DateOfBirth = dateOfBirth};
-        this.estimator.EstimateFor(litter)
+        (await this.estimator.EstimateFor(litter))
             .EarliestFullyWeanedDate.ShouldBe(dateOfBirth.AddDays(this.parameters.MinWeaningDaysAfterBirth));
     }
     
     [Fact]
-    public void Earliest_separation_date_should_be_min_days_after_date_of_birth()
+    public async Task Earliest_separation_date_should_be_min_days_after_date_of_birth()
     {
         var dateOfBirth = this.faker.Date.RecentDateOnly();
         var litter = new Litter {DateOfBirth = dateOfBirth};
-        this.estimator.EstimateFor(litter)
+        (await this.estimator.EstimateFor(litter))
             .EarliestSeparateSexesDate.ShouldBe(dateOfBirth.AddDays(this.parameters.MinSeparationDaysAfterBirth));
     }
     
     [Fact]
-    public void Earliest_rehome_date_should_be_min_days_after_date_of_birth()
+    public async Task Earliest_rehome_date_should_be_min_days_after_date_of_birth()
     {
         var dateOfBirth = this.faker.Date.RecentDateOnly();
         var litter = new Litter {DateOfBirth = dateOfBirth};
-        this.estimator.EstimateFor(litter)
+        (await this.estimator.EstimateFor(litter))
             .EarliestRehomeDate.ShouldBe(dateOfBirth.AddDays(this.parameters.MinRehomeDaysAfterBirth));
     }
 
     [Fact]
-    public void Earliest_fully_weaned_date_should_use_midpoint_estimate_for_date_of_birth_then_add_minimum()
+    public async Task Earliest_fully_weaned_date_should_use_midpoint_estimate_for_date_of_birth_then_add_minimum()
     {
         var midpoint = (this.parameters.MaxBirthDaysAfterPairing - this.parameters.MinBirthDaysAfterPairing) / 2;
         var dateOfPairing = this.faker.Date.RecentDateOnly();
         var litter = new Litter {DateOfPairing = dateOfPairing};
-        this.estimator.EstimateFor(litter)
+        (await this.estimator.EstimateFor(litter))
             .EarliestFullyWeanedDate.ShouldBe(
                 dateOfPairing
                     .AddDays(this.parameters.MinBirthDaysAfterPairing)
@@ -113,12 +113,12 @@ public class LitterEstimatorTests
     }
     
     [Fact]
-    public void Earliest_separation_date_should_use_midpoint_estimate_for_date_of_birth_then_add_minimum()
+    public async Task Earliest_separation_date_should_use_midpoint_estimate_for_date_of_birth_then_add_minimum()
     {
         var midpoint = (this.parameters.MaxBirthDaysAfterPairing - this.parameters.MinBirthDaysAfterPairing) / 2;
         var dateOfPairing = this.faker.Date.RecentDateOnly();
         var litter = new Litter {DateOfPairing = dateOfPairing};
-        this.estimator.EstimateFor(litter)
+        (await this.estimator.EstimateFor(litter))
             .EarliestSeparateSexesDate.ShouldBe(
                 dateOfPairing
                     .AddDays(this.parameters.MinBirthDaysAfterPairing)
@@ -127,12 +127,12 @@ public class LitterEstimatorTests
     }
 
     [Fact]
-    public void Earliest_rehome_date_should_use_midpoint_estimate_for_date_of_birth_then_add_minimum()
+    public async Task Earliest_rehome_date_should_use_midpoint_estimate_for_date_of_birth_then_add_minimum()
     {
         var midpoint = (this.parameters.MaxBirthDaysAfterPairing - this.parameters.MinBirthDaysAfterPairing) / 2;
         var dateOfPairing = this.faker.Date.RecentDateOnly();
         var litter = new Litter {DateOfPairing = dateOfPairing};
-        this.estimator.EstimateFor(litter)
+        (await this.estimator.EstimateFor(litter))
             .EarliestRehomeDate.ShouldBe(
                 dateOfPairing
                     .AddDays(this.parameters.MinBirthDaysAfterPairing)

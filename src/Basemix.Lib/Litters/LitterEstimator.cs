@@ -1,8 +1,10 @@
+using Basemix.Lib.Settings.Persistence;
+
 namespace Basemix.Lib.Litters;
 
 public class LitterEstimator
 {
-    public delegate EstimationParameters GetEstimationParameters();
+    public delegate Task<EstimationParameters> GetEstimationParameters();
 
     private readonly GetEstimationParameters getParameters;
 
@@ -11,9 +13,9 @@ public class LitterEstimator
         this.getParameters = getParameters;
     }
     
-    public Estimation EstimateFor(Litter litter)
+    public async Task<Estimation> EstimateFor(Litter litter)
     {
-        var parameters = this.getParameters();
+        var parameters = await this.getParameters();
         switch (litter)
         {
             case {DateOfPairing: not null, DateOfBirth: null}:
@@ -52,12 +54,24 @@ public record EstimationParameters(
     int MinSeparationDaysAfterBirth,
     int MinRehomeDaysAfterBirth)
 {
-    public static EstimationParameters Standard => new(
-        MinBirthDaysAfterPairing: 21,
-        MaxBirthDaysAfterPairing: 23,
-        MinWeaningDaysAfterBirth: (3 * 7) + 4,
-        MinSeparationDaysAfterBirth: (4 * 7) + 3,
-        MinRehomeDaysAfterBirth: 6 * 7);
+    public static Task<EstimationParameters> Standard =>
+        Task.FromResult(new EstimationParameters(
+            MinBirthDaysAfterPairing: 21,
+            MaxBirthDaysAfterPairing: 23,
+            MinWeaningDaysAfterBirth: (3 * 7) + 4,
+            MinSeparationDaysAfterBirth: (4 * 7) + 3,
+            MinRehomeDaysAfterBirth: 6 * 7));
+
+    public static async Task<EstimationParameters> FromSettings(IProfileRepository profileRepository)
+    {
+        var profile = await profileRepository.GetDefaultProfile();
+        return new EstimationParameters(
+            MinBirthDaysAfterPairing: profile.LitterEstimation.MinBirthDaysAfterPairing,
+            MaxBirthDaysAfterPairing: profile.LitterEstimation.MaxBirthDaysAfterPairing,
+            MinWeaningDaysAfterBirth: profile.LitterEstimation.MinWeaningDaysAfterBirth,
+            MinSeparationDaysAfterBirth: profile.LitterEstimation.MinSeparationDaysAfterBirth,
+            MinRehomeDaysAfterBirth: profile.LitterEstimation.MinRehomeDaysAfterBirth);
+    }
 }
 
 public record Estimation

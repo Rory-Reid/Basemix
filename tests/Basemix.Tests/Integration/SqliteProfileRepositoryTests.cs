@@ -33,7 +33,12 @@ public class SqliteProfileRepositoryTests : SqliteIntegration
             () => profile.Pedigree.Pdf.FontSize.ShouldBe(10),
             () => profile.Pedigree.Pdf.FooterFontSize.ShouldBe(10),
             () => profile.Pedigree.Pdf.HeaderFontSize.ShouldBe(36),
-            () => profile.Pedigree.Pdf.SubheaderFontSize.ShouldBe(26));
+            () => profile.Pedigree.Pdf.SubheaderFontSize.ShouldBe(26),
+            () => profile.LitterEstimation.MinBirthDaysAfterPairing.ShouldBe(21),
+            () => profile.LitterEstimation.MaxBirthDaysAfterPairing.ShouldBe(23),
+            () => profile.LitterEstimation.MinWeaningDaysAfterBirth.ShouldBe(25),
+            () => profile.LitterEstimation.MinSeparationDaysAfterBirth.ShouldBe(31),
+            () => profile.LitterEstimation.MinRehomeDaysAfterBirth.ShouldBe(42));
     }
 
     [Fact]
@@ -50,6 +55,11 @@ public class SqliteProfileRepositoryTests : SqliteIntegration
         profile.Pedigree.Pdf.FooterFontSize = this.faker.Random.Int(0, 100);
         profile.Pedigree.Pdf.HeaderFontSize = this.faker.Random.Int(0, 100);
         profile.Pedigree.Pdf.SubheaderFontSize = this.faker.Random.Int(0, 100);
+        profile.LitterEstimation.MinBirthDaysAfterPairing = this.faker.Random.Int(0, 100);
+        profile.LitterEstimation.MaxBirthDaysAfterPairing = this.faker.Random.Int(0, 100);
+        profile.LitterEstimation.MinWeaningDaysAfterBirth = this.faker.Random.Int(0, 100);
+        profile.LitterEstimation.MinSeparationDaysAfterBirth = this.faker.Random.Int(0, 100);
+        profile.LitterEstimation.MinRehomeDaysAfterBirth = this.faker.Random.Int(0, 100);
         
         await this.repository.UpdateProfileSettings(profile);
         var updatedProfile = await this.repository.GetDefaultProfile();

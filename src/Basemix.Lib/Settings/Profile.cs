@@ -6,6 +6,7 @@ public class Profile
     public string Name { get; set; } = null!;
     public string? RatteryName { get; set; }
     public PedigreeSettings Pedigree { get; set; } = null!;
+    public LitterEstimationParameters LitterEstimation { get; set; } = null!;
 
     public class PedigreeSettings
     {
@@ -22,5 +23,14 @@ public class Profile
             public int FontSize { get; set; }
             public int FooterFontSize { get; set; }
         }
+    }
+    
+    public class LitterEstimationParameters
+    {
+        public int MinBirthDaysAfterPairing { get; set; }
+        public int MaxBirthDaysAfterPairing { get; set; }
+        public int MinWeaningDaysAfterBirth { get; set; }
+        public int MinSeparationDaysAfterBirth { get; set; }
+        public int MinRehomeDaysAfterBirth { get; set; }
     }
 }

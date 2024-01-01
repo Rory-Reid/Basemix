@@ -19,6 +19,11 @@ public class PersistedProfile
         this.PedigreePdfSubheaderFontSize = profile.Pedigree.Pdf.SubheaderFontSize;
         this.PedigreePdfFontSize = profile.Pedigree.Pdf.FontSize;
         this.PedigreePdfFooterFontSize = profile.Pedigree.Pdf.FooterFontSize;
+        this.LitterEstimationMinDaysAfterPairing = profile.LitterEstimation.MinBirthDaysAfterPairing;
+        this.LitterEstimationMaxDaysAfterPairing = profile.LitterEstimation.MaxBirthDaysAfterPairing;
+        this.LitterEstimationMinWeaning = profile.LitterEstimation.MinWeaningDaysAfterBirth;
+        this.LitterEstimationMinSeparation = profile.LitterEstimation.MinSeparationDaysAfterBirth;
+        this.LitterEstimationMinRehome = profile.LitterEstimation.MinRehomeDaysAfterBirth;
     }
     
     public long Id { get; init; }
@@ -34,6 +39,12 @@ public class PersistedProfile
     public int PedigreePdfSubheaderFontSize { get; init; }
     public int PedigreePdfFontSize { get; init; }
     public int PedigreePdfFooterFontSize { get; init; }
+    
+    public int LitterEstimationMinDaysAfterPairing { get; init; }
+    public int LitterEstimationMaxDaysAfterPairing { get; init; }
+    public int LitterEstimationMinWeaning { get; init; }
+    public int LitterEstimationMinSeparation { get; init; }
+    public int LitterEstimationMinRehome { get; init; }
 
     public Profile ToModelledProfile() =>
         new()
@@ -54,6 +65,14 @@ public class PersistedProfile
                     FontSize = this.PedigreePdfFontSize,
                     FooterFontSize = this.PedigreePdfFooterFontSize
                 }
+            },
+            LitterEstimation = new Profile.LitterEstimationParameters
+            {
+                MinBirthDaysAfterPairing = this.LitterEstimationMinDaysAfterPairing,
+                MaxBirthDaysAfterPairing = this.LitterEstimationMaxDaysAfterPairing,
+                MinWeaningDaysAfterBirth = this.LitterEstimationMinWeaning,
+                MinSeparationDaysAfterBirth = this.LitterEstimationMinSeparation,
+                MinRehomeDaysAfterBirth = this.LitterEstimationMinRehome
             }
         };
 }

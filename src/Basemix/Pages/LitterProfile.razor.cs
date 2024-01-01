@@ -42,7 +42,7 @@ public partial class LitterProfile
 
         this.LitterLoaded = true;
         this.Litter = storedLitter;
-        this.Estimates = this.Estimator.EstimateFor(this.Litter);
+        this.Estimates = await this.Estimator.EstimateFor(this.Litter);
     }
     
     public void OpenRatProfile(long ratId)

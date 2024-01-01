@@ -8,7 +8,6 @@ using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats.Persistence;
 using Basemix.Lib.Settings.Persistence;
-using Basemix.Pages;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
@@ -67,12 +66,24 @@ namespace Basemix
             services.AddSingleton<IProfileRepository, SqliteProfileRepository>();
             services.AddSingleton<PdfGenerator>();
             services.AddSingleton(errorContext);
+            services.AddSingleton<ParameterLoader>();
             services.AddSingleton<LitterEstimator>();
-            services.AddSingleton<LitterEstimator.GetEstimationParameters>(() => EstimationParameters.Standard);
+            services.AddSingleton<LitterEstimator.GetEstimationParameters>(sp => sp.GetRequiredService<ParameterLoader>().LoadEstimationParameters);
 
             // UI Nonsense
             services.AddSingleton<JsInteropExports>();
             services.AddSingleton<HistoryBack>(s => s.GetRequiredService<JsInteropExports>().HistoryBack);
         }
+    }
+
+    public class ParameterLoader
+    {
+        private readonly IProfileRepository profileRepository;
+
+        public ParameterLoader(IProfileRepository profileRepository) =>
+            this.profileRepository = profileRepository;
+
+        public Task<EstimationParameters> LoadEstimationParameters() =>
+            EstimationParameters.FromSettings(this.profileRepository);
     }
 }

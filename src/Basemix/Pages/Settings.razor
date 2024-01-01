@@ -12,6 +12,22 @@ else
 {
     <SaveHeader OnSave="SaveAndGoBack"/>
 
+    @if (this.ShowError)
+    {
+        <div class="alert alert-danger" role="alert">
+            Settings are invalid and could not be saved:
+            <ul>
+                @foreach(var error in this.ErrorMessages)
+                {
+                    <li>@error</li>
+                }
+            </ul>
+            <br />
+            See <a href="https://www.nfrs.org/articles_novice_breeder.html">NFRS's Advice for the Novice Breeder</a> for
+            detail about rat breeding timelines. Basemix enforces values based on this guidance.
+        </div>
+    }
+    
     <h1>Settings</h1>
     
     <dl class="row">
@@ -61,6 +77,30 @@ else
         <dt class="col-sm-4">Litter name font size</dt>
         <dd class="col-sm-9">
             <input required type="number" @bind="Profile.Pedigree.Pdf.SubheaderFontSize"/>
+        </dd>
+    </dl>
+    
+    <h2>Litter Estimation settings</h2>
+    <dl class="row">
+        <dt class="col-sm-4">DOB days after pairing (minimum)</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.LitterEstimation.MinBirthDaysAfterPairing"/>
+        </dd>
+        <dt class="col-sm-4">DOB days after pairing (maximum)</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.LitterEstimation.MaxBirthDaysAfterPairing"/>
+        </dd>
+        <dt class="col-sm-4">Days after birth until fully weaned</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.LitterEstimation.MinWeaningDaysAfterBirth"/>
+        </dd>
+        <dt class="col-sm-4">Days after birth until sex separation</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.LitterEstimation.MinSeparationDaysAfterBirth"/>
+        </dd>
+        <dt class="col-sm-4">Days after birth until rehome</dt>
+        <dd class="col-sm-9">
+            <input required type="number" @bind="Profile.LitterEstimation.MinRehomeDaysAfterBirth"/>
         </dd>
     </dl>
 }

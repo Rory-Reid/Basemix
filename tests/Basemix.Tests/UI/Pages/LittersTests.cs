@@ -73,7 +73,7 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
     }
 
     [Fact]
-    public async Task Bred_by_me_only_true_by_default() => this.Page.BredByMeOnly.ShouldBeTrue();
+    public void Bred_by_me_only_true_by_default() => this.Page.BredByMeOnly.ShouldBeTrue();
 
     [Fact]
     public async Task Search_bred_by_me_only_true_returns_bred_litters_only()

@@ -65,7 +65,7 @@ public class LitterProfileTests : RazorPageTests<LitterProfile>
 
         await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
-        var expected = this.estimator.EstimateFor(litter);
+        var expected = await this.estimator.EstimateFor(litter);
         expected.IsEmpty.ShouldBeFalse();
         this.Page.Estimates.ShouldBeEquivalentTo(expected);
     }

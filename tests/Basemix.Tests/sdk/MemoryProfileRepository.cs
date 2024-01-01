@@ -45,6 +45,14 @@ public class MemoryProfileRepository : IProfileRepository
                 SubheaderFontSize = 26
             }
         };
+        profile.LitterEstimation = new()
+        {
+            MinBirthDaysAfterPairing = 21,
+            MaxBirthDaysAfterPairing = 23,
+            MinWeaningDaysAfterBirth = 21,
+            MinSeparationDaysAfterBirth = 28,
+            MinRehomeDaysAfterBirth = 42
+        };
     }
 
     private static Profile CopyOf(Profile profile) =>
@@ -66,6 +74,14 @@ public class MemoryProfileRepository : IProfileRepository
                     HeaderFontSize = profile.Pedigree.Pdf.HeaderFontSize,
                     SubheaderFontSize = profile.Pedigree.Pdf.SubheaderFontSize
                 }
+            },
+            LitterEstimation = new()
+            {
+                MinBirthDaysAfterPairing = profile.LitterEstimation.MinBirthDaysAfterPairing,
+                MaxBirthDaysAfterPairing = profile.LitterEstimation.MaxBirthDaysAfterPairing,
+                MinWeaningDaysAfterBirth = profile.LitterEstimation.MinWeaningDaysAfterBirth,
+                MinSeparationDaysAfterBirth = profile.LitterEstimation.MinSeparationDaysAfterBirth,
+                MinRehomeDaysAfterBirth = profile.LitterEstimation.MinRehomeDaysAfterBirth
             }
         };
 }
