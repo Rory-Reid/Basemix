@@ -1,13 +1,11 @@
-using System.Runtime.CompilerServices;
 using Basemix.Lib.Owners;
-using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Rats;
 
 namespace Basemix.Tests.sdk;
 
 public static class SqliteFixtureExtensions
 {
-    public static async Task<Rat> Seed(this SqliteFixture fixture, Rat rat, Owner? owner = null)
+    public static async Task<Rat> Seed(this ISqliteFixture fixture, Rat rat, Owner? owner = null)
     {
         var id = await fixture.RatsRepository.AddRat(rat);
         var seededRat = CopyOf(rat, id);
@@ -17,10 +15,11 @@ public static class SqliteFixtureExtensions
             await seededRat.SetOwner(fixture.RatsRepository, owner);
         }
         
+        await seededRat.Save(fixture.RatsRepository);
         return seededRat;
     }
 
-    public static async Task<Owner> Seed(this SqliteFixture fixture, Owner owner)
+    public static async Task<Owner> Seed(this ISqliteFixture fixture, Owner owner)
     {
         var id = await fixture.OwnersRepository.CreateOwner();
         var seededOwner = CopyOf(owner, id);
@@ -40,6 +39,8 @@ public static class SqliteFixtureExtensions
             ownerId: rat.OwnerId,
             ownerName: rat.OwnerName)
         {
+            Owned = rat.Owned,
+            DateOfDeath = rat.DateOfDeath,
             Notes = rat.Notes
         };
     }

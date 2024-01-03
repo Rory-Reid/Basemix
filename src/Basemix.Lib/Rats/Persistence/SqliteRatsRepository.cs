@@ -31,11 +31,11 @@ public class SqliteRatsRepository : IRatsRepository
             new PersistedRat(rat));
     }
 
-    public Task UpdateRat(Rat rat)
+    public async Task UpdateRat(Rat rat)
     {
         using var db = this.getDatabase();
 
-        return db.ExecuteAsync(
+        await db.ExecuteAsync(
             @"UPDATE rat
             SET
                 name=@Name,

@@ -49,14 +49,14 @@ public static class FakerExtensions
         faker.PickRandom(Varieties);
 
     public static Rat Rat(this Faker faker, RatIdentity? id = null, string? name = null, Sex? sex = null,
-        DateOnly? dateOfBirth = null, DateOnly? dateOfDeath = null, bool? owned = null, Owner? owner = null)
+        DateOnly? dateOfBirth = null, DateOnly? dateOfDeath = null, bool? owned = null, Owner? owner = null, float sexProbability = 1.0f)
     {
-        var ratSex = sex ?? faker.PickNonDefault<Sex>();
+        var ratSex = sex ?? (faker.Random.Bool(sexProbability) ? faker.PickNonDefault<Sex>() : null);
         var ratName = name ?? ratSex switch
         {
             Sex.Buck => faker.Name.FirstName(Name.Gender.Male),
             Sex.Doe => faker.Name.FirstName(Name.Gender.Female),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => faker.Name.FirstName()
         };
 
         var ownedByUser = owner == null && (owned ?? faker.Random.Bool());
