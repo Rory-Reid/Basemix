@@ -1,0 +1,115 @@
+@page "/stats"
+@using Basemix.Lib.Statistics
+@using System.Runtime.CompilerServices
+@using System.Runtime.InteropServices
+
+<BackButton/>
+<hr />
+
+<h1>Statistics</h1>
+
+<br />
+
+@if (Stats.BredLitters.TotalBredRats > 0)
+{
+    <h2>My litters</h2>
+    
+    <p>
+        <em>
+            Litters you have bred. Anything that has a tick in "Bred by me".
+        </em>
+    </p>
+
+    <p>
+        Total bred: @Stats.BredLitters.TotalBredRats rats (@Stats.BredLitters.TotalBucks bucks & @Stats.BredLitters.TotalDoes does)<br/>
+        Total not recorded dead: @Stats.BredLitters.TotalNotRecordedDead rats <br/>
+        @if (Stats.BredLitters.LongestLife.TotalDays > 0)
+        {
+            @($"Longest life of a bred rat: {Yearify(Stats.BredLitters.LongestLife)} years ({Stats.BredLitters.LongestLife.TotalDays} days)") <br />
+        }
+        @if (Stats.BredLitters.AverageAge.TotalDays > 0)
+        {
+            @($"Average age of bred rats: {Yearify(Stats.BredLitters.AverageAge)} years ({Stats.BredLitters.AverageAge.TotalDays} days)") <br/>
+        }
+        Average gestation period: @Stats.BredLitters.AverageGestationDays.TotalDays days <br/>
+        Total rehomed: @Stats.BredLitters.TotalRehomed rats <br/>
+        Smallest litter: @Stats.BredLitters.SmallestLitter rats <br/>
+        Biggest litter: @Stats.BredLitters.BiggestLitter rats <br/>
+        Average litter size: @Math.Round(Stats.BredLitters.AverageLitterSize, 2) rats <br/>
+    </p>
+}
+
+@if (Stats.OwnedRats.Total > 0)
+{
+    <h2>My rats</h2>
+    
+    <p>
+        <em>
+            Rats you currently own. Anything that has a tick in "Owned by me".
+        </em>
+    </p>
+    
+    <p>
+        Total: @Stats.OwnedRats.Total rats (@Stats.OwnedRats.TotalBucks bucks & @Stats.OwnedRats.TotalDoes does)<br/>
+        Total not recorded dead: @Stats.OwnedRats.TotalNotRecordedDead rats <br/>
+        @if (Stats.OwnedRats.LongestLife.TotalDays > 0)
+        {
+            @($"Longest life: {Yearify(Stats.OwnedRats.LongestLife)} years ({Stats.OwnedRats.LongestLife.TotalDays} days)") <br/>
+        }
+        @if (Stats.OwnedRats.AverageAge.TotalDays > 0)
+        {
+            @($"Average age: {Yearify(Stats.OwnedRats.AverageAge)} years ({Stats.OwnedRats.AverageAge.TotalDays} days)") <br/>
+        }
+        
+        Most common variety: @Stats.OwnedRats.MostCommonVariety (@Stats.OwnedRats.MostCommonVarietyCount rats)<br/>
+    </p>
+}
+
+@if (Stats.Owners.TopOwners.Count > 0)
+{
+    <h2>Owners</h2>
+    <p>
+        <em>
+            Owners who own rats that <strong>you</strong> have bred. Owners of your foundations, for example, will not
+            be used in these statistics.
+        </em>
+    </p>
+
+    <p>Top owners:</p>
+    <ol>
+        @foreach (var owner in Stats.Owners.TopOwners)
+        {
+            <li>@owner.Name (@owner.RatCount rats)</li>
+        }
+    </ol>
+}
+
+<h2>System stats</h2>
+
+<p>
+    Total rats in database: @Stats.System.TotalRats (@Stats.System.TotalOwnedRats owned)<br/>
+    Total litters in database: @Stats.System.TotalLitters (@Stats.System.TotalBredLitters bred)<br/>
+    Total owners in database: @Stats.System.TotalOwners<br/>
+    Database created on: @Stats.System.DatabaseCreatedOn.ToShortDateString()
+</p>
+
+@code {
+
+    [Inject] public IStatisticsRepository StatisticsRepository { get; set; } = null!;
+
+    public StatisticsOverview Stats { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        this.Stats = await this.StatisticsRepository.GetStatisticsOverview();
+    }
+
+    public bool SomeCondition()
+    {
+        return true;
+    }
+
+    public static double Yearify(TimeSpan timeSpan) =>
+        Math.Round(timeSpan.TotalDays / 365, 2);
+}
+

@@ -8,6 +8,7 @@ using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats.Persistence;
 using Basemix.Lib.Settings.Persistence;
+using Basemix.Lib.Statistics;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
@@ -64,6 +65,7 @@ namespace Basemix
             services.AddSingleton<IPedigreeRepository, SqlitePedigreeRepository>();
             services.AddSingleton<IOwnersRepository, SqliteOwnersRepository>();
             services.AddSingleton<IProfileRepository, SqliteProfileRepository>();
+            services.AddSingleton<IStatisticsRepository, SqliteStatisticsRepository>();
             services.AddSingleton<PdfGenerator>();
             services.AddSingleton(errorContext);
             services.AddSingleton<ParameterLoader>();
