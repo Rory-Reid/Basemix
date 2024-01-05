@@ -51,7 +51,7 @@ public class EditRatTests : RazorPageTests<EditRat>
             page => page.Rat.ShouldBe(rat),
             page => page.RatForm.ShouldSatisfyAllConditions(
                 form => form.Name.ShouldBe(rat.Name),
-                form => form.Sex.ShouldBe(rat.Sex.ToString()),
+                form => form.Sex.ShouldBe(rat.Sex?.ToString()),
                 form => form.DateOfBirth.ShouldBe(rat.DateOfBirth),
                 form => form.Notes.ShouldBe(rat.Notes)));
     }

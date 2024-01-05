@@ -20,7 +20,13 @@ public class SqliteCollection : ICollectionFixture<SqliteFixture>
 {
 }
 
-public class SqliteFixture
+public interface ISqliteFixture
+{
+    public SqliteRatsRepository RatsRepository { get; }
+    public SqliteOwnersRepository OwnersRepository { get; }
+}
+
+public class SqliteFixture : ISqliteFixture
 {
     public string Database => "test-db.sqlite";
 

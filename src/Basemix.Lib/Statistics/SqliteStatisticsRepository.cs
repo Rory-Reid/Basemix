@@ -21,26 +21,26 @@ public class SqliteStatisticsRepository : IStatisticsRepository
         var statistics = await db.QuerySingleAsync<PersistedStatisticsOverview>( // TODO maybe break this down into views?
             """
             SELECT
-              SUM(litter_stats.litter_size)                               AS total_bred_rats,
-              SUM(litter_stats.buck_count)                                AS total_bucks,
-              SUM(litter_stats.doe_count)                                 AS total_does,
-              SUM(litter_stats.litter_size - litter_stats.dead_count)     AS total_not_recorded_dead,
-              MAX(litter_stats.longest_life)                              AS longest_life,
-              (SUM(litter_stats.sum_age) / SUM(litter_stats.litter_size)) AS avg_age,
-              AVG(l.date_of_birth - l.date_of_pairing)                    AS avg_gestation,
-              SUM(litter_stats.rehomed_count)                             AS total_rehomed,
-              MIN(litter_stats.litter_size)                               AS min_litter_size,
-              MAX(litter_stats.litter_size)                               AS max_litter_size,
-              AVG(litter_stats.litter_size)                               AS avg_litter_size,
+              SUM(litter_stats.litter_size)                                  AS total_bred_rats,
+              SUM(litter_stats.buck_count)                                   AS total_bucks,
+              SUM(litter_stats.doe_count)                                    AS total_does,
+              SUM(litter_stats.litter_size - litter_stats.dead_count)        AS total_not_recorded_dead,
+              MAX(litter_stats.longest_life)                                 AS longest_life,
+              (SUM(litter_stats.sum_age) / SUM(litter_stats.dead_count))     AS avg_age,
+              AVG(litter_stats.gestation_period)                             AS avg_gestation,
+              SUM(litter_stats.rehomed_count)                                AS total_rehomed,
+              MIN(litter_stats.litter_size)                                  AS min_litter_size,
+              MAX(litter_stats.litter_size)                                  AS max_litter_size,
+              AVG(litter_stats.litter_size)                                  AS avg_litter_size,
               
-              owned_rats.count                                            AS total_owned_rats,
-              owned_rats.buck_count                                       AS total_owned_bucks,
-              owned_rats.doe_count                                        AS total_owned_does,
-              (owned_rats.count - owned_rats.dead_count)                  AS total_owned_not_dead,
-              owned_rats.longest_life                                     AS longest_owned_life,
-              owned_rats.sum_age                                          AS avg_owned_age,
-              owned_rats.most_common_variety                              AS most_common_owned_variety,
-              owned_rats.most_common_variety_count                        AS most_common_owned_variety_count,
+              owned_rats.count                                               AS total_owned_rats,
+              owned_rats.buck_count                                          AS total_owned_bucks,
+              owned_rats.doe_count                                           AS total_owned_does,
+              (owned_rats.count - owned_rats.dead_count)                     AS total_owned_not_dead,
+              owned_rats.longest_life                                        AS longest_owned_life,
+              owned_rats.sum_age                                             AS avg_owned_age,
+              owned_rats.most_common_variety                                 AS most_common_owned_variety,
+              owned_rats.most_common_variety_count                           AS most_common_owned_variety_count,
               
               (
                 SELECT json_group_array(json_object('name', owner_name, 'ratCount', owner_rat_count))
@@ -51,18 +51,18 @@ public class SqliteStatisticsRepository : IStatisticsRepository
                   JOIN rat r ON o.id = r.owner_id
                   JOIN litter l on r.litter_id = l.id
                   WHERE l.bred_by_me IS TRUE
-                  GROUP BY o.id ORDER BY owner_rat_count DESC LIMIT 3
+                  GROUP BY o.id ORDER BY owner_rat_count DESC, o.id LIMIT 3
                 )
               ) AS top_3_owners,
             
-              db_stats.applied                                            AS db_created_at,
-              system_stats.rat_count                                      AS system_rat_count,
-              system_stats.owned_rat_count                                AS system_owned_rat_count,
-              system_stats.litter_count                                   AS system_litter_count,
-              system_stats.bred_litter_count                              AS system_bred_litter_count,
-              system_stats.owner_count                                    AS system_owner_count
-            FROM Litter l
-            JOIN
+              (SELECT applied FROM schemaversions WHERE schemaversionid = 1) AS db_created_at,
+              system_stats.rat_count                                         AS system_rat_count,
+              system_stats.owned_rat_count                                   AS system_owned_rat_count,
+              system_stats.litter_count                                      AS system_litter_count,
+              system_stats.bred_litter_count                                 AS system_bred_litter_count,
+              system_stats.owner_count                                       AS system_owner_count
+            FROM (SELECT 'Statistics')
+            LEFT JOIN
             (
               SELECT
                 l.id,
@@ -72,13 +72,14 @@ public class SqliteStatisticsRepository : IStatisticsRepository
                 COUNT(CASE WHEN r.owned IS FALSE THEN 1 END)            AS rehomed_count,
                 COUNT(CASE WHEN r.date_of_death IS NOT NULL THEN 1 END) AS dead_count,
                 SUM((r.date_of_death - r.date_of_birth))                AS sum_age,
-                MAX((r.date_of_death - r.date_of_birth))                AS longest_life
+                MAX((r.date_of_death - r.date_of_birth))                AS longest_life,
+                l.date_of_birth - l.date_of_pairing                     AS gestation_period
               FROM litter l
               LEFT JOIN rat r on l.id = r.litter_id
               WHERE l.bred_by_me IS TRUE
               GROUP BY l.id
-            ) litter_stats ON litter_stats.id = l.id
-            JOIN
+            ) litter_stats ON TRUE
+            LEFT JOIN
             (
               SELECT
                 COUNT(*) AS count,
@@ -94,12 +95,11 @@ public class SqliteStatisticsRepository : IStatisticsRepository
               (
                 SELECT COUNT(*) AS count, variety AS name
                 FROM rat WHERE owned IS TRUE
-                GROUP BY variety ORDER BY count DESC LIMIT 1
+                GROUP BY variety ORDER BY count DESC, variety LIMIT 1
               ) most_common_variety ON TRUE
               WHERE owned IS TRUE
             ) owned_rats ON TRUE
-            JOIN (SELECT applied FROM schemaversions WHERE schemaversionid = 1) db_stats ON TRUE
-            JOIN
+            LEFT JOIN
             (
               SELECT
                 r.count       AS rat_count,

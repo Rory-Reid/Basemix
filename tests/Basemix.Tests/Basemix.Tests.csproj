@@ -30,4 +30,8 @@
       <ProjectReference Include="..\..\src\Basemix.Lib\Basemix.Lib.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Statistics\" />
+    </ItemGroup>
+
 </Project>
