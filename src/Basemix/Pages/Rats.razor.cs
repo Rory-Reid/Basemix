@@ -8,14 +8,12 @@ public partial class Rats
 {
     [Inject] public IRatsRepository Repository { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
+    [Inject] public FilterContext Filter { get; set; } = null!;
     
     public List<RatSearchResult> RatsList { get; private set; } = new();
 
     public string? SearchTerm { get; set; }
 
-    public bool HideDeceased { get; set; } = true;
-    public bool OwnedOnly { get; set; } = true;
-    
     protected override async Task OnParametersSetAsync()
     {
         await this.Search();
@@ -36,7 +34,7 @@ public partial class Rats
     {
         this.RatsList = await this.Repository.SearchRat(
             this.SearchTerm,
-            this.HideDeceased ? false : null,
-            this.OwnedOnly ? true : null);
+            this.Filter.RatsHideDeceased ? false : null,
+            this.Filter.RatsHideUnowned ? true : null);
     }
 }

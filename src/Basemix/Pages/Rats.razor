@@ -15,11 +15,11 @@
     </div>
 </div>
 <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="deceasedCheckbox" @bind="@HideDeceased" @bind:after="@Search">
+    <input type="checkbox" class="form-check-input" id="deceasedCheckbox" @bind="@Filter.RatsHideDeceased" @bind:after="@Search">
     <label class="form-check-label" for="deceasedCheckbox">Hide deceased</label>
 </div>
 <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="ownedCheckbox" @bind="@OwnedOnly" @bind:after="@Search">
+    <input type="checkbox" class="form-check-input" id="ownedCheckbox" @bind="@Filter.RatsHideUnowned" @bind:after="@Search">
     <label class="form-check-label" for="ownedCheckbox">Hide unowned</label>
 </div>
 

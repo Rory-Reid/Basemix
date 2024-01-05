@@ -8,11 +8,10 @@ public partial class Litters
 {
     [Inject] public ILittersRepository Repository { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
+    [Inject] public FilterContext Filter { get; set; } = null!;
     
     public List<LitterOverview> LitterList { get; private set; } = new();
 
-    public bool BredByMeOnly { get; set; } = true;
-    
     protected override async Task OnParametersSetAsync()
     {
         await this.Search();
@@ -32,6 +31,6 @@ public partial class Litters
     public async Task Search()
     {
         this.LitterList = await this.Repository.SearchLitters(
-            this.BredByMeOnly ? true : null);
+            this.Filter.LittersShowOnlyBredByMe ? true : null);
     }
 }

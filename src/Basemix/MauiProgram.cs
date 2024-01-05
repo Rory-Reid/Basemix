@@ -72,6 +72,7 @@ namespace Basemix
             services.AddSingleton<ParameterLoader>();
             services.AddSingleton<LitterEstimator>();
             services.AddSingleton<LitterEstimator.GetEstimationParameters>(sp => sp.GetRequiredService<ParameterLoader>().LoadEstimationParameters);
+            services.AddSingleton<FilterContext>();
 
             // UI Nonsense
             services.AddSingleton<JsInteropExports>();

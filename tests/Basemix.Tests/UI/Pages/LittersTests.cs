@@ -15,7 +15,8 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
         new()
         {
             Repository = this.repository,
-            Nav = this.nav
+            Nav = this.nav,
+            Filter = new FilterContext()
         };
 
     [Fact]
@@ -73,7 +74,7 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
     }
 
     [Fact]
-    public void Bred_by_me_only_true_by_default() => this.Page.BredByMeOnly.ShouldBeTrue();
+    public void Bred_by_me_only_true_by_default() => this.Page.Filter.LittersShowOnlyBredByMe.ShouldBeTrue();
 
     [Fact]
     public async Task Search_bred_by_me_only_true_returns_bred_litters_only()
@@ -83,7 +84,7 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
         this.repository.Litters[matchingLitter.Id] = matchingLitter;
         this.repository.Litters[this.faker.Id()] = this.faker.Litter(bredByMe: false);
 
-        this.Page.BredByMeOnly = true;
+        this.Page.Filter.LittersShowOnlyBredByMe = true;
         await this.Page.Search();
         
         this.Page.LitterList
@@ -105,7 +106,7 @@ public class LittersTests : RazorPageTests<Basemix.Pages.Litters>
         this.repository.Litters[matchingLitter.Id] = matchingLitter;
         this.repository.Litters[this.faker.Id()] = this.faker.Litter(bredByMe: false);
 
-        this.Page.BredByMeOnly = false;
+        this.Page.Filter.LittersShowOnlyBredByMe = false;
         await this.Page.Search();
         
         this.Page.LitterList.Count.ShouldBe(2);

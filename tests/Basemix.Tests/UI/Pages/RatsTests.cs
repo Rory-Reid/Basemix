@@ -15,7 +15,8 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
         new()
         {
             Repository = this.repository,
-            Nav = this.nav
+            Nav = this.nav,
+            Filter = new FilterContext()
         };
     
     [Fact]
@@ -76,7 +77,7 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
     }
 
     [Fact]
-    public void Hide_deceased_true_by_default() => this.Page.HideDeceased.ShouldBeTrue();
+    public void Hide_deceased_true_by_default() => this.Page.Filter.RatsHideDeceased.ShouldBeTrue();
 
     [Fact]
     public async Task Search_with_hide_deceased_true_hides_deceased_rats()
@@ -87,7 +88,7 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
         this.repository.Rats[matchingRatId] = matchingRat;
         this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: true, dateOfDeath: this.faker.Date.RecentDateOnly());
 
-        this.Page.HideDeceased = true;
+        this.Page.Filter.RatsHideDeceased = true;
         await this.Page.Search();
         
         this.Page.RatsList
@@ -101,14 +102,14 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
         this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: true);
         this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: true, dateOfDeath: this.faker.Date.RecentDateOnly());
 
-        this.Page.HideDeceased = false;
+        this.Page.Filter.RatsHideDeceased = false;
         await this.Page.Search();
         
         this.Page.RatsList.Count.ShouldBe(2);
     }
 
     [Fact]
-    public void OwnedOnly_true_by_default() => this.Page.OwnedOnly.ShouldBeTrue();
+    public void OwnedOnly_true_by_default() => this.Page.Filter.RatsHideUnowned.ShouldBeTrue();
     
     [Fact]
     public async Task Search_with_owned_only_true_only_returns_owned_rats()
@@ -119,7 +120,7 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
         this.repository.Rats[matchingRatId] = matchingRat;
         this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: false);
 
-        this.Page.OwnedOnly = true;
+        this.Page.Filter.RatsHideUnowned = true;
         await this.Page.Search();
         
         this.Page.RatsList
@@ -133,7 +134,7 @@ public class RatsTests : RazorPageTests<Basemix.Pages.Rats>
         this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: true);
         this.repository.Rats[this.faker.Id()] = this.faker.Rat(owned: false);
 
-        this.Page.OwnedOnly = false;
+        this.Page.Filter.RatsHideUnowned = false;
         await this.Page.Search();
         
         this.Page.RatsList.Count.ShouldBe(2);

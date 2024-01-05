@@ -7,7 +7,7 @@
 <p>Click any litter to view details.</p>
 
 <div class="form-check">
-    <input type="checkbox" class="form-check-input" id="ownedCheckbox" @bind="@BredByMeOnly" @bind:after="@Search">
+    <input type="checkbox" class="form-check-input" id="ownedCheckbox" @bind="@Filter.LittersShowOnlyBredByMe" @bind:after="@Search">
     <label class="form-check-label" for="ownedCheckbox">Only show bred by me</label>
 </div>
 
