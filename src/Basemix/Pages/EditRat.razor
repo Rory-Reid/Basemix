@@ -1,5 +1,6 @@
 @page "/rats/{Id:long}/edit"
 @using Basemix.Lib.Rats
+@using Basemix.Lib.Settings.Persistence
 
 
 @if (!RatLoaded)
@@ -52,11 +53,30 @@ else
         <dd class="col-sm-9">
             <input required class="form-control" type="date" id="dateOfBirthInput" @bind="RatForm.DateOfBirth"/>
         </dd>
-
-        <dt class="col-sm-2">Date of Death</dt>
+        
+        <dt class="col-sm-2">Dead</dt>
         <dd class="col-sm-9">
-            <input class="form-control" type="date" id="dateOfDeathInput" @bind="RatForm.DateOfDeath"/>
+            <input required type="checkbox" @bind="RatForm.Dead"/>
         </dd>
+        
+        @if (RatForm.Dead)
+        {
+            <dt class="col-sm-2">Date of Death</dt>
+            <dd class="col-sm-9">
+                <input class="form-control" type="date" id="dateOfDeathInput" @bind="RatForm.DateOfDeath"/>
+            </dd>
+
+            <dt class="col-sm-2">Cause of Death</dt>
+            <dd class="col-sm-9">
+                <select id="causeOfDeathInput" @bind="RatForm.DeathReasonId">
+                    <option value="">-</option>
+                    @foreach (var reason in DeathReasonOptions)
+                    {
+                        <option value="@reason.Id">@reason.Reason</option>
+                    }
+                </select>
+            </dd>
+        }
 
         <dt class="col-sm-2">Sex</dt>
         <dd class="col-sm-9">

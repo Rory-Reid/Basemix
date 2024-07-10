@@ -2,6 +2,7 @@ using Basemix.Lib.Litters;
 using Basemix.Lib.Owners;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
+using Basemix.Lib.Settings.Persistence;
 using Bogus;
 using Bogus.DataSets;
 
@@ -174,4 +175,7 @@ public static class FakerExtensions
             minSeparation,
             minRehome);
     }
+    
+    public static DeathReason DeathReason(this Faker faker, string? name = null) =>
+        new(faker.Random.Long(1), name ?? faker.Lorem.Word());
 }

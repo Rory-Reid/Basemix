@@ -43,7 +43,9 @@ public class SqliteRatsRepository : IRatsRepository
                 variety=@Variety,
                 date_of_birth=@DateOfBirth,
                 notes=@Notes,
+                dead=@Dead,
                 date_of_death=@DateOfDeath,
+                death_reason_id=@DeathReasonId,
                 owned=@Owned,
                 owner_id=@OwnerId
             WHERE id=@Id",
@@ -56,10 +58,12 @@ public class SqliteRatsRepository : IRatsRepository
         
         using var reader = await db.QueryMultipleAsync( // TODO simplify the weird dam/sire stuff
             @"SELECT
-                rat.id, rat.name, rat.sex, rat.variety, rat.date_of_birth, rat.notes, rat.date_of_death, rat.owned,
-                rat.owner_id, owner.name as owner_name
+                rat.id, rat.name, rat.sex, rat.variety, rat.date_of_birth, rat.notes, rat.dead, rat.date_of_death,
+                rat.death_reason_id, death_reason.reason AS death_reason, rat.owned, rat.owner_id,
+                owner.name as owner_name
             FROM rat
             LEFT JOIN owner ON owner.id = rat.owner_id
+            LEFT JOIN death_reason ON rat.death_reason_id = death_reason.id
             WHERE rat.id=@Id;
 
             SELECT
@@ -69,8 +73,8 @@ public class SqliteRatsRepository : IRatsRepository
                 sire.name as sire_name,
                 (SELECT COUNT(id) FROM rat WHERE litter_id=litter.id) AS offspring_count
             FROM litter
-            LEFT JOIN rat dam on dam.id=dam_id
-            LEFT JOIN rat sire on sire.id=sire_id
+            LEFT JOIN rat dam ON dam.id=dam_id
+            LEFT JOIN rat sire ON sire.id=sire_id 
             WHERE litter.dam_id=@Id OR litter.sire_id=@Id",
             new { Id = id });
 

@@ -3,6 +3,7 @@ using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
+using Basemix.Lib.Settings.Persistence;
 using Basemix.Tests.sdk;
 using Bogus;
 using Dapper;
@@ -367,9 +368,28 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             () => result.OwnerId.ShouldBe(owner.Id),
             () => result.OwnerName.ShouldBe(owner.Name));
     }
+
+    [Fact]
+    public async Task Can_save_and_load_death_reason()
+    {
+        using var db = this.fixture.GetConnection();
+        var deathReasons = await db.QueryAsync<(long id, string reason)>(
+            "SELECT id, reason FROM death_reason");
+        var deathReason = this.faker.PickRandom(deathReasons);
+        
+        var rat = await Rat.Create(this.repository);
+        rat.Dead = true;
+        rat.DeathReason = new DeathReason(deathReason.id, deathReason.reason);
+        await rat.Save(this.repository);
+        
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull().ShouldSatisfyAllConditions(
+            () => result.Dead.ShouldBeTrue(),
+            () => result.DeathReason.ShouldBe(rat.DeathReason));
+    }
     
     // ReSharper disable InconsistentNaming
     private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes,
-        long? litter_id, long? date_of_death, string? death_reason, long owned, long owner_id);
+        long? litter_id, long? date_of_death, long owned, long owner_id, long dead, long? death_reason_id);
     // ReSharper restore InconsistentNaming
 }

@@ -48,6 +48,12 @@ else
             <dt class="col-sm-2">Date of Death</dt>
             <dd class="col-sm-9">@Rat.DateOfDeath</dd>
         }
+        
+        @if(Rat.DeathReason != null)
+        {
+            <dt class="col-sm-2">Cause of Death</dt>
+            <dd class="col-sm-9">@Rat.DeathReason.Reason</dd>
+        }
 
         <dt class="col-sm-2">Sex</dt>
         <dd class="col-sm-9">@Rat.Sex</dd>

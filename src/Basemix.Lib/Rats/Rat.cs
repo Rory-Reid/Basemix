@@ -2,6 +2,7 @@ using Basemix.Lib.Identity;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Owners;
 using Basemix.Lib.Rats.Persistence;
+using Basemix.Lib.Settings.Persistence;
 
 namespace Basemix.Lib.Rats;
 
@@ -34,7 +35,9 @@ public class Rat
     public Sex? Sex { get; set; }
     public string? Variety { get; set; }
     public DateOnly? DateOfBirth { get; set; }
+    public bool Dead { get; set; }
     public DateOnly? DateOfDeath { get; set; }
+    public DeathReason? DeathReason { get; set; }
     public string? Notes { get; set; }
     
     public List<RatLitter> Litters { get; }
