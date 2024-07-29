@@ -65,7 +65,7 @@ public class SqliteStatisticsRepository : IStatisticsRepository
                 COUNT(CASE WHEN r.sex = 'Buck' THEN 1 END)              AS buck_count,
                 COUNT(CASE WHEN r.sex = 'Doe' THEN 1 END)               AS doe_count,
                 COUNT(CASE WHEN r.owned IS FALSE THEN 1 END)            AS rehomed_count,
-                COUNT(CASE WHEN r.date_of_death IS NOT NULL THEN 1 END) AS dead_count,
+                COUNT(CASE WHEN r.dead IS TRUE THEN 1 END)              AS dead_count,
                 SUM((r.date_of_death - r.date_of_birth))                AS sum_age,
                 MAX((r.date_of_death - r.date_of_birth))                AS longest_life,
                 l.date_of_birth - l.date_of_pairing                     AS gestation_period

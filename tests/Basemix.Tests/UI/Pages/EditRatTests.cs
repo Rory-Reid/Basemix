@@ -16,6 +16,7 @@ public class EditRatTests : RazorPageTests<EditRat>
     private MemoryRatsRepository ratsRepository = null!;
     private MemoryLittersRepository littersRepository = null!;
     private MemoryOwnersRepository ownersRepository = null!;
+    private MemoryOptionsRepository optionsRepository = null!;
     
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override EditRat CreatePage()
@@ -23,6 +24,7 @@ public class EditRatTests : RazorPageTests<EditRat>
         this.ratsRepository = new MemoryRatsRepository(this.backplane);
         this.littersRepository = new MemoryLittersRepository(this.backplane);
         this.ownersRepository = new MemoryOwnersRepository(this.backplane);
+        this.optionsRepository = new MemoryOptionsRepository(this.backplane);
         
         // TODO - edit rat shouldn't crash without a rat
         var rat = this.faker.Rat(id: this.faker.Id());
@@ -34,6 +36,7 @@ public class EditRatTests : RazorPageTests<EditRat>
             Repository = this.ratsRepository,
             LittersRepository = this.littersRepository,
             OwnersRepository = this.ownersRepository,
+            OptionsRepository = this.optionsRepository,
             JsRuntime = new NullJsRuntime(),
             Nav = this.nav
         };
@@ -312,5 +315,53 @@ public class EditRatTests : RazorPageTests<EditRat>
         this.ratsRepository.Rats[this.Page.Id].ShouldSatisfyAllConditions(
             storedRat => storedRat.OwnerId.ShouldBeNull(),
             storedRat => storedRat.OwnerName.ShouldBeNull());
+    }
+
+    [Fact]
+    public async Task Loads_death_reason_on_parameters_set()
+    {
+        var deathReason = this.faker.DeathReason();
+        this.backplane.Seed(deathReason);
+        
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        this.Page.DeathReasonOptions.ShouldContain(deathReason);
+    }
+
+    [Fact]
+    public async Task Can_set_rat_is_dead()
+    {
+        var rat = this.faker.Rat(id: this.Page.Id);
+        this.ratsRepository.Rats[rat.Id] = rat;
+
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        this.Page.RatForm.Dead = true;
+        await this.Page.SaveAndGoBack();
+        
+        this.ratsRepository.Rats[rat.Id].Dead.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Can_set_rat_death_reason_from_list()
+    {
+        var rat = this.faker.Rat(id: this.Page.Id);
+        this.ratsRepository.Rats[rat.Id] = rat;
+
+        for (var i = 0; i < 10; i++)
+        {
+            this.backplane.Seed(this.faker.DeathReason());
+        }
+
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        var selectedReason = this.faker.PickRandom(this.Page.DeathReasonOptions);
+        this.Page.RatForm.Dead = true;
+        this.Page.RatForm.DeathReasonId = selectedReason.Id;
+        await this.Page.SaveAndGoBack();
+        
+        this.ratsRepository.Rats[rat.Id].ShouldSatisfyAllConditions(
+            storedRat => storedRat.Dead.ShouldBeTrue(),
+            storedRat => storedRat.DeathReason.ShouldBe(selectedReason));
     }
 }

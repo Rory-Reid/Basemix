@@ -3,6 +3,7 @@ using Basemix.Lib.Owners;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Settings;
+using Basemix.Lib.Settings.Persistence;
 using Bogus;
 
 namespace Basemix.Tests.sdk;
@@ -20,6 +21,8 @@ public class MemoryPersistenceBackplane
     
     public Dictionary<RatIdentity, Node> Pedigrees { get; } = new();
     public Dictionary<long, Profile> Profiles { get; } = new();
+
+    public Dictionary<long, DeathReason> DeathReasons { get; } = new();
 
     public void Seed(Litter litter)
     {
@@ -44,4 +47,6 @@ public class MemoryPersistenceBackplane
     public void Seed(Rat rat) => this.Rats.Add(rat.Id, rat);
     
     public void Seed(Owner owner) => this.Owners.Add(owner.Id, owner);
+    
+    public void Seed(DeathReason deathReason) => this.DeathReasons.Add(deathReason.Id, deathReason);
 }

@@ -40,7 +40,9 @@ public static class SqliteFixtureExtensions
             ownerName: rat.OwnerName)
         {
             Owned = rat.Owned,
+            Dead = rat.Dead,
             DateOfDeath = rat.DateOfDeath,
+            DeathReason = rat.DeathReason,
             Notes = rat.Notes
         };
     }

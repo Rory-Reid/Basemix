@@ -1,8 +1,8 @@
 using Basemix.Lib.Owners;
 using Basemix.Lib.Owners.Persistence;
-using Basemix.Lib.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
+using Basemix.Lib.Settings.Persistence;
 using Basemix.Tests.sdk;
 using Bogus;
 using Dapper;
@@ -92,7 +92,6 @@ public class SqliteRatRepositoryTests : SqliteIntegration
                 : (await Owner.Create(new SqliteOwnersRepository(this.fixture.GetConnection))).Id)
         {
             Notes = this.faker.Lorem.Paragraphs(),
-            DateOfDeath = this.faker.Date.RecentDateOnly(),
             Owned = owned,
         };
 
@@ -107,7 +106,6 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             () => storedRat.Sex.ShouldBe(rat.Sex),
             () => storedRat.Variety.ShouldBe(rat.Variety),
             () => storedRat.Notes.ShouldBe(rat.Notes),
-            () => storedRat.DateOfDeath.ShouldBe(rat.DateOfDeath),
             () => storedRat.Owned.ShouldBe(rat.Owned),
             () => storedRat.OwnerId.ShouldBe(rat.OwnerId));
     }
@@ -193,13 +191,13 @@ public class SqliteRatRepositoryTests : SqliteIntegration
     }
     
     [Fact]
-    public async Task Search_deceased_only_returns_deceased_rats()
+    public async Task Search_deceased_only_returns_dead_rats()
     {
         var expectedRat = await Rat.Create(this.repository);
         var otherRat = await Rat.Create(this.repository);
 
-        expectedRat.DateOfDeath = this.faker.Date.RecentDateOnly();
-        otherRat.DateOfDeath = null;
+        expectedRat.Dead = true;
+        otherRat.Dead = false;
 
         await this.repository.UpdateRat(expectedRat);
         await this.repository.UpdateRat(otherRat);
@@ -213,13 +211,13 @@ public class SqliteRatRepositoryTests : SqliteIntegration
     }
 
     [Fact]
-    public async Task Search_deceased_false_only_returns_rats_without_date_of_death()
+    public async Task Search_deceased_false_only_returns_rats_not_marked_as_dead()
     {
         var expectedRat = await Rat.Create(this.repository);
         var otherRat = await Rat.Create(this.repository);
 
-        expectedRat.DateOfDeath = null;
-        otherRat.DateOfDeath = this.faker.Date.RecentDateOnly();
+        expectedRat.Dead = false;
+        otherRat.Dead = true;
 
         await this.repository.UpdateRat(expectedRat);
         await this.repository.UpdateRat(otherRat);
@@ -232,13 +230,13 @@ public class SqliteRatRepositoryTests : SqliteIntegration
     }
 
     [Fact]
-    public async Task Search_deceased_null_returns_rats_with_or_without_date_of_death()
+    public async Task Search_deceased_null_returns_rats_whether_dead_or_alive()
     {
         var expectedRat = await Rat.Create(this.repository);
         var otherRat = await Rat.Create(this.repository);
 
-        expectedRat.DateOfDeath = null;
-        otherRat.DateOfDeath = this.faker.Date.RecentDateOnly();
+        expectedRat.Dead = false;
+        otherRat.Dead = true;
 
         await this.repository.UpdateRat(expectedRat);
         await this.repository.UpdateRat(otherRat);
@@ -367,9 +365,81 @@ public class SqliteRatRepositoryTests : SqliteIntegration
             () => result.OwnerId.ShouldBe(owner.Id),
             () => result.OwnerName.ShouldBe(owner.Name));
     }
+
+    [Fact]
+    public async Task Can_save_and_load_death_reason_if_rat_set_to_dead()
+    {
+        var deathReason = this.faker.PickRandom(this.fixture.DeathReasons);
+        
+        var rat = await Rat.Create(this.repository);
+        rat.Dead = true;
+        rat.DeathReason = new DeathReason(deathReason.Id, deathReason.Reason);
+        await rat.Save(this.repository);
+        
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull().ShouldSatisfyAllConditions(
+            () => result.Dead.ShouldBeTrue(),
+            () => result.DeathReason.ShouldBe(rat.DeathReason));
+    }
+
+    [Fact]
+    public async Task Can_save_and_load_death_date_if_rat_set_to_dead()
+    {
+        using var db = this.fixture.GetConnection();
+        
+        var rat = await Rat.Create(this.repository);
+        rat.Dead = true;
+        rat.DateOfDeath = this.faker.Date.PastDateOnly();
+        await rat.Save(this.repository);
+        
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull().ShouldSatisfyAllConditions(
+            () => result.Dead.ShouldBeTrue(),
+            () => result.DateOfDeath.ShouldBe(rat.DateOfDeath));
+    }
+
+    [Fact]
+    public async Task Cannot_save_death_date_or_reason_if_rat_not_dead()
+    {
+        var deathReason = this.faker.PickRandom(this.fixture.DeathReasons);
+        
+        var rat = await Rat.Create(this.repository);
+        rat.Dead = false;
+        rat.DeathReason = new DeathReason(deathReason.Id, deathReason.Reason);
+        rat.DateOfDeath = this.faker.Date.PastDateOnly();
+        await rat.Save(this.repository);
+        
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull().ShouldSatisfyAllConditions(
+            () => result.Dead.ShouldBeFalse(),
+            () => result.DeathReason.ShouldBeNull(),
+            () => result.DateOfDeath.ShouldBeNull());
+    }
+
+    [Fact]
+    public async Task Death_date_and_reason_removed_if_rat_unmarked_dead()
+    {
+        var db = this.fixture.GetConnection();
+        var deathReason = this.faker.PickRandom(this.fixture.DeathReasons);
+        
+        var rat = await Rat.Create(this.repository);
+        rat.Dead = true;
+        rat.DeathReason = new DeathReason(deathReason.Id, deathReason.Reason);
+        rat.DateOfDeath = this.faker.Date.PastDateOnly();
+        await rat.Save(this.repository);
+        
+        rat.Dead = false;
+        await rat.Save(this.repository);
+        
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull().ShouldSatisfyAllConditions(
+            () => result.Dead.ShouldBeFalse(),
+            () => result.DeathReason.ShouldBeNull(),
+            () => result.DateOfDeath.ShouldBeNull());
+    }
     
     // ReSharper disable InconsistentNaming
     private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes,
-        long? litter_id, long? date_of_death, string? death_reason, long owned, long owner_id);
+        long? litter_id, long? date_of_death, long owned, long owner_id, long dead, long? death_reason_id);
     // ReSharper restore InconsistentNaming
 }

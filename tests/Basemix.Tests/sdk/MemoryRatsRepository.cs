@@ -89,7 +89,9 @@ public class MemoryRatsRepository : IRatsRepository
         {
             Notes = rat.Notes,
             Owned = rat.Owned,
-            DateOfDeath = rat.DateOfDeath
+            Dead = rat.Dead,
+            DateOfDeath = rat.DateOfDeath,
+            DeathReason = rat.DeathReason
         };
 
     private static List<RatLitter> CopyOf(List<RatLitter> litters) =>

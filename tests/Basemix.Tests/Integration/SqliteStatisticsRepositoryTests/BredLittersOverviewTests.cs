@@ -104,6 +104,7 @@ public class BredLittersOverviewTests : StatsSqliteIntegration
             var deathDate = this.faker.Date.RecentDateOnly();
             return this.faker.Rat(
                 dateOfDeath: deathDate,
+                dead: true,
                 dateOfBirth: this.faker.Date.PastDateOnly(yearsToGoBack: this.faker.Random.Int(1, 2), refDate: deathDate));
         };
         var getOldRat = () => this.faker.Rat(dateOfBirth: this.faker.Date.PastDateOnly(this.faker.Random.Int(10, 30)));

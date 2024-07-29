@@ -4,6 +4,7 @@ using Basemix.Lib.Owners;
 using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
+using Basemix.Lib.Settings.Persistence;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -14,6 +15,7 @@ public partial class EditRat
     [Inject] public IRatsRepository Repository { get; set; } = null!;
     [Inject] public ILittersRepository LittersRepository { get; set; } = null!;
     [Inject] public IOwnersRepository OwnersRepository { get; set; } = null!;
+    [Inject] public IOptionsRepository OptionsRepository { get; set; } = null!;
     [Inject] public IJSRuntime JsRuntime { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
 
@@ -28,6 +30,8 @@ public partial class EditRat
     public List<OwnerSearchResult> OwnerSearchResults { get; set; } = new();
     
     public bool DisableCreateLitter => !this.CanAddLitter();
+    
+    public List<DeathReason> DeathReasonOptions { get; set; } = new();
 
     protected override async Task OnParametersSetAsync()
     {
@@ -46,9 +50,13 @@ public partial class EditRat
             Sex = this.Rat.Sex?.ToString(),
             Variety = this.Rat.Variety,
             Notes = this.Rat.Notes,
+            Dead = this.Rat.Dead,
             DateOfDeath = this.Rat.DateOfDeath,
+            DeathReasonId = this.Rat.DeathReason?.Id,
             Owned = this.Rat.Owned
         };
+        
+        this.DeathReasonOptions = await this.OptionsRepository.GetDeathReasons();
     }
 
     private bool CanAddLitter() =>
@@ -139,6 +147,8 @@ public partial class EditRat
         this.Rat.Notes = this.RatForm.Notes;
         this.Rat.DateOfDeath = this.RatForm.DateOfDeath;
         this.Rat.Owned = this.RatForm.Owned;
+        this.Rat.Dead = this.RatForm.Dead;
+        this.Rat.DeathReason = this.DeathReasonOptions.FirstOrDefault(x => x.Id == this.RatForm.DeathReasonId);
 
         await this.Rat.Save(this.Repository);
     }
@@ -148,7 +158,14 @@ public class RatForm
 {
     public string? Name { get; set; }
     public DateOnly? DateOfBirth { get; set; }
-    public DateOnly? DateOfDeath { get; set; }
+    public bool Dead { get; set; }
+
+    public DateOnly? DateOfDeath
+    {
+        get;
+        set;
+    }
+    public long? DeathReasonId { get; set; }
     public string? Sex { get; set; }
     public string? Variety { get; set; }
     public string? Notes { get; set; }

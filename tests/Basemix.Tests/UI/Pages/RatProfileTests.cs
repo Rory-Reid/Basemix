@@ -131,7 +131,7 @@ public class RatProfileTests : RazorPageTests<RatProfile>
         await RazorEngine.InvokeOnParametersSetAsync(this.Page);
 
         this.Now = dob.AddYears(years);
-        this.Page.RatIsSenior.ShouldBeTrue();
+        this.Page.RatIsSenior.ShouldBeTrue($"Rat dob: {dob}, now: {this.Now}");
     }
 
     [Fact]

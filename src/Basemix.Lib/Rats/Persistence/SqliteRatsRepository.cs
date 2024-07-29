@@ -43,7 +43,9 @@ public class SqliteRatsRepository : IRatsRepository
                 variety=@Variety,
                 date_of_birth=@DateOfBirth,
                 notes=@Notes,
-                date_of_death=@DateOfDeath,
+                dead=@Dead,
+                date_of_death=(CASE WHEN @Dead IS TRUE THEN @DateOfDeath END),
+                death_reason_id=(CASE WHEN @Dead IS TRUE THEN @DeathReasonId END),
                 owned=@Owned,
                 owner_id=@OwnerId
             WHERE id=@Id",
@@ -56,10 +58,12 @@ public class SqliteRatsRepository : IRatsRepository
         
         using var reader = await db.QueryMultipleAsync( // TODO simplify the weird dam/sire stuff
             @"SELECT
-                rat.id, rat.name, rat.sex, rat.variety, rat.date_of_birth, rat.notes, rat.date_of_death, rat.owned,
-                rat.owner_id, owner.name as owner_name
+                rat.id, rat.name, rat.sex, rat.variety, rat.date_of_birth, rat.notes, rat.dead, rat.date_of_death,
+                rat.death_reason_id, death_reason.reason AS death_reason, rat.owned, rat.owner_id,
+                owner.name as owner_name
             FROM rat
             LEFT JOIN owner ON owner.id = rat.owner_id
+            LEFT JOIN death_reason ON rat.death_reason_id = death_reason.id
             WHERE rat.id=@Id;
 
             SELECT
@@ -69,8 +73,8 @@ public class SqliteRatsRepository : IRatsRepository
                 sire.name as sire_name,
                 (SELECT COUNT(id) FROM rat WHERE litter_id=litter.id) AS offspring_count
             FROM litter
-            LEFT JOIN rat dam on dam.id=dam_id
-            LEFT JOIN rat sire on sire.id=sire_id
+            LEFT JOIN rat dam ON dam.id=dam_id
+            LEFT JOIN rat sire ON sire.id=sire_id 
             WHERE litter.dam_id=@Id OR litter.sire_id=@Id",
             new { Id = id });
 
@@ -114,7 +118,8 @@ public class SqliteRatsRepository : IRatsRepository
         var nameLike = nameSearchTerm == null ? string.Empty : $"%{nameSearchTerm}%";
 
         var results = await db.QueryAsync<PersistedRatSearchResult>(
-            @$"SELECT
+            $"""
+            SELECT
                rat.id,
                rat.name,
                rat.sex,
@@ -122,7 +127,8 @@ public class SqliteRatsRepository : IRatsRepository
             FROM rat
             JOIN rat_search ON rat.id=rat_search.id
             {Filters(nameSearchTerm, deceased, owned, sex)}
-            ORDER BY rat.date_of_birth DESC, rat.id",
+            ORDER BY rat.date_of_birth DESC, rat.id
+            """,
             new {NameSearchTerm = nameLike, Sex = sex.ToString()});
 
         return results.Select(x => x.ToResult()).ToList();
@@ -138,11 +144,11 @@ public class SqliteRatsRepository : IRatsRepository
 
         if (deceased is true)
         {
-            filters.Add("(rat.date_of_death IS NOT NULL)");
+            filters.Add("(rat.dead IS TRUE)");
         }
         else if (deceased is false)
         {
-            filters.Add("(rat.date_of_death IS NULL)");
+            filters.Add("(rat.dead IS FALSE)");
         }
 
         if (owned is true)

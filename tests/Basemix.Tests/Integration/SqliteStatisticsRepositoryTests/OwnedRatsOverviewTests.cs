@@ -73,6 +73,7 @@ public class OwnedRatsOverviewTests : StatsSqliteIntegration
             return this.faker.Rat(
                 owned: owned,
                 dateOfDeath: deathDate,
+                dead: true,
                 dateOfBirth: this.faker.Date.PastDateOnly(yearsToGoBack: this.faker.Random.Int(1, 2), refDate: deathDate));
         };
         var getOldRat = (bool owned) => this.faker.Rat(owned: owned, dateOfBirth: this.faker.Date.PastDateOnly(this.faker.Random.Int(10, 30)));

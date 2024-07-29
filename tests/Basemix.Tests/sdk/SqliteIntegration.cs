@@ -3,6 +3,7 @@ using Basemix.Db;
 using Basemix.Lib;
 using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Rats.Persistence;
+using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -26,7 +27,7 @@ public interface ISqliteFixture
     public SqliteOwnersRepository OwnersRepository { get; }
 }
 
-public class SqliteFixture : ISqliteFixture
+public class SqliteFixture : ISqliteFixture, IAsyncLifetime
 {
     public string Database => "test-db.sqlite";
 
@@ -49,9 +50,20 @@ public class SqliteFixture : ISqliteFixture
     public SqliteRatsRepository RatsRepository { get; }
     public SqliteOwnersRepository OwnersRepository { get; }
     
+    public List<(long Id, string Reason)> DeathReasons { get; private set; } = new();
+    
     private void ProvisionDatabase()
     {
         var db = new Migrator(this.Database, NullLogger<Migrator>.Instance);
         db.Start();
     }
+
+    public async Task InitializeAsync()
+    {
+        using var db = this.GetConnection();
+        this.DeathReasons = (await db.QueryAsync<(long Id, string Reason)>(
+            "SELECT id, reason FROM death_reason")).ToList();
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 }

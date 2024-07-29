@@ -1,4 +1,5 @@
 using Basemix.Lib.Persistence;
+using Basemix.Lib.Settings.Persistence;
 
 namespace Basemix.Lib.Rats.Persistence;
 
@@ -13,7 +14,9 @@ public record PersistedRat
         this.Variety = rat.Variety;
         this.DateOfBirth = rat.DateOfBirth?.ToPersistedDateTime();
         this.Notes = rat.Notes;
+        this.Dead = rat.Dead;
         this.DateOfDeath = rat.DateOfDeath?.ToPersistedDateTime();
+        this.DeathReasonId = rat.DeathReason?.Id;
         this.Owned = rat.Owned;
         this.OwnerId = rat.OwnerId;
     }
@@ -24,7 +27,9 @@ public record PersistedRat
     public long? DateOfBirth { get; init; }
     public string? Variety { get; init; }
     public string? Notes { get; init; }
+    public bool Dead { get; init; }
     public long? DateOfDeath { get; init; }
+    public long? DeathReasonId { get; init; }
     public string? DeathReason { get; init; }
     public bool Owned { get; init; }
     public long? OwnerId { get; init; }
@@ -45,8 +50,12 @@ public record PersistedRat
             this.OwnerId, this.OwnerName)
         {
             Notes = this.Notes,
+            Dead = this.Dead,
             DateOfDeath = this.DateOfDeath?.ToDateOnly(),
-            Owned = this.Owned
+            DeathReason = this.DeathReasonId.HasValue
+                ? new DeathReason(this.DeathReasonId.Value, this.DeathReason ?? "INVALID DEATH REASON")
+                : null,
+            Owned = this.Owned,
         };
     }
 }

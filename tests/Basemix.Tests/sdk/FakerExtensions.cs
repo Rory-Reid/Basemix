@@ -2,6 +2,7 @@ using Basemix.Lib.Litters;
 using Basemix.Lib.Owners;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
+using Basemix.Lib.Settings.Persistence;
 using Bogus;
 using Bogus.DataSets;
 
@@ -49,7 +50,8 @@ public static class FakerExtensions
         faker.PickRandom(Varieties);
 
     public static Rat Rat(this Faker faker, RatIdentity? id = null, string? name = null, Sex? sex = null,
-        DateOnly? dateOfBirth = null, DateOnly? dateOfDeath = null, bool? owned = null, Owner? owner = null, float sexProbability = 1.0f)
+        DateOnly? dateOfBirth = null, bool? dead = null, DateOnly? dateOfDeath = null, bool? owned = null,
+        Owner? owner = null, float sexProbability = 1.0f)
     {
         var ratSex = sex ?? (faker.Random.Bool(sexProbability) ? faker.PickNonDefault<Sex>() : null);
         var ratName = name ?? ratSex switch
@@ -65,6 +67,7 @@ public static class FakerExtensions
             owner?.Id, owner?.Name)
         {
             Notes = faker.PickRandom(null, faker.Lorem.Paragraphs()),
+            Dead = dead ?? dateOfDeath != null,
             DateOfDeath = dateOfDeath,
             Owned = ownedByUser
         };
@@ -174,4 +177,7 @@ public static class FakerExtensions
             minSeparation,
             minRehome);
     }
+    
+    public static DeathReason DeathReason(this Faker faker, string? name = null) =>
+        new(faker.Random.Long(1), name ?? faker.Lorem.Word());
 }
