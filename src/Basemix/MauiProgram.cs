@@ -6,6 +6,7 @@ using Basemix.Lib.Litters.Persistence;
 using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
+using Basemix.Lib.Persistence;
 using Basemix.Lib.Rats.Persistence;
 using Basemix.Lib.Settings.Persistence;
 using Basemix.Lib.Statistics.Persistence;
@@ -48,14 +49,14 @@ namespace Basemix
                 errorContext.LastError = e.ToString();
             }
 
-            var docsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
-            var basemixPath = Path.Combine(docsDirectory, "basemix");
+            var basemixPath = BasemixData.GetBaseDirectory();
             Directory.CreateDirectory(basemixPath);
-            var dbPath = Path.Combine(basemixPath, "db.sqlite");
+            var dbPath = BasemixData.GetDbFilePath();
+            var legacyDbPath = BasemixData.GetLegacyDbFilePath();
 
             services.AddSingleton<GetDataDirectory>(() => basemixPath);
             services.AddSingleton<GetDatabasePath>(() => dbPath);
-            services.AddSingleton(s => new Migrator(dbPath, s.GetRequiredService<ILogger<Migrator>>()));
+            services.AddSingleton(s => new Migrator(dbPath, legacyDbPath, s.GetRequiredService<ILogger<Migrator>>()));
             services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath};Pooling=false"));
             services.AddSingleton<NowDateOnly>(() => DateOnly.FromDateTime(DateTime.Now));
             services.AddSingleton<DateSpanToString>(Delegates.HumaniseDateSpan);

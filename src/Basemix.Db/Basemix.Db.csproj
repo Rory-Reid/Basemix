@@ -23,4 +23,8 @@
         <EmbeddedResource Include="Scripts\*.sql" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Basemix.Lib\Basemix.Lib.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -17,7 +17,7 @@ public class MigratorTests : SqliteIntegration
     public void Can_run_migrator_twice_without_error()
     {
         // Already runs once as part of fixture, we just need to run it again
-        var migrator = new Migrator(this.fixture.Database, NullLogger<Migrator>.Instance);
+        var migrator = new Migrator(this.fixture.Database, this.fixture.Database, NullLogger<Migrator>.Instance);
         migrator.Start();
     }
 }

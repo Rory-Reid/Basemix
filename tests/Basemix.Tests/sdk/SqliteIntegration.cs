@@ -54,7 +54,7 @@ public class SqliteFixture : ISqliteFixture, IAsyncLifetime
     
     private void ProvisionDatabase()
     {
-        var db = new Migrator(this.Database, NullLogger<Migrator>.Instance);
+        var db = new Migrator(this.Database, this.Database, NullLogger<Migrator>.Instance);
         db.Start();
     }
 

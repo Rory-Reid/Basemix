@@ -1,4 +1,5 @@
 using System.Reflection;
+using Basemix.Lib.Persistence;
 using DbUp;
 using DbUp.Engine.Output;
 using DbUp.Helpers;
@@ -6,22 +7,37 @@ using Microsoft.Extensions.Logging;
 
 namespace Basemix.Db;
 
-public class Migrator
+public class Migrator(string databaseName, string legacyDatabaseName, ILogger<Migrator> logger)
 {
-    private readonly string databaseName;
-    private readonly ILogger<Migrator> logger;
-
-    public Migrator(string databaseName, ILogger<Migrator> logger)
-    {
-        this.databaseName = databaseName;
-        this.logger = logger;
-    }
+    private readonly string databaseName = databaseName;
+    private readonly string legacyDatabaseName = legacyDatabaseName;
+    private readonly ILogger<Migrator> logger = logger;
 
     public void Start()
     {
+        // // Move db from old directories - thanks to a net8 breaking change
+        // // See https://github.com/dotnet/runtime/issues/102110
+        // // See https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/8.0/getfolderpath-unix
+        // // TODO - this but better
+        // var legacyDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        // var legacyDbPath = Path.Combine(legacyDirectory, "basemix/db.sqlite");
+        //
+        // var docsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal);
+        // var basemixPath = Path.Combine(docsDirectory, "basemix");
+        // Directory.CreateDirectory(basemixPath);
+        // var dbPath = Path.Combine(basemixPath, "db.sqlite");
+        //
+        // if (File.Exists(legacyDbPath) && !File.Exists(dbPath))
+        // {
+        //     File.Move(legacyDbPath, dbPath);
+        // }
+        
+        BasemixData.TryMoveDb(this.legacyDatabaseName, this.databaseName);
+        
+        // Run sql migrations
         var upgrader =
             DeployChanges.To
-                .SQLiteDatabase($"Data Source={databaseName};Pooling=false")
+                .SQLiteDatabase($"Data Source={this.databaseName};Pooling=false")
                 .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
                 .WithVariablesDisabled()
                 .LogTo(new LoggerAdapter(this.logger))
