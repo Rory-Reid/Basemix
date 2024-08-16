@@ -21,6 +21,7 @@ public partial class EditLitter
     
     public bool ShowRatSearch { get; set; }
     public Sex? RatSearchSex { get; set; }
+    public bool? RatSearchIsAssignedToLitter { get; set; }
     public string RatSearchTerm { get; set; } = string.Empty;
     public List<RatSearchResult> RatSearchResults { get; set; } = new();
     public Func<RatSearchResult, Task> SetResult { get; set; } = _ => Task.CompletedTask;
@@ -114,7 +115,8 @@ public partial class EditLitter
     
     public async Task Search()
     {
-        this.RatSearchResults = await this.RatsRepository.SearchRat(this.RatSearchTerm, sex: this.RatSearchSex);
+        this.RatSearchResults = await this.RatsRepository.SearchRat(this.RatSearchTerm, sex: this.RatSearchSex,
+            isAssignedToLitter: this.RatSearchIsAssignedToLitter);
     }
 
     public void OpenDamSearch()
@@ -122,6 +124,7 @@ public partial class EditLitter
         this.RatSearchResults.Clear();
         this.RatSearchTerm = string.Empty;
         this.RatSearchSex = Sex.Doe;
+        this.RatSearchIsAssignedToLitter = null;
         this.SetResult = async (rat) =>
         {
             await this.Litter.SetDam(this.Repository, rat);
@@ -135,6 +138,7 @@ public partial class EditLitter
         this.RatSearchResults.Clear();
         this.RatSearchTerm = string.Empty;
         this.RatSearchSex = Sex.Buck;
+        this.RatSearchIsAssignedToLitter = null;
         this.SetResult = async (rat) =>
         {
             await this.Litter.SetSire(this.Repository, rat);
@@ -148,6 +152,7 @@ public partial class EditLitter
         this.RatSearchResults.Clear();
         this.RatSearchTerm = string.Empty;
         this.RatSearchSex = null;
+        this.RatSearchIsAssignedToLitter = false;
         this.SetResult = async (rat) =>
         {
             await this.Litter.AddOffspring(this.Repository, rat);

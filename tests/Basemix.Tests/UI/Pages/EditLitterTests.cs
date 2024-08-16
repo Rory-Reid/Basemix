@@ -226,6 +226,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         this.Page.RatSearchTerm = this.faker.Lorem.Sentence();
         this.Page.RatSearchSex = Sex.Buck;
+        this.Page.RatSearchIsAssignedToLitter = null;
         this.Page.RatSearchResults.Add(new RatSearchResult(this.faker.Id(), null, null, null));
         this.Page.ShowRatSearch = false;
         
@@ -234,6 +235,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         this.Page.ShouldSatisfyAllConditions(
             page => page.RatSearchTerm.ShouldBeNullOrEmpty(),
             page => page.RatSearchSex.ShouldBe(Sex.Doe),
+            page => page.RatSearchIsAssignedToLitter.ShouldBeNull(),
             page => page.RatSearchResults.ShouldBeEmpty(),
             page => page.ShowRatSearch.ShouldBeTrue());
     }
@@ -243,6 +245,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         this.Page.RatSearchTerm = this.faker.Lorem.Sentence();
         this.Page.RatSearchSex = Sex.Doe;
+        this.Page.RatSearchIsAssignedToLitter = null;
         this.Page.RatSearchResults.Add(new RatSearchResult(this.faker.Id(), null, null, null));
         this.Page.ShowRatSearch = false;
         
@@ -251,6 +254,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         this.Page.ShouldSatisfyAllConditions(
             page => page.RatSearchTerm.ShouldBeNullOrEmpty(),
             page => page.RatSearchSex.ShouldBe(Sex.Buck),
+            page => page.RatSearchIsAssignedToLitter.ShouldBeNull(),
             page => page.RatSearchResults.ShouldBeEmpty(),
             page => page.ShowRatSearch.ShouldBeTrue());
     }
@@ -260,6 +264,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
     {
         this.Page.RatSearchTerm = this.faker.Lorem.Sentence();
         this.Page.RatSearchSex = Sex.Doe;
+        this.Page.RatSearchIsAssignedToLitter = null;
         this.Page.RatSearchResults.Add(new RatSearchResult(this.faker.Id(), null, null, null));
         this.Page.ShowRatSearch = false;
         
@@ -268,6 +273,7 @@ public class EditLitterTests : RazorPageTests<EditLitter>
         this.Page.ShouldSatisfyAllConditions(
             page => page.RatSearchTerm.ShouldBeNullOrEmpty(),
             page => page.RatSearchSex.ShouldBeNull(),
+            page => page.RatSearchIsAssignedToLitter.ShouldBe(false),
             page => page.RatSearchResults.ShouldBeEmpty(),
             page => page.ShowRatSearch.ShouldBeTrue());
     }
@@ -389,6 +395,37 @@ public class EditLitterTests : RazorPageTests<EditLitter>
                 buck => buck.DateOfBirth.ShouldBe(buckMatch.DateOfBirth)));
     }
 
+    [Fact]
+    public async Task Search_for_offspring_only_returns_rats_not_set_as_offspring_of_other_litters()
+    {
+        var ratWithoutLitter = this.faker.Rat(id: this.faker.Id());
+        var ratWithLitter = this.faker.Rat(id: this.faker.Id());
+        var ratSetOnThisLitter = this.faker.Rat(id: this.faker.Id());
+
+        this.backplane.Seed(ratWithoutLitter);
+        this.backplane.Seed(ratWithLitter);
+        this.backplane.Seed(ratSetOnThisLitter);
+
+        var litter = this.faker.BlankLitter(id: this.Page.Id);
+        this.littersRepository.Seed(litter);
+        await litter.AddOffspring(this.littersRepository, ratSetOnThisLitter);
+        
+        var otherLitter = this.faker.BlankLitter(this.faker.Id());
+        this.littersRepository.Seed(otherLitter);
+        await otherLitter.AddOffspring(this.littersRepository, ratWithLitter);
+        
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+        
+        this.Page.OpenOffspringSearch();
+        await this.Page.Search();
+        
+        this.Page.RatSearchResults.ShouldSatisfyAllConditions(
+            results => results.Count.ShouldBe(1),
+            results => results.ShouldContain(r => r.Id == ratWithoutLitter.Id),
+            results => results.ShouldNotContain(r => r.Id == ratWithLitter.Id),
+            results => results.ShouldNotContain(r => r.Id == ratSetOnThisLitter.Id));
+    }
+    
     [Fact]
     public async Task Setting_result_of_offspring_search_sets_offspring_and_closes_search()
     {
