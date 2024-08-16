@@ -51,7 +51,7 @@ public class MemoryRatsRepository : IRatsRepository
     }
 
     public Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null,
-        bool? owned = null, Sex? sex = null)
+        bool? owned = null, Sex? sex = null, bool? isAssignedToLitter = null)
     {
         var results = this.Rats.Values.AsEnumerable();
 
@@ -78,6 +78,13 @@ public class MemoryRatsRepository : IRatsRepository
         {
             Sex.Doe => results.Where(r => r.Sex == Sex.Doe),
             Sex.Buck => results.Where(r => r.Sex == Sex.Buck),
+            _ => results
+        };
+        
+        results = isAssignedToLitter switch
+        {
+            true => results.Where(r => this.backplane.Litters.Any(l => l.Value.Offspring.Any(o => o.Id == r.Id))),
+            false => results.Where(r => !this.backplane.Litters.Any(l => l.Value.Offspring.Any(o => o.Id == r.Id))),
             _ => results
         };
 

@@ -112,7 +112,8 @@ public class SqliteRatsRepository : IRatsRepository
             new {Id = id});
     }
     
-    public async Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null, bool? owned = null, Sex? sex = null)
+    public async Task<List<RatSearchResult>> SearchRat(string? nameSearchTerm = null, bool? deceased = null,
+        bool? owned = null, Sex? sex = null, bool? isAssignedToLitter = null)
     {
         using var db = this.getDatabase();
         var nameLike = nameSearchTerm == null ? string.Empty : $"%{nameSearchTerm}%";
@@ -126,7 +127,7 @@ public class SqliteRatsRepository : IRatsRepository
                rat.date_of_birth
             FROM rat
             JOIN rat_search ON rat.id=rat_search.id
-            {Filters(nameSearchTerm, deceased, owned, sex)}
+            {Filters(nameSearchTerm, deceased, owned, sex, isAssignedToLitter)}
             ORDER BY rat.date_of_birth DESC, rat.id
             """,
             new {NameSearchTerm = nameLike, Sex = sex.ToString()});
@@ -134,7 +135,7 @@ public class SqliteRatsRepository : IRatsRepository
         return results.Select(x => x.ToResult()).ToList();
     }
 
-    private static string Filters(string? nameSearchTerm, bool? deceased, bool? owned, Sex? sex)
+    private static string Filters(string? nameSearchTerm, bool? deceased, bool? owned, Sex? sex, bool? isAssignedToLitter)
     {
         var filters = new List<string>();
         if (nameSearchTerm is not null)
@@ -163,6 +164,15 @@ public class SqliteRatsRepository : IRatsRepository
         if (sex is Sex.Buck or Sex.Doe)
         {
             filters.Add("(rat.sex = @Sex)");
+        }
+        
+        if (isAssignedToLitter is true)
+        {
+            filters.Add("(rat.litter_id IS NOT NULL)");
+        }
+        else if (isAssignedToLitter is false)
+        {
+            filters.Add("(rat.litter_id IS NULL)");
         }
 
         return filters.Any() ? $"WHERE {string.Join(" AND ", filters)}" : string.Empty;
