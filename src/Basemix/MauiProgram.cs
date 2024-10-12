@@ -13,6 +13,7 @@ using Basemix.Lib.Statistics.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using MudBlazor.Services;
 
 namespace Basemix
 {
@@ -27,6 +28,7 @@ namespace Basemix
                 .UseMauiCommunityToolkit();
 
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddMudServices();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
 #endif

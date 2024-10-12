@@ -1,0 +1,13 @@
+@inherits ErrorBoundary
+
+@{
+    base.BuildRenderTree(__builder);
+}
+
+@code {
+    protected override Task OnErrorAsync(Exception exception)
+    {
+        File.AppendText("error.log").WriteLine(exception.ToString());
+        return base.OnErrorAsync(exception);
+    }
+}

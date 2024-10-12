@@ -1,0 +1,16 @@
+<tr>
+    <td style="border-top: none; border-bottom: none; width: 150px; font-size: 1.2rem">
+        <strong>@Title</strong>
+    </td>
+    <td style="border-top: none; border-bottom: none; font-size: 1.2rem">
+        @ChildContent
+    </td>
+</tr>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+    
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; } 
+}

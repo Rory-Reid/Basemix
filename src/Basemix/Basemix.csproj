@@ -63,6 +63,13 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.61"/>
         <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.70" />
         <PackageReference Include="CommunityToolkit.Maui" Version="9.0.2" />
+        <PackageReference Include="MudBlazor" Version="7.6.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="Components\BorderlessTd.razor.css">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </Content>
     </ItemGroup>
 
 </Project>

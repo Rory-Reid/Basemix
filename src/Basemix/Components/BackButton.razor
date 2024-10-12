@@ -1,8 +1,6 @@
 @inject IJSRuntime JsRuntime;
 
-<button class="btn btn-secondary" @onclick="GoBack">
-    <span class="oi oi-arrow-left"></span> Back
-</button>
+<MudButton StartIcon="@Icons.Material.Filled.ArrowBack" Variant="Variant.Filled" Color="Color.Dark" OnClick="@GoBack">Back</MudButton>
 
 @code {
     private async Task GoBack()

@@ -3,6 +3,7 @@
 
 @if (!RatLoaded)
 {
+    // TODO
     <BackButton/>
     <hr/>
     <NoRat/>
@@ -11,126 +12,135 @@ else
 {
     <EditHeader OnEdit="@(() => Nav.NavigateTo($"/rats/{Id}/edit"))"/>
 
-    <h1>@Rat.Name</h1>
+    <MudPaper Class="mx-10" Elevation="0" Outlined="false">
 
-    <dl class="row">
-        @if (Rat.OwnerId != null)
-        {
-            <dt class="col-sm-2">Owned by</dt>
-            <dd class="col-sm-9">
-                <a href="/owners/@Rat.OwnerId?.Value">@(Rat.OwnerName ?? "Unnamed Owner")</a>
-            </dd>
-        }
-        
-        @if (Rat.DateOfBirth.HasValue)
-        {
-            <dt class="col-sm-2">Date of Birth</dt>
-            <dd class="col-sm-9">@Rat.DateOfBirth</dd>
+        <MudText Typo="Typo.h3">
+            @Rat.Name
+        </MudText>
 
-            @if (!RatTooOld)
+        <MudSimpleTable Class="ma-2 pa-2" Dense="true" Elevation="2" >
+            <tbody>
+            @if (Rat.OwnerId != null)
             {
-                <dt class="col-sm-2">Age</dt>
-                @if (RatIsSenior)
+                <ProfileRow Title="Owned by">
+                    <MudLink Href="@($"/owners/{Rat.OwnerId?.Value}")">@(Rat.OwnerName ?? "Unnamed Owner")</MudLink>
+                </ProfileRow>
+            }
+
+            @if (Rat.DateOfBirth.HasValue)
+            {
+                <ProfileRow Title="Date of Birth">
+                    @Rat.DateOfBirth
+                </ProfileRow>
+
+                @if (!RatTooOld)
                 {
-                    <dd class="col-sm-9">
-                        @RatAge<br/><sub>Age will not be calculated after 4 years unless date of death is set</sub>
-                    </dd>
-                }
-                else
-                {
-                    <dd class="col-sm-9">@RatAge</dd>
+                    <ProfileRow Title="Age">
+                        @if (RatIsSenior)
+                        {
+                            @RatAge<br/>
+                            <sub>Age will not be calculated after 4 years unless date of death is set</sub>
+                        }
+                        else
+                        {
+                            @RatAge
+                        }
+                    </ProfileRow>
                 }
             }
-        }
 
-        @if (Rat.DateOfDeath.HasValue)
-        {
-            <dt class="col-sm-2">Date of Death</dt>
-            <dd class="col-sm-9">@Rat.DateOfDeath</dd>
-        }
-        
-        @if(Rat.DeathReason != null)
-        {
-            <dt class="col-sm-2">Cause of Death</dt>
-            <dd class="col-sm-9">@Rat.DeathReason.Reason</dd>
-        }
+            @if (Rat.DateOfDeath.HasValue)
+            {
+                <ProfileRow Title="Date of Death">
+                    @Rat.DateOfDeath
+                </ProfileRow>
+            }
 
-        <dt class="col-sm-2">Sex</dt>
-        <dd class="col-sm-9">@Rat.Sex</dd>
+            @if (Rat.DeathReason != null)
+            {
+                <ProfileRow Title="Cause of Death">
+                    @Rat.DeathReason.Reason
+                </ProfileRow>
+            }
 
-        <dt class="col-sm-2">Variety</dt>
-        <dd class="col-sm-9">@Rat.Variety</dd>
+            <ProfileRow Title="Sex">
+                @Rat.Sex
+            </ProfileRow>
 
-        @if (!string.IsNullOrEmpty(Rat.Notes))
-        {
-            <dt class="col-sm-2">Notes</dt>
-            <dd class="col-sm-9">
-                @foreach (var line in Rat.Notes.Split("\n"))
-                {
-                    <p>@line</p>
-                }
-            </dd>
-        }
-    </dl>
+            <ProfileRow Title="Variety">
+                @Rat.Variety
+            </ProfileRow>
 
-    <h2>Litters</h2>
+            @if (!string.IsNullOrEmpty(Rat.Notes))
+            {
+                <ProfileRow Title="Notes">
+                    @foreach (var line in Rat.Notes.Split("\n"))
+                    {
+                        <p>@line</p>
+                    }
+                </ProfileRow>
+            }
+            </tbody>
+        </MudSimpleTable>
 
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th scope="col">DoB</th>
-            <th scope="col">
-                @(Rat.Sex switch
-                {
-                    Sex.Buck => "Dam",
-                    Sex.Doe => "Sire",
-                    _ => "Paired with"
+        <MudText Typo="Typo.h4">
+            Litters
+        </MudText>
+
+        <MudTable T="RatLitter" Items="Rat.Litters" Hover="true" RowClass="cursor-pointer"
+                  OnRowClick="@(e => OpenLitterProfile(e.Item?.Id ?? throw new Exception("Bad")))">
+            <HeaderContent>
+                <MudTh>DoB</MudTh>
+                <MudTh>
+                    @(Rat.Sex switch
+                    {
+                        Sex.Buck => "Dam",
+                        Sex.Doe => "Sire",
+                        _ => "Paired with"
                     })
-            </th>
-            <th scope="col"># of rats</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var litter in Rat.Litters)
+                </MudTh>
+                <MudTh># of rats</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@(context.DateOfBirth?.ToString() ?? "-")</MudTd>
+                <MudTd>@(context.PairedWith ?? "-")</MudTd>
+                <MudTd>@context.OffspringCount</MudTd>
+            </RowTemplate>
+        </MudTable>
+        
+        <MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Secondary" Variant="Variant.Filled" OnClick="NewLitter">
+            Create Litter
+        </MudButton>
+
+        <MudText Typo="Typo.h4">
+            Pedigree
+        </MudText>
+
+        <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="@(() => ShowPdfExport = true)">Export as PDF</button>
+
+        @if (ExportSuccess is true)
         {
-            <tr @onclick="@(() => OpenLitterProfile(litter.Id))">
-                <th scope="row">@(litter.DateOfBirth?.ToString() ?? "-")</th>
-                <td>@(litter.PairedWith ?? "-")</td>
-                <td>@litter.OffspringCount</td>
-            </tr>
+            <div class="alert alert-success" role="alert">
+                Export successful!
+            </div>
         }
-        </tbody>
-    </table>
+        else if (ExportSuccess is false)
+        {
+            <div class="alert alert-danger" role="alert">
+                Export failed! Check the "settings" page to find the error details and send them to Rory.
+            </div>
+        }
 
-    <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="NewLitter">
-        <span class="oi oi-plus"></span> Create litter
-    </button>
+        @if (!PedigreeLoaded)
+        {
+            <NoPedigree/>
+        }
+        else
+        {
+            <PedigreeTable Rat="Pedigree"/>
+        }
 
-    <h2>Pedigree</h2>
-
-    <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="@(() => ShowPdfExport = true)">Export as PDF</button>
-
-    @if (ExportSuccess is true)
-    {
-        <div class="alert alert-success" role="alert">
-            Export successful!
-        </div>
-    }
-    else if (ExportSuccess is false)
-    {
-        <div class="alert alert-danger" role="alert">
-            Export failed! Check the "settings" page to find the error details and send them to Rory.
-        </div>
-    }
-    
-    @if (!PedigreeLoaded)
-    {
-        <NoPedigree/>
-    }
-    else
-    {
-        <PedigreeTable Rat="Pedigree"/>
-    }
+    </MudPaper>
 }
 
 @if (ShowPdfExport)
