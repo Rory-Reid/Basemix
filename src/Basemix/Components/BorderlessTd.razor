@@ -1,0 +1,9 @@
+<td style="@Style">@ChildContent</td>
+
+@code {
+    [Parameter]
+    public string Style { get; set; } = string.Empty;
+    
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; } 
+}

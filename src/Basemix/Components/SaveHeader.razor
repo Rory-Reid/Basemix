@@ -1,13 +1,15 @@
-<div>
-    <div class="d-flex justify-content-between">
-        <BackButton />
-        <button class="btn btn-success" @onclick="OnSave">
-            <span class="oi oi-check"></span> Save
-        </button>
-    </div>
-    
-    <hr/>
-</div>
+<MudPaper Elevation="0">
+    <MudToolBar>
+        <BackButton/>
+
+        <MudSpacer/>
+        
+        <MudButton EndIcon="@Icons.Material.Filled.Save" Variant="Variant.Filled" Color="Color.Success" OnClick="OnSave">
+            Save
+        </MudButton>
+    </MudToolBar>
+</MudPaper>
+
 @code {
     [Parameter] public EventCallback<MouseEventArgs> OnSave { get; set; }
 }

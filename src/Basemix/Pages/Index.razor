@@ -1,26 +1,31 @@
 ﻿@page "/"
 
-<h1>Basemix</h1>
+<MudPaper Class="ma-10" Elevation="0" Outlined="false">
 
-<p>Welcome to Basemix, an application for UK Rat Breeders.</p>
+    <MudText Typo="Typo.h2">Basemix</MudText>
 
-<ul>
-    <li>Discuss <a href="https://nfrs.org/forum/viewtopic.php?t=29536">Basemix on the NFRS forums</a> or <a href="https://nfrs.org/forum/memberlist.php?mode=viewprofile&u=3884">PM Me</a></li>
-    <li>Join the <a href="https://www.facebook.com/groups/basemix">Basemix User Group on Facebook</a></li>
-    <li>See the <a href="https://basemix.app">Basemix website</a> for additional technical information</li>
-</ul>
+    <MudText Typo="Typo.body1" Class="mb-5">
+        Welcome to Basemix, an application for UK Rat Breeders.
+    </MudText>
 
-<hr/>
+    <MudText Typo="Typo.body1" Class="mb-5">
+        More information is available <MudLink Href="https://basemix.app">on the Basemix website</MudLink>. You can follow
+        and discuss Basemix on the <MudLink Href="https://nfrs.org/forum/viewtopic.php?t=29536">NFRS forums</MudLink> or
+        <MudLink Href="https://nfrs.org/forum/memberlist.php?mode=viewprofile&u=3884">PM me there</MudLink>. There is also a
+        <MudLink Href="https://www.facebook.com/groups/basemix">Basemix User Group on Facebook</MudLink> you can join.
+    </MudText>
 
-<p>
-    <strong>Important notice: </strong> Basemix does not backup your data. If you lose your data, it is gone forever. If
-    you are using a phone and you clear your app data, or delete the app, or factory reset, your data is gone forever.
-    Use the settings page to manually export your database from time to time. You can also use that page to load a backup
-    but be aware that loading a backup will overwrite your current data.
-</p>
 
-<hr />
+    <MudText Typo="Typo.body1" Class="mb-5">
+        <strong>Important notice: </strong> Basemix does not backup your data. If you lose your data, it is gone forever. If
+        you are using a phone and you clear your app data, or delete the app, or factory reset, your data is gone forever.
+        Use the settings page to manually export your database from time to time. You can also use that page to load a backup
+        but be aware that loading a backup will overwrite your current data.
+    </MudText>
 
-<p>
-    Basemix is not affiliated with or endorsed by the National Fancy Rat Society (NFRS).
-</p>
+
+    <MudText Typo="Typo.body1">
+        <em>Basemix is not affiliated with or endorsed by the National Fancy Rat Society (NFRS).</em>
+    </MudText>
+
+</MudPaper>

@@ -1,44 +1,42 @@
 @page "/rats"
+@using Basemix.Lib.Rats
 
 <CreateHeader OnCreate="CreateRat"/>
 
-<h1>Rats</h1>
+<MudPaper Class="mx-10" Elevation="0" Outlined="false">
 
-<p>Click any rat to view the rat's profile.</p>
+    <MudText Typo="Typo.h3">Rats</MudText>
 
-<div class="input-group mb-3">
-    <input id="ratSearchInput" type="text" class="form-control" @bind="SearchTerm" placeholder="Search for a rat here"/>
-    <div class="input-group-append">
-        <button class="btn btn-primary" @onclick="Search">
-            <span class="oi oi-magnifying-glass"></span>
-        </button>
-    </div>
-</div>
-<div class="form-check">
-    <input type="checkbox" class="form-check-input" id="deceasedCheckbox" @bind="@Filter.RatsHideDeceased" @bind:after="@Search">
-    <label class="form-check-label" for="deceasedCheckbox">Hide deceased</label>
-</div>
-<div class="form-check">
-    <input type="checkbox" class="form-check-input" id="ownedCheckbox" @bind="@Filter.RatsHideUnowned" @bind:after="@Search">
-    <label class="form-check-label" for="ownedCheckbox">Hide unowned</label>
-</div>
+    <MudText Typo="Typo.body1">
+        Click any rat to view the rat's profile.
+    </MudText>
 
-<table class="table table-hover">
-    <thead>
-    <tr>
-        <th scope="col">Name</th>
-        <th scope="col">Sex</th>
-        <th scope="col">DoB</th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var rat in RatsList)
-    {
-        <tr @onclick="@(() => OpenRatProfile(rat.Id))">
-            <th scope="row">@(rat.Name ?? "Unnamed")</th>
-            <td>@(rat.Sex.ToString() ?? "-")</td>
-            <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
-        </tr>
-    }
-    </tbody>
-</table>
+    <MudTextField @bind-Value="SearchTerm" Immediate="true" DebounceInterval="500" OnDebounceIntervalElapsed="Search"
+                  Label="Search for a rat here" Variant="Variant.Outlined"
+                  Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search"
+                  AdornmentColor="Color.Primary"/>
+
+    <MudCheckBox T="@bool" Value="@Filter.RatsHideDeceased" ValueChanged="SetDeceased"
+                 Label="Hide deceased" Color="Color.Primary">
+    </MudCheckBox>
+    <MudCheckBox T="@bool" Value="@Filter.RatsHideUnowned" ValueChanged="SetUnowned"
+                 Label="Hide unowned" Color="Color.Primary">
+    </MudCheckBox>
+
+    <MudTable T="RatSearchResult" Items="RatsList" Hover="true" RowClass="cursor-pointer" Breakpoint="Breakpoint.None"
+              OnRowClick="@(e => OpenRatProfile(e.Item?.Id ?? throw new Exception("Bad")))">
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Sex</MudTh>
+            <MudTh>DoB</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>
+                <strong>@(context.Name ?? "Unnamed")</strong>
+            </MudTd>
+            <MudTd>@(context.Sex.ToString() ?? "-")</MudTd>
+            <MudTd>@(context.DateOfBirth.ToString() ?? "-")</MudTd>
+        </RowTemplate>
+    </MudTable>
+
+</MudPaper>
