@@ -137,7 +137,7 @@
                 PickerTitle = "Select exported database (usually called basemix.sqlite3)",
                 FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
-                    { DevicePlatform.iOS, new[] {"public.sqlite3", "public.sqlite"}}, // UTType values
+                    { DevicePlatform.iOS, new[] {"public.data"}}, // Allow all files - iOS doesn't have predefined SQLite UTTypes
                     { DevicePlatform.Android, new[] {"application/vnd.sqlite3", "application/x-sqlite3", "application/octet-stream"}}, // MIME type
                     { DevicePlatform.WinUI, new[] {".sqlite3", ".sqlite"}}, // file extension
                     { DevicePlatform.macOS, new[] {"sqlite3", "sqlite"}}, // UTType values
@@ -147,6 +147,13 @@
             
             if (file == null)
             {
+                return;
+            }
+
+            // Validate the file is a SQLite database
+            if (!await IsValidSqliteFile(file.FullPath))
+            {
+                this.ErrorContext.LastError = "The selected file is not a valid SQLite database. Please select a .sqlite or .sqlite3 file.";
                 return;
             }
 
@@ -170,6 +177,29 @@
         catch (Exception e)
         {
             this.ErrorContext.LastError = $"Loading failed - you might need to manually fix this. Your old database has been moved to {backupDbPath}, please make a copy, then rename it to `db.sqlite` to restore it. Do not click load again, it will delete your backup. \nError Details Below:\n{e}";
+        }
+    }
+
+    private async Task<bool> IsValidSqliteFile(string filePath)
+    {
+        try
+        {
+            // SQLite files begin with the magic header "SQLite format 3\0"
+            const string sqliteMagicHeader = "SQLite format 3";
+            var buffer = new byte[16];
+            
+            await using var fileStream = File.OpenRead(filePath);
+            var bytesRead = await fileStream.ReadAsync(buffer, 0, 16);
+            
+            if (bytesRead < 16)
+                return false;
+                
+            var header = System.Text.Encoding.UTF8.GetString(buffer, 0, sqliteMagicHeader.Length);
+            return header == sqliteMagicHeader;
+        }
+        catch
+        {
+            return false;
         }
     }
 
