@@ -2,6 +2,7 @@
 @using Microsoft.AspNetCore.Components
 @using Basemix.Lib.Rats
 @using System.Runtime.CompilerServices
+@using Basemix.Lib
 
 @if (!LitterLoaded)
 {
@@ -141,7 +142,7 @@ else
                         <tr @onclick="@(() => SetResult(rat))">
                             <th scope="row">@(rat.Name ?? "Unnamed")</th>
                             <td>@(rat.Sex.ToString() ?? "-")</td>
-                            <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
+                            <td>@(rat.DateOfBirth.ToLocalizedString() ?? "-")</td>
                         </tr>
                     }
                     </tbody>

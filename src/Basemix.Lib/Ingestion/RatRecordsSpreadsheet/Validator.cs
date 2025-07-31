@@ -21,13 +21,13 @@ public class Validator
             {
                 var rat = mostRecentDeaths.Single();
                 var preferredName = string.IsNullOrEmpty(rat.RatName) ? rat.RatName : rat.PetName;
-                problems.Add(new ValidationProblem($"One rat ({preferredName}) has a date of death of {rat.DateOfDeath!.Value.ToString("dd/MM/yyyy")}. This is assumed to be a default value in the spreadsheet and will be imported as alive. If this is wrong, you should correct this rat after import."));
+                problems.Add(new ValidationProblem($"One rat ({preferredName}) has a date of death of {rat.DateOfDeath!.Value.ToLocalizedString()}. This is assumed to be a default value in the spreadsheet and will be imported as alive. If this is wrong, you should correct this rat after import."));
             }
             else
             {
                 var totalRatsAffected = mostRecentDeaths.Count();
                 var date = mostRecentDeaths.First().DateOfDeath!.Value;
-                problems.Add(new ValidationProblem($"{totalRatsAffected} rats have a date of death of {date.ToString("dd/MM/yyyy")}. This is assumed to be a default value in the spreadsheet, and all affected rats will be imported with no date of death."));
+                problems.Add(new ValidationProblem($"{totalRatsAffected} rats have a date of death of {date.ToLocalizedString()}. This is assumed to be a default value in the spreadsheet, and all affected rats will be imported with no date of death."));
             }
         }
 

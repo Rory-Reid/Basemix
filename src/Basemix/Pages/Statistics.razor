@@ -1,4 +1,6 @@
 @page "/stats"
+@using System.Globalization
+@using Basemix.Lib
 
 <BackButton/>
 <hr />
@@ -87,5 +89,5 @@
     Total rats in database: @Stats.System.TotalRats (@Stats.System.TotalOwnedRats owned)<br/>
     Total litters in database: @Stats.System.TotalLitters (@Stats.System.TotalBredLitters bred)<br/>
     Total owners in database: @Stats.System.TotalOwners<br/>
-    Database created on: @Stats.System.DatabaseCreatedOn.ToShortDateString()
+    Database created on: @Stats.System.DatabaseCreatedOn.ToLocalizedString()
 </p>

@@ -1,5 +1,6 @@
 @page "/litters/{Id:long}"
 @using Basemix.Lib.Rats
+@using Basemix.Lib
 
 @if (!LitterLoaded)
 {
@@ -40,10 +41,10 @@ else
         </dd>
 
         <dt class="col-sm-2">Date of Pairing</dt>
-        <dd class="col-sm-9">@(Litter.DateOfPairing?.ToString("dd/MM/yyyy") ?? "-")</dd>
+        <dd class="col-sm-9">@Litter.DateOfPairing.ToLocalizedString()</dd>
         
         <dt class="col-sm-2">Date of Birth</dt>
-        <dd class="col-sm-9">@(Litter.DateOfBirth?.ToString("dd/MM/yyyy") ?? "-")</dd>
+        <dd class="col-sm-9">@Litter.DateOfBirth.ToLocalizedString()</dd>
         
         @if (!string.IsNullOrEmpty(Litter.Notes))
         {
@@ -64,27 +65,27 @@ else
             @if (Estimates.EarliestDateOfBirth.HasValue)
             {
                 <dt class="col-sm-2">Earliest Birth</dt>
-                <dd class="col-sm-9">@(Estimates.EarliestDateOfBirth.Value.ToString("dd/MM/yyyy"))</dd>
+                <dd class="col-sm-9">@Estimates.EarliestDateOfBirth.ToLocalizedString()</dd>
             }
             @if (Estimates.LatestDateOfBirth.HasValue)
             {
                 <dt class="col-sm-2">Latest Birth</dt>
-                <dd class="col-sm-9">@(Estimates.LatestDateOfBirth.Value.ToString("dd/MM/yyyy"))</dd>
+                <dd class="col-sm-9">@Estimates.LatestDateOfBirth.ToLocalizedString()</dd>
             }
             @if (Estimates.EarliestFullyWeanedDate.HasValue)
             {
                 <dt class="col-sm-2">Weaned after</dt>
-                <dd class="col-sm-9">@(Estimates.EarliestFullyWeanedDate.Value.ToString("dd/MM/yyyy"))</dd>
+                <dd class="col-sm-9">@Estimates.EarliestFullyWeanedDate.ToLocalizedString()</dd>
             }
             @if (Estimates.EarliestSeparateSexesDate.HasValue)
             {
                 <dt class="col-sm-2">Separate sexes after</dt>
-                <dd class="col-sm-9">@(Estimates.EarliestSeparateSexesDate.Value.ToString("dd/MM/yyyy"))</dd>
+                <dd class="col-sm-9">@Estimates.EarliestSeparateSexesDate.ToLocalizedString()</dd>
             }
             @if (Estimates.EarliestRehomeDate.HasValue)
             {
                 <dt class="col-sm-2">Rehome after</dt>
-                <dd class="col-sm-9">@(Estimates.EarliestRehomeDate.Value.ToString("dd/MM/yyyy"))</dd>
+                <dd class="col-sm-9">@Estimates.EarliestRehomeDate.ToLocalizedString()</dd>
             }
         </dl>
     }
@@ -148,7 +149,7 @@ else
                             <tr @onclick="@(() => SetResult(rat))">
                                 <th scope="row">@(rat.Name ?? "Unnamed")</th>
                                 <td>@(rat.Sex.ToString() ?? "-")</td>
-                                <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
+                                <td>@(rat.DateOfBirth.ToLocalizedString() ?? "-")</td>
                             </tr>
                         }
                         </tbody>

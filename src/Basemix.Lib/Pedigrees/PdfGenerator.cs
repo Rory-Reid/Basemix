@@ -248,7 +248,7 @@ public class PdfGenerator
                         .FontSize(cellFont);
 
                     table.Cell().ColumnSpan(5).Element(Footer)
-                        .Text($"Date of birth: {dateOfBirth?.ToString("dd/MM/yyyy.")} {footerText}")
+                        .Text($"Date of birth: {dateOfBirth.ToLocalizedPdfString()} {footerText}")
                         .FontFamily(fontName).FontSize(settings.FooterFontSize);
                 });
             });

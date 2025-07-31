@@ -1,4 +1,5 @@
 @page "/rats"
+@using Basemix.Lib
 
 <CreateHeader OnCreate="CreateRat"/>
 
@@ -37,7 +38,7 @@
         <tr @onclick="@(() => OpenRatProfile(rat.Id))">
             <th scope="row">@(rat.Name ?? "Unnamed")</th>
             <td>@(rat.Sex.ToString() ?? "-")</td>
-            <td>@(rat.DateOfBirth.ToString() ?? "-")</td>
+            <td>@(rat.DateOfBirth.ToLocalizedString())</td>
         </tr>
     }
     </tbody>
