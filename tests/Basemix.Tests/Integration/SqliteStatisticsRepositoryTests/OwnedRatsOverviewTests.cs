@@ -132,7 +132,7 @@ public class OwnedRatsOverviewTests : StatsSqliteIntegration
         var mostCommonVariety = ownedRats
             .GroupBy(rat => rat.Variety)
             .OrderByDescending(group => group.Count())
-            .ThenByDescending(group => group.Key)
+            .ThenBy(group => group.Key)
             .First()
             .Key;
         

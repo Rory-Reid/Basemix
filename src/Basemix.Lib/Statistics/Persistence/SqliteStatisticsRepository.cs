@@ -62,7 +62,7 @@ public class SqliteStatisticsRepository : IStatisticsRepository
             (
               SELECT
                 l.id,
-                COUNT(*)                                                AS litter_size,
+                COUNT(r.id)                                             AS litter_size,
                 COUNT(CASE WHEN r.sex = 'Buck' THEN 1 END)              AS buck_count,
                 COUNT(CASE WHEN r.sex = 'Doe' THEN 1 END)               AS doe_count,
                 COUNT(CASE WHEN r.owned IS FALSE THEN 1 END)            AS rehomed_count,
