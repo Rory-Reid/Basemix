@@ -32,7 +32,8 @@ public class LitterTests
             () => litter.SireName.ShouldBeNull(),
             () => litter.DateOfBirth.ShouldBeNull(),
             () => litter.Offspring.ShouldBeEmpty(),
-            () => litter.Notes.ShouldBeNull());
+            () => litter.Notes.ShouldBeNull(),
+            () => litter.Stillborn.ShouldBe(0));
     }
 
     [Fact]
@@ -243,10 +244,12 @@ public class LitterTests
         var litter = await this.CreateLitter();
         litter.DateOfBirth = this.faker.Date.PastDateOnly();
         litter.Notes = this.faker.Lorem.Paragraphs();
-        
+        litter.Stillborn = this.faker.Random.Int(1, 10);
+
         (await this.littersRepository.GetLitter(litter.Id)).ShouldNotBeNull().ShouldSatisfyAllConditions(
             storedLitter => storedLitter.DateOfBirth.ShouldBeNull(),
-            storedLitter => storedLitter.Notes.ShouldBeNull());
+            storedLitter => storedLitter.Notes.ShouldBeNull(),
+            storedLitter => storedLitter.Stillborn.ShouldBe(0));
     }
 
     [Fact]
@@ -255,12 +258,14 @@ public class LitterTests
         var litter = await this.CreateLitter();
         litter.DateOfBirth = this.faker.Date.PastDateOnly();
         litter.Notes = this.faker.Lorem.Paragraphs();
+        litter.Stillborn = this.faker.Random.Int(1, 10);
 
         await litter.Save(this.littersRepository);
-        
+
         (await this.littersRepository.GetLitter(litter.Id)).ShouldNotBeNull().ShouldSatisfyAllConditions(
             storedLitter => storedLitter.DateOfBirth.ShouldBe(litter.DateOfBirth),
-            storedLitter => storedLitter.Notes.ShouldBe(litter.Notes));
+            storedLitter => storedLitter.Notes.ShouldBe(litter.Notes),
+            storedLitter => storedLitter.Stillborn.ShouldBe(litter.Stillborn));
     }
     
     [Fact]

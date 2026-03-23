@@ -17,8 +17,9 @@ public class PersistedLitter
         this.DateOfPairing = litter.DateOfPairing?.ToPersistedDateTime();
         this.DateOfBirth = litter.DateOfBirth?.ToPersistedDateTime();
         this.Notes = litter.Notes;
+        this.Stillborn = litter.Stillborn;
     }
-    
+
     public long? Id { get; init; }
     public string? Name { get; init; }
     public bool BredByMe { get; init; }
@@ -27,6 +28,7 @@ public class PersistedLitter
     public long? DateOfPairing { get; init; }
     public long? DateOfBirth { get; init; }
     public string? Notes { get; init; }
+    public int Stillborn { get; init; }
 }
 
 public class LitterReadModel
@@ -41,6 +43,7 @@ public class LitterReadModel
     public long? DateOfBirth { get; init; }
     public long? DateOfPairing { get; init; }
     public string? Notes { get; init; }
+    public int Stillborn { get; init; }
 
     public Litter ToModelledLitter(IEnumerable<LitterOffspringReadModel> offspring)
     {
@@ -63,7 +66,8 @@ public class LitterReadModel
             Name = this.Name,
             BredByMe = this.BredByMe,
             DateOfPairing = this.DateOfPairing?.ToDateOnly(),
-            Notes = this.Notes
+            Notes = this.Notes,
+            Stillborn = this.Stillborn
         };
     }
 }

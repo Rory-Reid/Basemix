@@ -145,6 +145,7 @@ public class MemoryLittersRepository : ILittersRepository
         {
             Name = litter.Name,
             BredByMe = litter.BredByMe,
-            Notes = litter.Notes
+            Notes = litter.Notes,
+            Stillborn = litter.Stillborn
         };
 }

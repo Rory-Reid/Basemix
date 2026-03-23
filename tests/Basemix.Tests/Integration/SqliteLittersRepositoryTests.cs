@@ -112,12 +112,15 @@ public class LittersRepositoryTests : SqliteIntegration
         var bredByMe = this.faker.Random.Bool();
         var name = this.faker.Random.AlphaNumeric(10);
 
+        var stillborn = this.faker.Random.Int(0, 5);
+
         var updatedLitter = new Litter(id, dam: (dam.Id, dam.Name), sire: (sire.Id, sire.Name), dob)
         {
             DateOfPairing = dop,
             Notes = notes,
             BredByMe = bredByMe,
-            Name = name
+            Name = name,
+            Stillborn = stillborn
         };
         await this.repository.UpdateLitter(updatedLitter);
 
@@ -133,7 +136,8 @@ public class LittersRepositoryTests : SqliteIntegration
             () => row.date_of_pairing.ShouldBe(dop.ToPersistedDateTime()),
             () => row.bred_by_me.ShouldBe(bredByMe ? 1 : 0),
             () => row.name.ShouldBe(name),
-            () => row.notes.ShouldBe(notes));
+            () => row.notes.ShouldBe(notes),
+            () => row.stillborn.ShouldBe(updatedLitter.Stillborn));
     }
     
     [Fact]
@@ -260,7 +264,8 @@ public class LittersRepositoryTests : SqliteIntegration
             Name = this.faker.Lorem.Sentence(),
             BredByMe = this.faker.Random.Bool(),
             DateOfPairing = dop,
-            Notes = this.faker.Lorem.Paragraph()
+            Notes = this.faker.Lorem.Paragraph(),
+            Stillborn = this.faker.Random.Int(0, 5)
         };
         await this.repository.UpdateLitter(updatedLitter);
 
@@ -347,6 +352,6 @@ public class LittersRepositoryTests : SqliteIntegration
     
     // ReSharper disable InconsistentNaming
     private record LitterRow(long id, long? dam_id, long? sire_id, long? date_of_birth,
-        long? date_of_pairing, string? notes, string? name, long bred_by_me);
+        long? date_of_pairing, string? notes, string? name, long bred_by_me, long stillborn);
     // ReSharper restore InconsistentNaming
 }

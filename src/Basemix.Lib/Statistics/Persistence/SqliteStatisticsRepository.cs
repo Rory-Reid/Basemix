@@ -27,6 +27,7 @@ public class SqliteStatisticsRepository : IStatisticsRepository
               MIN(litter_stats.litter_size)                                  AS min_litter_size,
               MAX(litter_stats.litter_size)                                  AS max_litter_size,
               AVG(litter_stats.litter_size)                                  AS avg_litter_size,
+              SUM(litter_stats.stillborn)                                    AS total_stillborn,
               
               owned_rats.count                                               AS total_owned_rats,
               owned_rats.buck_count                                          AS total_owned_bucks,
@@ -68,7 +69,8 @@ public class SqliteStatisticsRepository : IStatisticsRepository
                 COUNT(CASE WHEN r.dead IS TRUE THEN 1 END)              AS dead_count,
                 SUM((r.date_of_death - r.date_of_birth))                AS sum_age,
                 MAX((r.date_of_death - r.date_of_birth))                AS longest_life,
-                l.date_of_birth - l.date_of_pairing                     AS gestation_period
+                l.date_of_birth - l.date_of_pairing                     AS gestation_period,
+                l.stillborn                                             AS stillborn
               FROM litter l
               LEFT JOIN rat r on l.id = r.litter_id
               WHERE l.bred_by_me IS TRUE
@@ -124,6 +126,7 @@ public class SqliteStatisticsRepository : IStatisticsRepository
         public int MinLitterSize { get; init; }
         public int MaxLitterSize { get; init; }
         public double AvgLitterSize { get; init; }
+        public int TotalStillborn { get; init; }
         
         public int TotalOwnedRats { get; init; }
         public int TotalOwnedBucks { get; init; }
@@ -158,7 +161,8 @@ public class SqliteStatisticsRepository : IStatisticsRepository
                     TotalRehomed = this.TotalRehomed,
                     SmallestLitter = this.MinLitterSize,
                     BiggestLitter = this.MaxLitterSize,
-                    AverageLitterSize = this.AvgLitterSize
+                    AverageLitterSize = this.AvgLitterSize,
+                    TotalStillborn = this.TotalStillborn
                 },
                 OwnedRats = new()
                 {

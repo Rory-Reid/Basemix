@@ -77,13 +77,14 @@ public static class FakerExtensions
         new(faker.Id(), faker.Date.RecentDateOnly(), faker.Person.FirstName, faker.Random.Int(1, 15));
 
     public static Litter BlankLitter(this Faker faker, LitterIdentity? id = null) =>
-        faker.Litter(id: id, null, null, null, true, null, 0, 0, 0, 0);
+        faker.Litter(id: id, null, null, null, true, null, 0, 0, 0, 0, stillborn: 0);
 
     public static Litter Litter(this Faker faker, LitterIdentity? id = null,
         (RatIdentity, string?)? dam = null, (RatIdentity, string?)? sire = null,
         List<Rat>? offspring = null, bool? bredByMe = true, string? name = null,
         float damProbability = 0.5f, float sireProbability = 0.5f,
-        int minimumOffspring = 0, int maximumOffspring = 12)
+        int minimumOffspring = 0, int maximumOffspring = 12,
+        int? stillborn = null)
     {
         var hasDam = faker.Random.Bool(damProbability);
         var hasSire = faker.Random.Bool(sireProbability);
@@ -98,7 +99,8 @@ public static class FakerExtensions
         {
             BredByMe = bredByMe ?? true,
             Name = name,
-            Notes = faker.PickRandom(null, faker.Lorem.Paragraphs())
+            Notes = faker.PickRandom(null, faker.Lorem.Paragraphs()),
+            Stillborn = stillborn ?? faker.Random.Int(0, 3)
         };
     }
 

@@ -20,6 +20,7 @@ public class StatisticsOverview
         public int SmallestLitter { get; init; }
         public int BiggestLitter { get; init; }
         public double AverageLitterSize { get; init; }
+        public int TotalStillborn { get; init; }
     }
 
     public class OwnedRatsOverview

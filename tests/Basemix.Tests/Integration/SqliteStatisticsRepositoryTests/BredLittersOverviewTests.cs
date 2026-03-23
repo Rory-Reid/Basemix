@@ -35,7 +35,8 @@ public class BredLittersOverviewTests : StatsSqliteIntegration
             stats => stats.TotalRehomed.ShouldBe(0),
             stats => stats.SmallestLitter.ShouldBe(0),
             stats => stats.BiggestLitter.ShouldBe(0),
-            stats => stats.AverageLitterSize.ShouldBe(0));
+            stats => stats.AverageLitterSize.ShouldBe(0),
+            stats => stats.TotalStillborn.ShouldBe(0));
     }
 
     [Fact]
@@ -274,6 +275,36 @@ public class BredLittersOverviewTests : StatsSqliteIntegration
             stats => stats.SmallestLitter.ShouldBe(litters.Min(l => l.Offspring.Count)),
             stats => stats.BiggestLitter.ShouldBe(litters.Max(l => l.Offspring.Count)),
             stats => stats.AverageLitterSize.ShouldBe(litters.Average(l => l.Offspring.Count)));
+    }
+
+    [Fact]
+    public async Task Returns_stats_for_stillborn()
+    {
+        var litters = new List<Litter>();
+        var totalStillborn = 0;
+        for (var i = 0; i < this.faker.Random.Int(2, 5); i++)
+        {
+            var stillborn = this.faker.Random.Int(0, 6);
+            totalStillborn += stillborn;
+            var litter = new Litter(await this.fixture.LittersRepository.CreateLitter())
+            {
+                BredByMe = true,
+                Stillborn = stillborn
+            };
+            await this.fixture.LittersRepository.UpdateLitter(litter);
+            litters.Add(litter);
+        }
+
+        // Not-bred litter with stillborn should not be counted
+        var notBredLitter = new Litter(await this.fixture.LittersRepository.CreateLitter())
+        {
+            BredByMe = false,
+            Stillborn = this.faker.Random.Int(1, 10)
+        };
+        await this.fixture.LittersRepository.UpdateLitter(notBredLitter);
+
+        var statistics = await this.repository.GetStatisticsOverview();
+        statistics.BredLitters.TotalStillborn.ShouldBe(totalStillborn);
     }
 
     [Fact]

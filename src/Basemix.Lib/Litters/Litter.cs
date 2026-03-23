@@ -42,6 +42,7 @@ public class Litter
     public DateOnly? DateOfPairing { get; set; }
     public DateOnly? DateOfBirth { get; set; }
     public string? Notes { get; set; }
+    public int Stillborn { get; set; }
     public IReadOnlyList<Offspring> Offspring => this.offspring;
 
     public async Task<LitterAddResult> SetDam(ILittersRepository repository, Rat rat)

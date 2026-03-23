@@ -35,6 +35,10 @@
         Smallest litter: @Stats.BredLitters.SmallestLitter rats <br/>
         Biggest litter: @Stats.BredLitters.BiggestLitter rats <br/>
         Average litter size: @Math.Round(Stats.BredLitters.AverageLitterSize, 2) rats <br/>
+        @if (Stats.BredLitters.TotalStillborn > 0)
+        {
+            @($"Total stillborn: {Stats.BredLitters.TotalStillborn}") <br/>
+        }
     </p>
 }
 

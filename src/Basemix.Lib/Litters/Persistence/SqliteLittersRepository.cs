@@ -23,7 +23,7 @@ public class SqliteLittersRepository : ILittersRepository
                 litter.id, litter.name, litter.bred_by_me, litter.dam_id,
                 litter.sire_id, litter.date_of_birth, litter.date_of_pairing,
                 dam.name as dam_name, sire.name AS sire_name,
-                litter.notes
+                litter.notes, litter.stillborn
             FROM litter
             LEFT JOIN rat dam on dam.id=dam_id
             LEFT JOIN rat sire on sire.id=sire_id
@@ -70,7 +70,8 @@ public class SqliteLittersRepository : ILittersRepository
                 sire_id=@SireId,
                 date_of_pairing=@DateOfPairing,
                 date_of_birth=@DateOfBirth,
-                notes=@Notes
+                notes=@Notes,
+                stillborn=@Stillborn
             WHERE id=@Id",
             new PersistedLitter(litter));
     }

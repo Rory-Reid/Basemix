@@ -46,6 +46,12 @@ else
         <dt class="col-sm-2">Date of Birth</dt>
         <dd class="col-sm-9">@Litter.DateOfBirth.ToLocalizedString()</dd>
         
+        @if (Litter.Stillborn > 0)
+        {
+            <dt class="col-sm-2">Stillborn</dt>
+            <dd class="col-sm-9">@Litter.Stillborn</dd>
+        }
+
         @if (!string.IsNullOrEmpty(Litter.Notes))
         {
             <dt class="col-sm-2">Notes</dt>

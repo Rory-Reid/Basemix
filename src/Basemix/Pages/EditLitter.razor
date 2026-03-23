@@ -71,6 +71,11 @@ else
             <input required class="form-control" type="date" id="dateOfBirthInput" @bind="this.Litter.DateOfBirth"/>
         </dd>
 
+        <dt class="col-sm-2">Stillborn</dt>
+        <dd class="col-sm-9">
+            <input required class="form-control" type="number" min="0" id="stillbornInput" @bind="Litter.Stillborn"/>
+        </dd>
+
         <dt class="col-sm-2">Notes</dt>
         <dd class="col-sm-9">
             <textarea style="box-sizing: border-box;width: 100%" wrap="hard" id="notesInput" rows="5" @bind="Litter.Notes"></textarea>

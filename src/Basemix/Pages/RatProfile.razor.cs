@@ -6,7 +6,9 @@ using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
 using Basemix.Lib.Settings.Persistence;
+#if HAS_MAUI
 using CommunityToolkit.Maui.Storage;
+#endif
 using Microsoft.AspNetCore.Components;
 
 namespace Basemix.Pages;
@@ -188,7 +190,7 @@ public partial class RatProfile
                 Title = "Save pedigree",
                 File = new ShareFile(tempFilePath)
             });
-#else
+#elif HAS_MAUI
             try
             {
                 var stream = new MemoryStream();
