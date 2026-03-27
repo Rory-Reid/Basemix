@@ -109,7 +109,13 @@ else
 
     <h2>Pedigree</h2>
 
+#if !ANDROID
     <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="@(() => ShowPdfExport = true)">Export as PDF</button>
+#else
+    <div class="alert alert-warning" role="alert">
+        PDF export is temporarily unavailable on Android.
+    </div>
+#endif
 
     @if (ExportSuccess is true)
     {

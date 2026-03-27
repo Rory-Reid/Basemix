@@ -4,12 +4,18 @@ namespace Basemix
 {
     public partial class App : Application
     {
+        private readonly Migrator migrator;
+
         public App(Migrator migrator)
         {
-            InitializeComponent();
+            this.InitializeComponent();
+            this.migrator = migrator;
+        }
 
-            MainPage = new MainPage();
-            migrator.Start();
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            this.migrator.Start();
+            return new Window(new MainPage());
         }
     }
 }

@@ -23,6 +23,7 @@ public static class ServiceRegistration
         var errorContext = new ErrorContext();
         DapperSetup.Configure();
         Parser.Configure();
+#if !ANDROID
         try
         {
             PdfGenerator.RegisterFonts();
@@ -31,6 +32,7 @@ public static class ServiceRegistration
         {
             errorContext.LastError = e.ToString();
         }
+#endif
 
         var basemixPath = BasemixData.GetBaseDirectory();
         Directory.CreateDirectory(basemixPath);
