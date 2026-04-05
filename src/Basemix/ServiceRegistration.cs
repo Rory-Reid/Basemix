@@ -23,16 +23,6 @@ public static class ServiceRegistration
         var errorContext = new ErrorContext();
         DapperSetup.Configure();
         Parser.Configure();
-#if !ANDROID
-        try
-        {
-            PdfGenerator.RegisterFonts();
-        }
-        catch (Exception e)
-        {
-            errorContext.LastError = e.ToString();
-        }
-#endif
 
         var basemixPath = BasemixData.GetBaseDirectory();
         Directory.CreateDirectory(basemixPath);
@@ -53,7 +43,14 @@ public static class ServiceRegistration
         services.AddSingleton<IProfileRepository, SqliteProfileRepository>();
         services.AddSingleton<IStatisticsRepository, SqliteStatisticsRepository>();
         services.AddSingleton<IOptionsRepository, SqliteOptionsRepository>();
-        services.AddSingleton<PdfGenerator>();
+        services.AddSingleton<PedigreeSvgGenerator>();
+#if ANDROID
+        services.AddSingleton<IHtmlPrinter, Basemix.Platforms.Android.AndroidHtmlPrinter>();
+#elif MACCATALYST
+        services.AddSingleton<IHtmlPrinter, Basemix.Platforms.MacCatalyst.AppleHtmlPrinter>();
+#elif IOS
+        services.AddSingleton<IHtmlPrinter, Basemix.Platforms.iOS.AppleHtmlPrinter>();
+#endif
         services.AddSingleton(errorContext);
         services.AddSingleton<ParameterLoader>();
         services.AddSingleton<LitterEstimator>();

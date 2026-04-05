@@ -109,13 +109,7 @@ else
 
     <h2>Pedigree</h2>
 
-#if !ANDROID
-    <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="@(() => ShowPdfExport = true)">Export as PDF</button>
-#else
-    <div class="alert alert-warning" role="alert">
-        PDF export is temporarily unavailable on Android.
-    </div>
-#endif
+    <button style="margin-top: 10px;margin-bottom: 10px" class="btn btn-primary" @onclick="@(() => ShowPdfExport = true)">Export pedigree</button>
 
     @if (ExportSuccess is true)
     {
@@ -146,7 +140,7 @@ else
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title">Generate Pedigree</h3>
+                    <h3 class="modal-title">Export Pedigree</h3>
                     <button type="button" class="btn btn-close"
                             @onclick="@(() => ShowPdfExport = false)">
                     </button>
@@ -175,7 +169,7 @@ else
                         </dd>
                     </dl>
 
-                    <button class="btn btn-primary" @onclick="ExportPdfPedigree">Generate and save</button>
+                    <button class="btn btn-primary" @onclick="ExportPedigree">Export</button>
                 </div>
             </div>
         </div>

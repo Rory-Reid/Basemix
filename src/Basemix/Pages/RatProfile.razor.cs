@@ -6,9 +6,6 @@ using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats;
 using Basemix.Lib.Rats.Persistence;
 using Basemix.Lib.Settings.Persistence;
-#if HAS_MAUI
-using CommunityToolkit.Maui.Storage;
-#endif
 using Microsoft.AspNetCore.Components;
 
 namespace Basemix.Pages;
@@ -20,10 +17,11 @@ public partial class RatProfile
     [Inject] public IPedigreeRepository PedigreeRepository { get; set; } = null!;
     [Inject] public IProfileRepository ProfileRepository { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
-    [Inject] public PdfGenerator PdfGenerator { get; set; } = null!;
+    [Inject] public PedigreeSvgGenerator SvgGenerator { get; set; } = null!;
     [Inject] public DateSpanToString DateSpanToString { get; set; } = null!;
     [Inject] public NowDateOnly NowDateOnly { get; set; } = null!;
     [Inject] public ErrorContext ErrorContext { get; set; } = null!;
+    [Inject] public IHtmlPrinter HtmlPrinter { get; set; } = null!;
     
     [Parameter] public long Id { get; set; }
 
@@ -166,50 +164,20 @@ public partial class RatProfile
     
     public bool? ExportSuccess { get; set; }
 
-    public async Task ExportPdfPedigree()
+    public async Task ExportPedigree()
     {
-        var profile = await this.ProfileRepository.GetDefaultProfile();
         try
         {
-            var pdf = this.PdfGenerator.CreateFromPedigree(
+            var html = this.SvgGenerator.GenerateHtml(
                 this.Pedigree,
                 this.Rat.Sex,
                 this.Rat.DateOfBirth,
                 this.PedigreeContext.RatteryName,
                 this.LitterName,
                 this.PedigreeContext.FooterText,
-                this.PedigreeContext.ShowSex,
-                profile.Pedigree.Pdf);
+                this.PedigreeContext.ShowSex);
 
-#if ANDROID
-            var tempFilePath = Path.Combine(FileSystem.Current.CacheDirectory, $"{this.Rat.Name}.pdf");
-            await using var tempFile = new FileStream(tempFilePath, FileMode.Create);
-            this.PdfGenerator.WriteToStream(pdf, tempFile);
-            await Share.Default.RequestAsync(new ShareFileRequest
-            {
-                Title = "Save pedigree",
-                File = new ShareFile(tempFilePath)
-            });
-#elif HAS_MAUI
-            try
-            {
-                var stream = new MemoryStream();
-                this.PdfGenerator.WriteToStream(pdf, stream);
-                await FileSaver.Default.SaveAsync($"{this.Rat.Name}.pdf", stream, CancellationToken.None);
-            }
-            catch (FolderPickerException e) when (e.Message is "Operation cancelled.")
-            {
-            }
-            catch (FileSaveException e) when (e.Message is "Path doesn't exist.")
-            {
-                // CommunityToolkit doesn't handle people "cancelling" the file dialog and instead throws this exception.
-            }
-            catch (IndexOutOfRangeException e) when (e.Message.Contains("Arg_IndexOutOfRangeException"))
-            {
-                // Potential bug in CommunityToolkit for android. Seems to be an issue with returning the filepath
-                // and not with actually saving the file. I can safely ignore it for now.
-            }
-#endif
+            await this.HtmlPrinter.PrintHtmlAsync(html, $"{this.Rat.Name}-pedigree");
         }
         catch (Exception e)
         {
