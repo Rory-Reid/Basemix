@@ -3,7 +3,8 @@
 }
 
 .top-row {
-    height: 3.5rem;
+    min-height: 3.5rem;
+    padding-top: env(safe-area-inset-top);
     background-color: #0496b0;
 }
 

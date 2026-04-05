@@ -43,7 +43,7 @@
 
     <ItemGroup Condition="'$(TargetFramework)' != 'net10.0'">
         <!-- App Icon -->
-        <MauiIcon Include="Resources\AppIcon\appicon.png" Color="#FFFFFF"/>
+        <MauiIcon Include="Resources\AppIcon\appicon.png" Color="#52B4B4"/>
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.png" Color="#FFFFFF" BaseSize="128,128"/>
@@ -78,9 +78,6 @@
         <Compile Remove="MainPage.xaml.cs" />
         <Content Remove="Pages\Tools.razor" />
         <Content Remove="Pages\ImportRatRecords.razor" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Services\" />
     </ItemGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)' != 'net10.0'">
