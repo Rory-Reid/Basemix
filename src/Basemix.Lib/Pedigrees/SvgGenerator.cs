@@ -68,7 +68,9 @@ public class PedigreeSvgGenerator
         const double rowHeight = treeHeight / 16;
 
         var sb = new StringBuilder();
-        sb.AppendLine($"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {PageWidth} {PageHeight}">""");
+        sb.AppendLine(
+            FormattableString.Invariant(
+                $"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {PageWidth} {PageHeight}">"""));
 
         // Background
         sb.AppendLine($"""<rect width="{PageWidth}" height="{PageHeight}" fill="white"/>""");
@@ -235,25 +237,25 @@ public class PedigreeSvgGenerator
 
     private static void DrawRect(StringBuilder sb, double x, double y, double w, double h, string fill, string stroke)
     {
-        sb.AppendLine(
+        sb.AppendLine(FormattableString.Invariant(
             $"""
              <rect x="{x:F2}" y="{y:F2}" width="{w:F2}" height="{h:F2}"
                    fill="{fill}" stroke="{stroke}" stroke-width="0.3"/>
-             """);
+             """));
     }
 
     private static void DrawText(StringBuilder sb, double x, double y, string text, double fontSize, bool bold,
         string colour, string anchor)
     {
         var weight = bold ? "font-weight=\"bold\"" : "";
-        sb.AppendLine(
+        sb.AppendLine(FormattableString.Invariant(
             $"""
              <text x="{x:F2}" y="{y:F2}" font-size="{fontSize:F1}"
                    font-family="Arial, Helvetica, sans-serif" fill="{colour}"
                    text-anchor="{anchor}" dominant-baseline="central" {weight}>
                  {text}
              </text>
-             """);
+             """));
     }
 
     private static string VarietyText(Node node, bool showSex, Sex? sex)
