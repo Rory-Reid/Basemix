@@ -19,6 +19,7 @@ public record PersistedRat
         this.DeathReasonId = rat.DeathReason?.Id;
         this.Owned = rat.Owned;
         this.OwnerId = rat.OwnerId;
+        this.PhotoId = rat.PhotoId;
     }
     
     public long? Id { get; init; }
@@ -34,6 +35,7 @@ public record PersistedRat
     public bool Owned { get; init; }
     public long? OwnerId { get; init; }
     public string? OwnerName { get; init; }
+    public string? PhotoId { get; init; }
 
     public Rat ToModelledRat(List<PersistedRatLitter>? litters = null)
     {
@@ -56,6 +58,7 @@ public record PersistedRat
                 ? new DeathReason(this.DeathReasonId.Value, this.DeathReason ?? "INVALID DEATH REASON")
                 : null,
             Owned = this.Owned,
+            PhotoId = this.PhotoId,
         };
     }
 }

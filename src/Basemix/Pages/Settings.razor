@@ -80,6 +80,18 @@ else
         </dd>
     </dl>
     
+    <h2>Photo settings</h2>
+    <dl class="row">
+        <dt class="col-sm-4">Max resolution (longest edge, px)</dt>
+        <dd class="col-sm-9">
+            <input required type="number" class="form-control" @bind="Profile.Photo.MaxResolution"/>
+        </dd>
+        <dt class="col-sm-4">Compress photos</dt>
+        <dd class="col-sm-9">
+            <input type="checkbox" class="form-check-input" @bind="Profile.Photo.CompressionEnabled"/>
+        </dd>
+    </dl>
+
     <h2>Litter Estimation settings</h2>
     <dl class="row">
         <dt class="col-sm-4">DOB days after pairing (minimum)</dt>

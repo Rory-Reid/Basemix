@@ -53,6 +53,11 @@ public class MemoryProfileRepository : IProfileRepository
             MinSeparationDaysAfterBirth = 28,
             MinRehomeDaysAfterBirth = 42
         };
+        profile.Photo = new()
+        {
+            MaxResolution = 1080,
+            CompressionEnabled = true
+        };
     }
 
     private static Profile CopyOf(Profile profile) =>
@@ -82,6 +87,11 @@ public class MemoryProfileRepository : IProfileRepository
                 MinWeaningDaysAfterBirth = profile.LitterEstimation.MinWeaningDaysAfterBirth,
                 MinSeparationDaysAfterBirth = profile.LitterEstimation.MinSeparationDaysAfterBirth,
                 MinRehomeDaysAfterBirth = profile.LitterEstimation.MinRehomeDaysAfterBirth
+            },
+            Photo = new()
+            {
+                MaxResolution = profile.Photo.MaxResolution,
+                CompressionEnabled = profile.Photo.CompressionEnabled
             }
         };
 }

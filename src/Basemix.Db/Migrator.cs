@@ -38,7 +38,8 @@ public class Migrator(string databaseName, string legacyDatabaseName, ILogger<Mi
         var upgrader =
             DeployChanges.To
                 .SQLiteDatabase($"Data Source={this.databaseName};Pooling=false")
-                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
+                .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly(),
+                    s => !s.Contains(".Scripts.Media."))
                 .WithVariablesDisabled()
                 .LogTo(new LoggerAdapter(this.logger))
                 .Build();

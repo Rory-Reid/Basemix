@@ -35,6 +35,12 @@ public partial class Settings
     public bool ValidateSettings()
     {
         this.ErrorMessages.Clear();
+
+        if (this.Profile.Photo.MaxResolution is < 100 or > 4320)
+        {
+            this.ErrorMessages.Add("Photo max resolution must be between 100 and 4320 pixels.");
+        }
+
         var litterEstimation = this.Profile.LitterEstimation;
         if (litterEstimation.MinBirthDaysAfterPairing > litterEstimation.MaxBirthDaysAfterPairing)
         {

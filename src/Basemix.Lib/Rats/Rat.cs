@@ -39,7 +39,8 @@ public class Rat
     public DateOnly? DateOfDeath { get; set; }
     public DeathReason? DeathReason { get; set; }
     public string? Notes { get; set; }
-    
+    public string? PhotoId { get; set; }
+
     public List<RatLitter> Litters { get; }
 
     public async Task<OwnerAddResult> SetOwner(IRatsRepository repository, IOwnerDetails owner)

@@ -6,9 +6,13 @@ public delegate IDbConnection GetDatabase();
 
 public delegate string GetDatabasePath();
 
+public delegate IDbConnection GetMediaDatabase();
+
 public delegate string GetDataDirectory();
 
 public delegate DateOnly NowDateOnly();
+
+public delegate DateTimeOffset NowDateTimeOffset();
 
 public delegate string DateSpanToString(DateOnly date1, DateOnly date2);
 

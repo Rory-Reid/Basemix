@@ -23,7 +23,8 @@ public class SqliteProfileRepository : IProfileRepository
                 pedigree_pdf_page_margin, pedigree_pdf_font, pedigree_pdf_header_font_size,
                 pedigree_pdf_subheader_font_size, pedigree_pdf_font_size, pedigree_pdf_footer_font_size,
                 litter_estimation_min_days_after_pairing, litter_estimation_max_days_after_pairing,
-                litter_estimation_min_weaning, litter_estimation_min_separation, litter_estimation_min_rehome
+                litter_estimation_min_weaning, litter_estimation_min_separation, litter_estimation_min_rehome,
+                photo_max_resolution, photo_compression_enabled
             FROM settings_profile
             WHERE id = 1
             """);
@@ -53,7 +54,9 @@ public class SqliteProfileRepository : IProfileRepository
                 litter_estimation_max_days_after_pairing = 23,
                 litter_estimation_min_weaning = 25,
                 litter_estimation_min_separation = 31,
-                litter_estimation_min_rehome = 42
+                litter_estimation_min_rehome = 42,
+                photo_max_resolution = 1080,
+                photo_compression_enabled = 1
             WHERE id = @Id
             """, new {Id = profileId});
     }
@@ -80,7 +83,9 @@ public class SqliteProfileRepository : IProfileRepository
                 litter_estimation_max_days_after_pairing = @LitterEstimationMaxDaysAfterPairing,
                 litter_estimation_min_weaning = @LitterEstimationMinWeaning,
                 litter_estimation_min_separation = @LitterEstimationMinSeparation,
-                litter_estimation_min_rehome = @LitterEstimationMinRehome
+                litter_estimation_min_rehome = @LitterEstimationMinRehome,
+                photo_max_resolution = @PhotoMaxResolution,
+                photo_compression_enabled = @PhotoCompressionEnabled
             WHERE id = @Id
             """,
             new PersistedProfile(profile));

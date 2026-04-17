@@ -14,6 +14,20 @@ else
 
     <h1>@Rat.Name</h1>
 
+    @if (Photo != null)
+    {
+        <div style="margin-bottom: 1rem;">
+            <img src="@Photo.ToDataUri()" alt="@Rat.Name"
+                 style="width: 100%; max-width: 400px; aspect-ratio: 1; object-fit: cover; border-radius: 8px;" />
+        </div>
+    }
+    else if (PhotoMissing)
+    {
+        <div style="margin-bottom: 1rem;">
+            <MissingPhoto/>
+        </div>
+    }
+
     <dl class="row">
         @if (Rat.OwnerId != null)
         {

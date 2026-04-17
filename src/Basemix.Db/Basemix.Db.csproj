@@ -21,6 +21,7 @@
 
     <ItemGroup>
         <EmbeddedResource Include="Scripts\*.sql" />
+        <EmbeddedResource Include="Scripts\Media\*.sql" />
     </ItemGroup>
 
     <ItemGroup>

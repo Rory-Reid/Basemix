@@ -3,6 +3,7 @@ namespace Basemix.Lib.Persistence;
 public class BasemixData
 {
     public static string StandardDbName = "db.sqlite";
+    public static string MediaDbName = "media.sqlite";
     
     public static string GetBaseDirectory()
     {

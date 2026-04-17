@@ -30,14 +30,21 @@ public interface ISqliteFixture
 public class SqliteFixture : ISqliteFixture, IAsyncLifetime
 {
     public string Database => "test-db.sqlite";
+    public string MediaDatabase => "test-media-db.sqlite";
 
     public IDbConnection GetConnection() => new SqliteConnection($"Data Source={this.Database};Pooling=false");
+    public IDbConnection GetMediaConnection() => new SqliteConnection($"Data Source={this.MediaDatabase};Pooling=false");
 
     public SqliteFixture()
     {
         if (File.Exists(this.Database))
         {
             File.Delete(this.Database);
+        }
+
+        if (File.Exists(this.MediaDatabase))
+        {
+            File.Delete(this.MediaDatabase);
         }
 
         this.ProvisionDatabase();
@@ -56,6 +63,9 @@ public class SqliteFixture : ISqliteFixture, IAsyncLifetime
     {
         var db = new Migrator(this.Database, this.Database, NullLogger<Migrator>.Instance);
         db.Start();
+        
+        var mediaDb = new MediaMigrator(this.MediaDatabase, NullLogger<MediaMigrator>.Instance);
+        mediaDb.Start();
     }
 
     public async Task InitializeAsync()

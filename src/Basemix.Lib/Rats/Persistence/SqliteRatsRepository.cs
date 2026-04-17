@@ -47,7 +47,8 @@ public class SqliteRatsRepository : IRatsRepository
                 date_of_death=(CASE WHEN @Dead IS TRUE THEN @DateOfDeath END),
                 death_reason_id=(CASE WHEN @Dead IS TRUE THEN @DeathReasonId END),
                 owned=@Owned,
-                owner_id=@OwnerId
+                owner_id=@OwnerId,
+                photo_id=@PhotoId
             WHERE id=@Id",
             new PersistedRat(rat));
     }
@@ -60,7 +61,7 @@ public class SqliteRatsRepository : IRatsRepository
             @"SELECT
                 rat.id, rat.name, rat.sex, rat.variety, rat.date_of_birth, rat.notes, rat.dead, rat.date_of_death,
                 rat.death_reason_id, death_reason.reason AS death_reason, rat.owned, rat.owner_id,
-                owner.name as owner_name
+                owner.name as owner_name, rat.photo_id
             FROM rat
             LEFT JOIN owner ON owner.id = rat.owner_id
             LEFT JOIN death_reason ON rat.death_reason_id = death_reason.id

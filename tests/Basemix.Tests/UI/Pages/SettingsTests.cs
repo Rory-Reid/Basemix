@@ -171,4 +171,50 @@ public class SettingsTests : RazorPageTests<Settings>
             estimation => estimation.MinWeaningDaysAfterBirth.ShouldNotBe(this.Page.Profile.LitterEstimation.MinWeaningDaysAfterBirth),
             estimation => estimation.MinSeparationDaysAfterBirth.ShouldNotBe(this.Page.Profile.LitterEstimation.MinSeparationDaysAfterBirth));
     }
+    
+    [Fact]
+    public async Task Photo_resolution_too_low_should_show_error_and_not_save()
+    {
+        this.Page.Profile.Photo.MaxResolution = this.faker.Random.Int(0, 99);
+        
+        await this.Page.SaveAndGoBack();
+        
+        this.Page.ShowError.ShouldBeTrue();
+        this.Page.ErrorMessages.ShouldContain("Photo max resolution must be between 100 and 4320 pixels.");
+        (await this.profileRepository.GetDefaultProfile())
+            .Photo.MaxResolution
+            .ShouldNotBe(this.Page.Profile.Photo.MaxResolution);
+    }
+    
+    [Fact]
+    public async Task Photo_resolution_too_high_should_show_error_and_not_save()
+    {
+        this.Page.Profile.Photo.MaxResolution = this.faker.Random.Int(4321, 10000);
+        
+        await this.Page.SaveAndGoBack();
+        
+        this.Page.ShowError.ShouldBeTrue();
+        this.Page.ErrorMessages.ShouldContain("Photo max resolution must be between 100 and 4320 pixels.");
+        (await this.profileRepository.GetDefaultProfile())
+            .Photo.MaxResolution
+            .ShouldNotBe(this.Page.Profile.Photo.MaxResolution);
+    }
+    
+    [Fact]
+    public async Task Can_save_photo_resolution_and_compression_settings()
+    {
+        var expectedResolution = this.faker.Random.Int(100, 4320);
+        var expectedCompression = this.faker.Random.Bool();
+        
+        this.Page.Profile.Photo.MaxResolution = expectedResolution;
+        this.Page.Profile.Photo.CompressionEnabled = expectedCompression;
+        
+        await this.Page.SaveAndGoBack();
+        
+        this.Page.ShowError.ShouldBeFalse();
+        
+        var savedProfile = await this.profileRepository.GetDefaultProfile();
+        savedProfile.Photo.MaxResolution.ShouldBe(expectedResolution);
+        savedProfile.Photo.CompressionEnabled.ShouldBe(expectedCompression);
+    }
 }

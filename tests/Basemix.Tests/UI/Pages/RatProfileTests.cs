@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Basemix.Lib;
+using Basemix.Lib.Media;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Rats;
 using Basemix.Pages;
@@ -18,6 +19,7 @@ public class RatProfileTests : RazorPageTests<RatProfile>
     private MemoryLittersRepository littersRepository = null!;
     private MemoryPedigreesRepository pedigreesRepository = null!;
     private MemoryProfileRepository profileRepository = null!;
+    private MemoryMediaRepository mediaRepository = null!;
 
     [SuppressMessage("Usage", "BL0005:Component parameter should not be set outside of its component.")]
     protected override RatProfile CreatePage()
@@ -27,6 +29,7 @@ public class RatProfileTests : RazorPageTests<RatProfile>
         this.littersRepository = new MemoryLittersRepository(backplane);
         this.pedigreesRepository = new MemoryPedigreesRepository(backplane);
         this.profileRepository = new MemoryProfileRepository(backplane);
+        this.mediaRepository = new MemoryMediaRepository();
         return new()
         {
             Id = this.faker.Id(),
@@ -34,9 +37,11 @@ public class RatProfileTests : RazorPageTests<RatProfile>
             LittersRepository = this.littersRepository,
             PedigreeRepository = this.pedigreesRepository,
             ProfileRepository = this.profileRepository,
+            MediaRepository = this.mediaRepository,
             Nav = this.nav,
             DateSpanToString = Delegates.HumaniseDateSpan,
             NowDateOnly = () => this.Now,
+            ErrorContext = new ErrorContext(),
         };
     }
 
@@ -302,5 +307,54 @@ public class RatProfileTests : RazorPageTests<RatProfile>
         
         this.Page.LitterName.ShouldBeNull();
         
+    }
+
+    [Fact]
+    public async Task Rat_without_photo_id_does_not_set_photo_or_photo_missing()
+    {
+        var rat = this.faker.Rat(id: this.Page.Id);
+        this.repository.Rats[this.Page.Id] = rat;
+
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        this.Page.Photo.ShouldBeNull();
+        this.Page.PhotoMissing.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Rat_with_photo_id_loads_photo()
+    {
+        var photoId = MediaIds.RatProfilePhoto(this.Page.Id);
+        var rat = this.faker.Rat(id: this.Page.Id);
+        rat.PhotoId = photoId;
+        this.repository.Rats[this.Page.Id] = rat;
+        this.mediaRepository.Photos[photoId] = new RatPhoto
+        {
+            Id = photoId,
+            ImageFormat = "jpeg",
+            StoredWidth = 100,
+            StoredHeight = 100,
+            Data = new byte[] { 1, 2, 3 }
+        };
+
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        this.Page.Photo.ShouldNotBeNull();
+        this.Page.Photo.Id.ShouldBe(photoId);
+        this.Page.PhotoMissing.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Rat_with_photo_id_sets_photo_missing_when_photo_not_found()
+    {
+        var photoId = MediaIds.RatProfilePhoto(this.Page.Id);
+        var rat = this.faker.Rat(id: this.Page.Id);
+        rat.PhotoId = photoId;
+        this.repository.Rats[this.Page.Id] = rat;
+
+        await RazorEngine.InvokeOnParametersSetAsync(this.Page);
+
+        this.Page.Photo.ShouldBeNull();
+        this.Page.PhotoMissing.ShouldBeTrue();
     }
 }

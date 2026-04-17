@@ -1,5 +1,6 @@
 @page "/rats/{Id:long}/edit"
 @using Basemix.Lib
+@using Basemix.Lib.Media
 @using Basemix.Lib.Rats
 @using Basemix.Lib.Settings.Persistence
 
@@ -15,6 +16,44 @@ else
     <SaveHeader OnSave="SaveAndGoBack"/>
 
     <h1>Editing @RatForm.Name</h1>
+
+    <dt class="col-sm-2">Photo</dt>
+    <dd class="col-sm-9">
+        @if (Photo != null)
+        {
+            <div>
+                <img src="@Photo.ToDataUri()" alt="@RatForm.Name"
+                     style="width: 100%; max-width: 400px; aspect-ratio: 1; object-fit: cover; border-radius: 8px;" />
+            </div>
+            <div style="margin-top: 0.5rem;">
+                <button class="btn btn-primary" @onclick="UploadPhoto">
+                    <span class="oi oi-loop-circular"></span> Replace photo
+                </button>
+                <button class="btn btn-danger" @onclick="DeletePhoto">
+                    <span class="oi oi-circle-x"></span> Remove photo
+                </button>
+            </div>
+        }
+        else if (PhotoMissing)
+        {
+            <MissingPhoto/>
+            <p><small class="text-muted">This rat's photo is missing — it may have failed to save or been lost during a backup restore. You can upload a replacement, or remove the broken reference.</small></p>
+            <div style="margin-top: 0.5rem;">
+                <button class="btn btn-primary" @onclick="UploadPhoto">
+                    <span class="oi oi-loop-circular"></span> Replace photo
+                </button>
+                <button class="btn btn-danger" @onclick="DeletePhoto">
+                    <span class="oi oi-circle-x"></span> Remove photo
+                </button>
+            </div>
+        }
+        else
+        {
+            <button class="btn btn-primary" @onclick="UploadPhoto">
+                <span class="oi oi-plus"></span> Add photo
+            </button>
+        }
+    </dd>
 
     <dl class="row">
         <dt class="col-sm-2">Name</dt>

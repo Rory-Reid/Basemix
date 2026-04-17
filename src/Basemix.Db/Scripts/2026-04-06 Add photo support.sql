@@ -1,0 +1,1 @@
+ALTER TABLE rat ADD COLUMN photo_id TEXT;

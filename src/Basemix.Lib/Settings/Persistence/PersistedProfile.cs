@@ -24,6 +24,8 @@ public class PersistedProfile
         this.LitterEstimationMinWeaning = profile.LitterEstimation.MinWeaningDaysAfterBirth;
         this.LitterEstimationMinSeparation = profile.LitterEstimation.MinSeparationDaysAfterBirth;
         this.LitterEstimationMinRehome = profile.LitterEstimation.MinRehomeDaysAfterBirth;
+        this.PhotoMaxResolution = profile.Photo.MaxResolution;
+        this.PhotoCompressionEnabled = profile.Photo.CompressionEnabled;
     }
     
     public long Id { get; init; }
@@ -45,6 +47,9 @@ public class PersistedProfile
     public int LitterEstimationMinWeaning { get; init; }
     public int LitterEstimationMinSeparation { get; init; }
     public int LitterEstimationMinRehome { get; init; }
+
+    public int PhotoMaxResolution { get; init; }
+    public bool PhotoCompressionEnabled { get; init; }
 
     public Profile ToModelledProfile() =>
         new()
@@ -73,6 +78,11 @@ public class PersistedProfile
                 MinWeaningDaysAfterBirth = this.LitterEstimationMinWeaning,
                 MinSeparationDaysAfterBirth = this.LitterEstimationMinSeparation,
                 MinRehomeDaysAfterBirth = this.LitterEstimationMinRehome
+            },
+            Photo = new Profile.PhotoSettings
+            {
+                MaxResolution = this.PhotoMaxResolution,
+                CompressionEnabled = this.PhotoCompressionEnabled
             }
         };
 }

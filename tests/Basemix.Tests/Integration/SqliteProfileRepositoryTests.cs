@@ -38,7 +38,9 @@ public class SqliteProfileRepositoryTests : SqliteIntegration
             () => profile.LitterEstimation.MaxBirthDaysAfterPairing.ShouldBe(23),
             () => profile.LitterEstimation.MinWeaningDaysAfterBirth.ShouldBe(25),
             () => profile.LitterEstimation.MinSeparationDaysAfterBirth.ShouldBe(31),
-            () => profile.LitterEstimation.MinRehomeDaysAfterBirth.ShouldBe(42));
+            () => profile.LitterEstimation.MinRehomeDaysAfterBirth.ShouldBe(42),
+            () => profile.Photo.MaxResolution.ShouldBe(1080),
+            () => profile.Photo.CompressionEnabled.ShouldBeTrue());
     }
 
     [Fact]
@@ -60,6 +62,8 @@ public class SqliteProfileRepositoryTests : SqliteIntegration
         profile.LitterEstimation.MinWeaningDaysAfterBirth = this.faker.Random.Int(0, 100);
         profile.LitterEstimation.MinSeparationDaysAfterBirth = this.faker.Random.Int(0, 100);
         profile.LitterEstimation.MinRehomeDaysAfterBirth = this.faker.Random.Int(0, 100);
+        profile.Photo.MaxResolution = this.faker.Random.Int(100, 4320);
+        profile.Photo.CompressionEnabled = this.faker.Random.Bool();
         
         await this.repository.UpdateProfileSettings(profile);
         var updatedProfile = await this.repository.GetDefaultProfile();

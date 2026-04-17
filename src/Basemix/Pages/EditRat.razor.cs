@@ -1,5 +1,7 @@
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Media;
+using Basemix.Lib.Media.Persistence;
 using Basemix.Lib.Owners;
 using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Rats;
@@ -16,6 +18,10 @@ public partial class EditRat
     [Inject] public ILittersRepository LittersRepository { get; set; } = null!;
     [Inject] public IOwnersRepository OwnersRepository { get; set; } = null!;
     [Inject] public IOptionsRepository OptionsRepository { get; set; } = null!;
+    [Inject] public IProfileRepository ProfileRepository { get; set; } = null!;
+    [Inject] public IMediaRepository MediaRepository { get; set; } = null!;
+    [Inject] public IPhotoPicker PhotoPicker { get; set; } = null!;
+    [Inject] public ErrorContext ErrorContext { get; set; } = null!;
     [Inject] public IJSRuntime JsRuntime { get; set; } = null!;
     [Inject] public NavigationManager Nav { get; set; } = null!;
 
@@ -24,13 +30,15 @@ public partial class EditRat
     public bool RatLoaded { get; private set; }
     public Rat Rat { get; private set; } = null!;
     public RatForm RatForm { get; private set; } = new();
-    
+    public RatPhoto? Photo { get; private set; }
+    public bool PhotoMissing { get; private set; }
+
     public bool ShowOwnerSearch { get; set; }
     public string? OwnerSearchTerm { get; set; }
     public List<OwnerSearchResult> OwnerSearchResults { get; set; } = new();
-    
+
     public bool DisableCreateLitter => !this.CanAddLitter();
-    
+
     public List<DeathReason> DeathReasonOptions { get; set; } = new();
 
     protected override async Task OnParametersSetAsync()
@@ -55,7 +63,13 @@ public partial class EditRat
             DeathReasonId = this.Rat.DeathReason?.Id,
             Owned = this.Rat.Owned
         };
-        
+
+        if (rat.PhotoId != null)
+        {
+            this.Photo = await this.MediaRepository.GetPhoto(rat.PhotoId);
+            this.PhotoMissing = this.Photo == null;
+        }
+
         this.DeathReasonOptions = await this.OptionsRepository.GetDeathReasons();
     }
 
@@ -136,6 +150,65 @@ public partial class EditRat
         await this.Rat.RemoveOwner(this.Repository);
     }
     
+    public async Task UploadPhoto()
+    {
+        try
+        {
+            using var result = await this.PhotoPicker.PickPhotoAsync();
+            if (result == null)
+            {
+                return;
+            }
+
+            var profile = await this.ProfileRepository.GetDefaultProfile();
+            var photoId = MediaIds.RatProfilePhoto(this.Rat.Id);
+
+            if (this.Rat.PhotoId != photoId)
+            {
+                this.Rat.PhotoId = photoId;
+                await this.Rat.Save(this.Repository);
+            }
+
+            await this.MediaRepository.SavePhoto(
+                photoId,
+                result.Stream,
+                result.FileName,
+                profile.Photo.MaxResolution,
+                profile.Photo.CompressionEnabled);
+
+            this.Photo = await this.MediaRepository.GetPhoto(photoId);
+            this.PhotoMissing = this.Photo == null;
+        }
+        catch (Exception e)
+        {
+            this.ErrorContext.LastError = e.ToString();
+        }
+    }
+
+    public async Task DeletePhoto()
+    {
+        try
+        {
+            var oldPhotoId = this.Rat.PhotoId;
+            if (oldPhotoId == null)
+            {
+                return;
+            }
+
+            await this.MediaRepository.DeletePhoto(oldPhotoId);
+
+            this.Rat.PhotoId = null;
+            await this.Rat.Save(this.Repository);
+
+            this.Photo = null;
+            this.PhotoMissing = false;
+        }
+        catch (Exception e)
+        {
+            this.ErrorContext.LastError = e.ToString();
+        }
+    }
+
     private async Task SaveRat()
     {
         Enum.TryParse<Sex>(this.RatForm.Sex, out var sex);

@@ -1,6 +1,8 @@
 using Basemix.Lib;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Media;
+using Basemix.Lib.Media.Persistence;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
 using Basemix.Lib.Rats;
@@ -22,14 +24,17 @@ public partial class RatProfile
     [Inject] public NowDateOnly NowDateOnly { get; set; } = null!;
     [Inject] public ErrorContext ErrorContext { get; set; } = null!;
     [Inject] public IHtmlPrinter HtmlPrinter { get; set; } = null!;
-    
+    [Inject] public IMediaRepository MediaRepository { get; set; } = null!;
+
     [Parameter] public long Id { get; set; }
 
     public bool RatLoaded { get; private set; }
     public bool PedigreeLoaded { get; private set; }
     public bool ShowPdfExport { get; private set; }
-    
+
     public Rat Rat { get; private set; } = null!;
+    public RatPhoto? Photo { get; private set; }
+    public bool PhotoMissing { get; private set; }
     public Node Pedigree { get; private set; } = null!;
     public PedigreeContext PedigreeContext { get; set; } = null!;
 
@@ -104,7 +109,13 @@ public partial class RatProfile
 
         this.RatLoaded = true;
         this.Rat = rat;
-        
+
+        if (rat.PhotoId != null)
+        {
+            this.Photo = await this.MediaRepository.GetPhoto(rat.PhotoId);
+            this.PhotoMissing = this.Photo == null;
+        }
+
         var pedigree = await this.PedigreeRepository.GetPedigree(this.Id);
         if (pedigree == null)
         {

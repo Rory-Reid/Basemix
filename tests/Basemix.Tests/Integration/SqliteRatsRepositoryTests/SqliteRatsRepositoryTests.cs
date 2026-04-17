@@ -1,3 +1,4 @@
+using Basemix.Lib.Media;
 using Basemix.Lib.Owners;
 using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Rats;
@@ -207,9 +208,52 @@ public class SqliteRatRepositoryTests(SqliteFixture fixture) : SqliteIntegration
             () => result.DeathReason.ShouldBeNull(),
             () => result.DateOfDeath.ShouldBeNull());
     }
-    
+
+    [Fact]
+    public async Task Can_save_and_load_photo_id()
+    {
+        var rat = await Rat.Create(this.repository);
+        rat.PhotoId = MediaIds.RatProfilePhoto(rat.Id);
+        await rat.Save(this.repository);
+
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull();
+        result.PhotoId.ShouldBe(MediaIds.RatProfilePhoto(rat.Id));
+    }
+
+    [Fact]
+    public async Task Can_update_photo_id()
+    {
+        var rat = await Rat.Create(this.repository);
+        rat.PhotoId = MediaIds.RatProfilePhoto(rat.Id);
+        await rat.Save(this.repository);
+
+        rat.PhotoId = $"rat:{rat.Id.Value}:updated";
+        await rat.Save(this.repository);
+
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull();
+        result.PhotoId.ShouldBe($"rat:{rat.Id.Value}:updated");
+    }
+
+    [Fact]
+    public async Task Can_remove_photo_id()
+    {
+        var rat = await Rat.Create(this.repository);
+        rat.PhotoId = MediaIds.RatProfilePhoto(rat.Id);
+        await rat.Save(this.repository);
+
+        rat.PhotoId = null;
+        await rat.Save(this.repository);
+
+        var result = await this.repository.GetRat(rat.Id);
+        result.ShouldNotBeNull();
+        result.PhotoId.ShouldBeNull();
+    }
+
     // ReSharper disable InconsistentNaming
     private record RatRow(long id, string? name, string? sex, string? variety, long? date_of_birth, string? notes,
-        long? litter_id, long? date_of_death, long owned, long owner_id, long dead, long? death_reason_id);
+        long? litter_id, long? date_of_death, long owned, long owner_id, long dead, long? death_reason_id,
+        string? photo_id);
     // ReSharper restore InconsistentNaming
 }

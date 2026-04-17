@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Basemix.Lib.Ingestion.RatRecordsSpreadsheet;
 using Basemix.Lib.Litters;
 using Basemix.Lib.Litters.Persistence;
+using Basemix.Lib.Media.Persistence;
 using Basemix.Lib.Owners.Persistence;
 using Basemix.Lib.Pedigrees;
 using Basemix.Lib.Pedigrees.Persistence;
@@ -29,11 +30,16 @@ public static class ServiceRegistration
         var dbPath = BasemixData.GetDbFilePath();
         var legacyDbPath = BasemixData.GetLegacyDbFilePath();
 
+        var mediaDbPath = BasemixData.GetDbFilePath(BasemixData.MediaDbName);
+
         services.AddSingleton<GetDataDirectory>(() => basemixPath);
         services.AddSingleton<GetDatabasePath>(() => dbPath);
         services.AddSingleton(s => new Migrator(dbPath, legacyDbPath, s.GetRequiredService<ILogger<Migrator>>()));
+        services.AddSingleton(s => new MediaMigrator(mediaDbPath, s.GetRequiredService<ILogger<MediaMigrator>>()));
         services.AddSingleton<GetDatabase>(() => new SqliteConnection($"Data Source={dbPath};Pooling=false"));
+        services.AddSingleton<GetMediaDatabase>(() => new SqliteConnection($"Data Source={mediaDbPath};Pooling=false"));
         services.AddSingleton<NowDateOnly>(() => DateOnly.FromDateTime(DateTime.Now));
+        services.AddSingleton<NowDateTimeOffset>(() => DateTimeOffset.UtcNow);
         services.AddSingleton<DateSpanToString>(Delegates.HumaniseDateSpan);
         services.AddSingleton<BreedersRepository>();
         services.AddSingleton<IRatsRepository, SqliteRatsRepository>();
@@ -43,13 +49,17 @@ public static class ServiceRegistration
         services.AddSingleton<IProfileRepository, SqliteProfileRepository>();
         services.AddSingleton<IStatisticsRepository, SqliteStatisticsRepository>();
         services.AddSingleton<IOptionsRepository, SqliteOptionsRepository>();
+        services.AddSingleton<IMediaRepository, SqliteMediaRepository>();
         services.AddSingleton<PedigreeSvgGenerator>();
 #if ANDROID
         services.AddSingleton<IHtmlPrinter, Basemix.Platforms.Android.AndroidHtmlPrinter>();
+        services.AddSingleton<IPhotoPicker, Basemix.Platforms.Android.AndroidPhotoPicker>();
 #elif MACCATALYST
         services.AddSingleton<IHtmlPrinter, Basemix.Platforms.MacCatalyst.AppleHtmlPrinter>();
+        services.AddSingleton<IPhotoPicker, Basemix.Platforms.MacCatalyst.ApplePhotoPicker>();
 #elif IOS
         services.AddSingleton<IHtmlPrinter, Basemix.Platforms.iOS.AppleHtmlPrinter>();
+        services.AddSingleton<IPhotoPicker, Basemix.Platforms.iOS.ApplePhotoPicker>();
 #endif
         services.AddSingleton(errorContext);
         services.AddSingleton<ParameterLoader>();

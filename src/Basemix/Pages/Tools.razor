@@ -1,11 +1,14 @@
 @page "/tools"
 @using Basemix.Db
 @using System.IO
+@using System.IO.Compression
 @using Basemix.Lib
+@using Basemix.Lib.Persistence
 @using CommunityToolkit.Maui.Storage
 @inject GetDataDirectory GetDataDirectory;
 @inject GetDatabasePath GetDatabasePath;
 @inject Migrator Migrator;
+@inject MediaMigrator MediaMigrator;
 @inject ErrorContext ErrorContext;
 @inject NavigationManager Nav;
 @implements IDisposable;
@@ -82,9 +85,17 @@
         {
             return;
         }
-        
+
+        var mediaDbPath = BasemixData.GetDbFilePath(BasemixData.MediaDbName);
+
         File.Delete(dbPath);
+        if (File.Exists(mediaDbPath))
+        {
+            File.Delete(mediaDbPath);
+        }
+
         this.Migrator.Start();
+        this.MediaMigrator.Start();
         this.dbModified = true;
     }
 
@@ -92,20 +103,34 @@
     {
         try
         {
-            await using var file = new FileStream(dbPath, FileMode.Open);
+            var mediaDbPath = BasemixData.GetDbFilePath(BasemixData.MediaDbName);
+            var tempZipPath = Path.Combine(FileSystem.Current.CacheDirectory, "basemix-backup.zip");
+
+            if (File.Exists(tempZipPath))
+            {
+                File.Delete(tempZipPath);
+            }
+
+            await using (var zip = await ZipFile.OpenAsync(tempZipPath, ZipArchiveMode.Create))
+            {
+                await zip.CreateEntryFromFileAsync(dbPath, BasemixData.StandardDbName);
+                if (File.Exists(mediaDbPath))
+                {
+                    await zip.CreateEntryFromFileAsync(mediaDbPath, BasemixData.MediaDbName);
+                }
+            }
+
+            await using var file = new FileStream(tempZipPath, FileMode.Open);
 #if ANDROID
-            var tempFilePath = Path.Combine(FileSystem.Current.CacheDirectory, "basemix.sqlite3");
-            await using var tempFile = new FileStream(tempFilePath, FileMode.Create);
-            await file.CopyToAsync(tempFile);
             await Share.Default.RequestAsync(new ShareFileRequest
             {
                 Title = "Save database backup",
-                File = new ShareFile(tempFilePath)
+                File = new ShareFile(tempZipPath)
             });
 #else
             try
             {
-                await FileSaver.Default.SaveAsync("basemix.sqlite3", file, cts.Token);
+                await FileSaver.Default.SaveAsync("basemix-backup.zip", file, cts.Token);
             }
             catch (FolderPickerException e) when (e.Message is "Operation cancelled.")
             {
@@ -129,58 +154,115 @@
 
     public async Task LoadDb()
     {
+        var mediaDbPath = BasemixData.GetDbFilePath(BasemixData.MediaDbName);
         var backupDbPath = Path.Combine(dbDir, "backup.sqlite3");
+        var backupMediaDbPath = Path.Combine(dbDir, "backup-media.sqlite3");
         try
         {
             var file = await FilePicker.PickAsync(new PickOptions
             {
-                PickerTitle = "Select exported database (usually called basemix.sqlite3)",
+                PickerTitle = "Select a backup file (basemix-backup.zip or basemix.sqlite3)",
                 FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
                 {
                     { DevicePlatform.iOS, new[] {"public.data"}}, // Allow all files - iOS doesn't have predefined SQLite UTTypes
-                    { DevicePlatform.Android, new[] {"application/vnd.sqlite3", "application/x-sqlite3", "application/octet-stream"}}, // MIME type
-                    { DevicePlatform.WinUI, new[] {".sqlite3", ".sqlite"}}, // file extension
-                    { DevicePlatform.macOS, new[] {"sqlite3", "sqlite"}}, // UTType values
-                    { DevicePlatform.MacCatalyst, new[] {"sqlite3", "sqlite3"}}
+                    { DevicePlatform.Android, new[] {"application/vnd.sqlite3", "application/x-sqlite3", "application/octet-stream", "application/zip"}}, // MIME type
+                    { DevicePlatform.WinUI, new[] {".sqlite3", ".sqlite", ".zip"}}, // file extension
+                    { DevicePlatform.macOS, new[] {"sqlite3", "sqlite", "zip"}}, // UTType values
+                    { DevicePlatform.MacCatalyst, new[] {"sqlite3", "sqlite3", "public.zip-archive"}}
                 })
             });
-            
+
             if (file == null)
             {
                 return;
             }
 
-            // Validate the file is a SQLite database
-            if (!await IsValidSqliteFile(file.FullPath))
+            var isZip = await IsValidZipFile(file.FullPath);
+            var isSqlite = !isZip && await IsValidSqliteFile(file.FullPath);
+
+            if (!isZip && !isSqlite)
             {
-                this.ErrorContext.LastError = "The selected file is not a valid SQLite database. Please select a .sqlite or .sqlite3 file.";
+                this.ErrorContext.LastError = "The selected file is not a valid backup. Please select a .zip backup or a .sqlite database file.";
                 return;
             }
 
-            await using var loadedFile = File.Open(file.FullPath, FileMode.Open);
+            // Back up existing databases
             if (File.Exists(backupDbPath))
             {
-                // Old backup
                 File.Delete(backupDbPath);
             }
             
+            if (File.Exists(backupMediaDbPath))
+            {
+                File.Delete(backupMediaDbPath);
+            }
+            
             File.Move(dbPath, backupDbPath);
-            await using var import = File.Open(dbPath, FileMode.CreateNew);
-            await loadedFile.CopyToAsync(import);
-            
-            loadedFile.Close();
-            import.Close();
-            
+            if (File.Exists(mediaDbPath))
+            {
+                File.Move(mediaDbPath, backupMediaDbPath);
+            }
+
+            if (isZip)
+            {
+                await using var zip = await ZipFile.OpenReadAsync(file.FullPath);
+                var mainEntry = zip.GetEntry(BasemixData.StandardDbName);
+                if (mainEntry == null)
+                {
+                    // Restore backups since the zip doesn't contain the expected database
+                    File.Move(backupDbPath, dbPath);
+                    if (File.Exists(backupMediaDbPath)) File.Move(backupMediaDbPath, mediaDbPath);
+                    this.ErrorContext.LastError = $"The zip file does not contain '{BasemixData.StandardDbName}'. Please select a valid basemix backup.";
+                    return;
+                }
+
+                await mainEntry.ExtractToFileAsync(dbPath);
+
+                var mediaEntry = zip.GetEntry(BasemixData.MediaDbName);
+                if (mediaEntry != null)
+                {
+                    await mediaEntry.ExtractToFileAsync(mediaDbPath);
+                }
+            }
+            else
+            {
+                // Legacy single-file restore — only restores the main database
+                await using var loadedFile = File.Open(file.FullPath, FileMode.Open);
+                await using var import = File.Open(dbPath, FileMode.CreateNew);
+                await loadedFile.CopyToAsync(import);
+            }
+
             this.Migrator.Start();
+            this.MediaMigrator.Start();
             this.dbModified = true;
         }
         catch (Exception e)
         {
-            this.ErrorContext.LastError = $"Loading failed - you might need to manually fix this. Your old database has been moved to {backupDbPath}, please make a copy, then rename it to `db.sqlite` to restore it. Do not click load again, it will delete your backup. \nError Details Below:\n{e}";
+            this.ErrorContext.LastError = $"Loading failed - you might need to manually fix this. Your old databases have been moved to {backupDbPath} and {backupMediaDbPath}, please make copies, then rename them to `db.sqlite` and `media.sqlite` to restore. Do not click load again, it will delete your backups. \nError Details Below:\n{e}";
         }
     }
 
-    private async Task<bool> IsValidSqliteFile(string filePath)
+    private static async Task<bool> IsValidZipFile(string filePath)
+    {
+        try
+        {
+            // ZIP files begin with the magic bytes PK (0x50, 0x4B)
+            var buffer = new byte[4];
+            await using var fileStream = File.OpenRead(filePath);
+            var bytesRead = await fileStream.ReadAsync(buffer, 0, 4);
+            if (bytesRead < 4)
+            {
+                return false;
+            }
+            return buffer[0] == 0x50 && buffer[1] == 0x4B && buffer[2] == 0x03 && buffer[3] == 0x04;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static async Task<bool> IsValidSqliteFile(string filePath)
     {
         try
         {
